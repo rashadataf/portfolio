@@ -12,3 +12,14 @@
   scroll-behavior: smooth;
   color-scheme: dark;
 }
+
+.mene-gradient {
+  background: #000000;
+  background: -webkit-linear-gradient(to right bottom, #0f0f0f, #3a3a3a);
+  background: linear-gradient(to right bottom, #0f0f0f, #3a3a3a);
+}
+
+.menu:hover {
+  filter: invert(0.21) sepia(1) saturate(13.6) hue-rotate(208.8deg)
+    brightness(1.2);
+}
