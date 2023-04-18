@@ -23,3 +23,13 @@
   filter: invert(0.21) sepia(1) saturate(13.6) hue-rotate(208.8deg)
     brightness(1.2);
 }
+
+.line-gradient {
+  background: #3688ff;
+  background: linear-gradient(-90deg, #87399B 0%, #3688ff 100%);
+  background: -webkit-linear-gradient(
+    -90deg,
+    #87399B 0%,
+    #3688ff 100%
+  );
+}

@@ -12,6 +12,7 @@ export default {
       },
       screens: {
         xs: "450px",
+        short: { 'raw': '(min-height: 500px)' },
       },
     },
   },
