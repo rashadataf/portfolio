@@ -1,14 +1,19 @@
-import { Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Suspense, useRef } from "react";
+import { Canvas, MeshProps, useFrame } from "@react-three/fiber";
 import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
 
 import { Loader } from "../Loader";
 
 const Earth = () => {
   const earth = useGLTF("./earth/scene.gltf");
-
+  const meshRef = useRef<MeshProps>(null);
+  useFrame(() => {
+    if (!meshRef.current) return;
+    meshRef.current.rotation.x += 0.0004;
+    meshRef.current.rotation.y = 0.0004;
+  })
   return (
-    <mesh>
+    <mesh ref={meshRef}>
       <primitive
         object={earth.scene}
         scale={1}

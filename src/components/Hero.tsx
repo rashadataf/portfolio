@@ -16,7 +16,7 @@ export const Hero = () => {
                         Hi, I'm <span className='text-[#915EFF]'>Rashad</span>
                     </h1>
                     <p className='text-[#dfd9ff] font-medium lg:text-[30px] sm:text-[26px] xs:text-[20px] text-[16px] lg:leading-[40px] mt-2 text-white-100'>
-                        I do my best trying to build rubust, scalable, and useful code <br className='sm:block hidden' />
+                        I do my best trying to build rubust, scalable, and useful software <br className='sm:block hidden' />
                         Having fun with what I am doing is something I like to do <br className='sm:block hidden' />
                         Getting feedback and notes from others is what makes me getting better <br className='sm:block hidden' />
                         Please feel free to reach out to me <br className='sm:block hidden' />
