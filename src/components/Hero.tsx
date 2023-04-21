@@ -20,7 +20,7 @@ export const Hero = () => {
                         Having fun with what I am doing is something I like to do <br className='sm:block hidden' />
                         Getting feedback and notes from others is what makes me getting better <br className='sm:block hidden' />
                         Please feel free to reach out to me <br className='sm:block hidden' />
-                        <a href='mailto:rashadattaf@gmail.com' className='mt-6 block w-56 relative z-50 bg-[#3688ff] hover:bg-gray-100 hover:text-black text-white font-semibold py-2 px-4 rounded text-center'>Let's have a chat</a>
+                        <a href='mailto:rashadattaf@gmail.com' className='mt-6 block w-56 relative z-40 bg-[#3688ff] hover:bg-gray-100 hover:text-black text-white font-semibold py-2 px-4 rounded text-center'>Let's have a chat</a>
                     </p>
                 </div>
             </div>

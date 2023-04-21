@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 
 import { navLinks } from '../constants';
 import { logo, menu, close } from '../assets';
+import { useScroll } from '../hooks/useScroll';
 
 export const Navbar = () => {
     const [active, setActive] = useState('');
     const [isMenuOpen, toggleMenu] = useState(false);
+    const isScrolled = useScroll(100);
 
     return (
-        <nav className='w-full flex items-center py-5 fixed top-0 z-20 sm:px-16 px-6'>
+        <nav className={`w-full flex items-center py-5 fixed top-0 z-50 sm:px-16 px-6 ${isScrolled ? 'bg-primary' : 'bg-transparent'}`}>
             <div className='w-full flex justify-between items-center max-w-7xl mx-auto'>
                 <Link
                     to='/'
