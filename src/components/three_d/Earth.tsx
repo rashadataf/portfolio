@@ -1,8 +1,8 @@
-import { Suspense, useRef } from "react";
+import { useRef } from "react";
 import { Canvas, MeshProps, useFrame } from "@react-three/fiber";
 import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
 
-import { Loader } from "../Loader";
+import { useIntersect } from "../../hooks/useIntersect";
 
 const Earth = () => {
   const earth = useGLTF("./earth/scene.gltf");
@@ -25,20 +25,25 @@ const Earth = () => {
 };
 
 const EarthModel = () => {
+  const [ref, isVisible] = useIntersect();
+
   return (
-    <Suspense fallback={<Loader />}>
-      <Canvas
-        className="absolute top-0 left-0 w-screen h-screen"
-      >
-        <OrbitControls
-          enableZoom={false}
-          maxPolarAngle={20}
-          minPolarAngle={0}
-        />
-        <Earth />
-        <Preload all />
-      </Canvas>
-    </Suspense>
+    <Canvas
+      className="absolute top-0 left-0 w-screen h-screen"
+      ref={c => ref.current = c}
+    >
+      {isVisible &&
+        <>
+          <OrbitControls
+            enableZoom={false}
+            maxPolarAngle={20}
+            minPolarAngle={0}
+          />
+          <Earth />
+          <Preload all />
+        </>
+      }
+    </Canvas>
   );
 };
 
