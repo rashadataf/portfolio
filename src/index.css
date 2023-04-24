@@ -26,10 +26,12 @@
 
 .line-gradient {
   background: #3688ff;
-  background: linear-gradient(-90deg, #87399B 0%, #3688ff 100%);
-  background: -webkit-linear-gradient(
-    -90deg,
-    #87399B 0%,
-    #3688ff 100%
-  );
+  background: linear-gradient(-90deg, #87399b 0%, #3688ff 100%);
+  background: -webkit-linear-gradient(-90deg, #87399b 0%, #3688ff 100%);
+}
+
+@layer components {
+  .section-head-text {
+    @apply text-white font-black md:text-[60px] sm:text-[50px] xs:text-[40px] text-[30px];
+  }
 }
