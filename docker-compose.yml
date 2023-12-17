@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  dev:
+    build:
+      context: ./app
+      target: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/usr/portfolio
+    environment:
+      NODE_ENV: development
+
+  production:
+    build:
+      context: ./app
+      target: production
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
