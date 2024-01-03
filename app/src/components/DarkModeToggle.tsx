@@ -6,17 +6,21 @@ import { MoonIcon, SunIcon } from './Icons';
 const renderIconConditionally: {
     [key in THEME]: JSX.Element;
 } = {
-    "dark": <SunIcon />,
-    "light": <MoonIcon />,
+    "dark": <SunIcon className='h-5 w-5' />,
+    "light": <MoonIcon className='h-5 w-5' />,
 }
 
-export const ThemeToggler = () => {
+type Props = {
+    className?: string;
+}
+
+export const ThemeToggler = ({ className }: Props) => {
     const { toggleTheme, theme } = useThemeContext();
 
     return (
         <button
             onClick={toggleTheme}
-            className="text-primary hover:text-main focus:outline-none"
+            className={`text-main hover:text-secondary focus:outline-none ${className}`}
         >
             {renderIconConditionally[theme]}
         </button>

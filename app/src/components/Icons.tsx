@@ -1,10 +1,12 @@
-export const SunIcon = () => (
+type IconProps = { className?: string };
+export const SunIcon = ({ className }: IconProps) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
+        // width="24"
+        // height="24"
         viewBox="0 0 24 24"
-        className='w-full h-auto'
+        // className='w-full h-auto'
+        className={className}
     >
         <g
             stroke="currentColor"
@@ -174,13 +176,14 @@ export const SunIcon = () => (
     </svg>
 );
 
-export const MoonIcon = () => (
+export const MoonIcon = ({ className }: IconProps) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
+        // width="24"
+        // height="24"
         viewBox="0 0 24 24"
-        className='w-full h-auto'
+        // className='w-full h-auto'
+        className={className}
     >
         <rect x="0" y="0" width="24" height="24" fill="rgba(255, 255, 255, 0)" />
         <g
@@ -325,5 +328,12 @@ export const MoonIcon = () => (
                 values="10;6"
             />
         </circle>
+    </svg>
+);
+
+
+export const MenuIcon = ({ className }: { className?: string }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
     </svg>
 );

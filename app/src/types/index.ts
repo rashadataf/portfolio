@@ -17,4 +17,5 @@ export type ThemeContextType = {
 export type NavLinkProp = {
     href: Url;
     title: string;
+    className?: string;
 }

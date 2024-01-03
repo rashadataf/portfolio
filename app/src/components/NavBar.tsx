@@ -1,34 +1,70 @@
 'use client';
 import Link from 'next/link';
-import { Logo } from './Logo';
 import { NavLinkProp } from '@/types';
 import { usePathname } from 'next/navigation';
-import { ThemeToggler} from './DarkModeToggle';
+import { ThemeToggler } from './DarkModeToggle';
+import React, { useCallback } from 'react';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import { MenuIcon } from './Icons';
 
-
-const NavLink = ({ href, title }: NavLinkProp) => {
+const NavLink = ({ href, title, className }: NavLinkProp) => {
     const pathname = usePathname();
+    const isActive = pathname === href;
 
+    // Combine the provided className with an additional class for active links
+    const linkClass = `${className ? className : 'py-5 px-3 hover:text-secondary'} 
+                       ${isActive ? 'text-secondary font-bold' : ''}`;
     return (
-        <Link href={href} className={`after:content-[''] after:block after:m-auto after:h-1 ${pathname === href ? 'after:w-full after:bg-accent' : 'after:w-0'} after:transition-[width] after:ease-in-out after:duration-300 hover:after:w-full hover:after:bg-accent text-primary hover:text-main`} >
+        <Link href={href} className={linkClass} >
             {title}
         </Link >
     );
 }
 
 const Navbar = () => {
+    const [isOpen, setIsOpen] = useSafeState(false);
+    const handleMenuClick = useCallback(
+        () => {
+            setIsOpen(!isOpen);
+        },
+        [setIsOpen, isOpen]
+    );
     return (
-        <header className='w-full px-32 py-8 font-medium flex items-center justify-between bg-secondary text-main'>
-            <Logo />
-            <nav className='flex justify-between w-1/3'>
-                <NavLink href="/" title='Home' />
-                <NavLink href="/about" title='About' />
-                <NavLink href="/projects" title='Projects' />
-                <NavLink href="/articles" title='Articles' />
-            </nav>
+        <nav className="bg-primary p-4 text-main">
+            <div className="max-w-6xl mx-auto px-4">
+                <div className="flex justify-between">
+                    <div className="flex space-x-16">
+                        <div>
+                            <Link href="#" className="flex items-center py-5 hover:text-secondary" >
+                                <span className="font-bold">Rashad Ataf</span>
+                            </Link>
+                        </div>
 
-            <ThemeToggler />
-        </header>
+                        <div className="hidden md:flex items-center space-x-10">
+                            <NavLink href='/' title='Home' />
+                            <NavLink href='/About' title='About' />
+                            <NavLink href='/Projects' title='Projects' />
+                            <NavLink href='/Articles' title='Articles' />
+                            <ThemeToggler className='py-5 px-3 hover:text-secondary' />
+                        </div>
+                    </div>
+
+                    <div className="md:hidden flex items-center">
+                        <button className="mobile-menu-button" onClick={handleMenuClick}>
+                            <MenuIcon className={`w-6 h-6 hover:stroke-secondary ${isOpen && 'stroke-secondary'}`} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className={`mobile-menu ${!isOpen && 'hidden'} md:hidden`}>
+                <NavLink href='/' title='Home' className="block py-2 px-4 hover:text-secondary" />
+                <NavLink href='/About' title='About' className="block py-2 px-4 hover:text-secondary" />
+                <NavLink href='/Projects' title='Projects' className="block py-2 px-4 hover:text-secondary" />
+                <NavLink href='/Articles' title='Articles' className="block py-2 px-4 hover:text-secondary" />
+                <ThemeToggler className="block py-2 px-4 hover:text-secondary" />
+            </div>
+        </nav>
     );
 };
 
