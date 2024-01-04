@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <ThemeProvider>
       <html lang="en">
-        <body className={montserrat.className}>
+        <body className={`${montserrat.className} flex flex-col min-h-screen bg-main text-main`}>
           <Navbar />
           {children}
         </body>
