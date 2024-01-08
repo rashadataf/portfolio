@@ -42,9 +42,9 @@ const Navbar = () => {
 
                         <div className="hidden md:flex items-center space-x-10">
                             <NavLink href='/' title='Home' />
-                            <NavLink href='/About' title='About' />
-                            <NavLink href='/Projects' title='Projects' />
-                            <NavLink href='/Articles' title='Articles' />
+                            <NavLink href='/about' title='About' />
+                            <NavLink href='/projects' title='Projects' />
+                            <NavLink href='/articles' title='Articles' />
                             <ThemeToggler className='py-5 px-3 hover:text-secondary' />
                         </div>
                     </div>

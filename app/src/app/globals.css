@@ -5,10 +5,10 @@
 :root,
 .light {
   --primary-color: #3498db;
-  --secondary-color: #ffffff;
+  --secondary-color: #dddddd;
   --text-color: #333333;
   --bg-color: #f8f9fa;
-  --accent-color: #3498db;
+  --accent-color: #e6e6e6;
 }
 
 .dark {
@@ -16,5 +16,5 @@
   --secondary-color: #2c3e50;
   --text-color: #ecf0f1;
   --bg-color: #121212;
-  --accent-color: #3498db;
+  --accent-color: #dbdbdb;
 }
