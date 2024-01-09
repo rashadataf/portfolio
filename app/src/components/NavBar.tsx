@@ -11,7 +11,6 @@ const NavLink = ({ href, title, className }: NavLinkProp) => {
     const pathname = usePathname();
     const isActive = pathname === href;
 
-    // Combine the provided className with an additional class for active links
     const linkClass = `${className ? className : 'py-5 px-3 hover:text-secondary'} 
                        ${isActive ? 'text-secondary font-bold' : ''}`;
     return (
@@ -35,7 +34,7 @@ const Navbar = () => {
                 <div className="flex justify-between">
                     <div className="flex space-x-16">
                         <div>
-                            <Link href="#" className="flex items-center py-5 hover:text-secondary" >
+                            <Link href="/" className="flex items-center py-5 hover:text-secondary" >
                                 <span className="font-bold">Rashad Ataf</span>
                             </Link>
                         </div>
@@ -59,9 +58,9 @@ const Navbar = () => {
 
             <div className={`mobile-menu ${!isOpen && 'hidden'} md:hidden`}>
                 <NavLink href='/' title='Home' className="block py-2 px-4 hover:text-secondary" />
-                <NavLink href='/About' title='About' className="block py-2 px-4 hover:text-secondary" />
-                <NavLink href='/Projects' title='Projects' className="block py-2 px-4 hover:text-secondary" />
-                <NavLink href='/Articles' title='Articles' className="block py-2 px-4 hover:text-secondary" />
+                <NavLink href='/about' title='About' className="block py-2 px-4 hover:text-secondary" />
+                <NavLink href='/projects' title='Projects' className="block py-2 px-4 hover:text-secondary" />
+                <NavLink href='/articles' title='Articles' className="block py-2 px-4 hover:text-secondary" />
                 <ThemeToggler className="block py-2 px-4 hover:text-secondary" />
             </div>
         </nav>

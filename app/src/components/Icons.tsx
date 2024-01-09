@@ -2,10 +2,7 @@ type IconProps = { className?: string };
 export const SunIcon = ({ className }: IconProps) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        // width="24"
-        // height="24"
         viewBox="0 0 24 24"
-        // className='w-full h-auto'
         className={className}
     >
         <g
@@ -179,10 +176,7 @@ export const SunIcon = ({ className }: IconProps) => (
 export const MoonIcon = ({ className }: IconProps) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        // width="24"
-        // height="24"
         viewBox="0 0 24 24"
-        // className='w-full h-auto'
         className={className}
     >
         <rect x="0" y="0" width="24" height="24" fill="rgba(255, 255, 255, 0)" />
