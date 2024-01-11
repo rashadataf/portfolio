@@ -3,6 +3,7 @@ import { Montserrat } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/context/theme.provider'
 import Navbar from '@/components/NavBar'
+import Footer from '@/components/Footer'
 
 const montserrat = Montserrat(
   {
@@ -21,13 +22,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ThemeProvider>
-      <html lang="en">
-        <body className={`${montserrat.className} flex flex-col min-h-screen bg-main text-main`}>
+    <html lang="en">
+      <body className={`${montserrat.className} flex flex-col min-h-screen bg-main text-main`}>
+        <ThemeProvider>
           <Navbar />
           {children}
-        </body>
-      </html>
-    </ThemeProvider>
+          <Footer />
+        </ThemeProvider>
+      </body>
+    </html>
   )
 }

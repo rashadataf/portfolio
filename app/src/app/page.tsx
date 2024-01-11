@@ -1,23 +1,22 @@
 'use client'
 
 import Image from "next/image";
-import Footer from "@/components/Footer";
 import Link from "next/link";
+import profilePic from '../../public/images/rashad.png';
 
 export default function Home() {
 
   return (
     <>
       <div className="flex flex-col md:flex-row items-center justify-around flex-grow">
-        {/* <Image
-          src="/images/rashad.jpeg"
+        <Image
+          src={profilePic}
           alt="Hero Image"
-          className="w-full md:w-1/2 p-32 rounded-[150px]"
-          width={128}
-          height={128}
-          quality={100}
-          
-        /> */}
+          className="w-full p-28 md:w-1/2"
+          width={2000}
+          height={2300}
+          priority
+        />
         <div className="w-full md:w-1/2 p-4">
           <h1 className="text-2xl md:text-4xl font-bold mb-4">Welcome to My Portfolio</h1>
           <p className="text-lg">
@@ -40,8 +39,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </>
   )
 }

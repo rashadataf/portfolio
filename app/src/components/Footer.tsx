@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import { FacebookIcon, GithubIcon, InstagramIcon, LinkedinIcon, TwitterIcon } from './Icons';
 import Link from 'next/link';

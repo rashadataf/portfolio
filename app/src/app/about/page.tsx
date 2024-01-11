@@ -107,13 +107,13 @@ const AboutPage = () => {
                         Experienced software engineer with a strong background in MERN stack development...
                     </p>
                 </div>
-                <div className="container mx-auto px-4 py-10 flex flex-wrap justify-around items-center">
+                <div className="container mx-auto px-8 py-10 flex flex-wrap justify-around items-center">
                     <Image
                         src='/images/selfie.png'
                         alt="Rashad Ataf"
-                        className="rounded-full w-40 h-48 shadow-secondary shadow-lg"
-                        width={128}
-                        height={128}                   
+                        className="rounded-full w-60 h-64 shadow-secondary shadow-lg"
+                        width={1280}
+                        height={1280}                   
                         quality={100}
                     />
                     <div className="m-4">
@@ -162,7 +162,6 @@ const AboutPage = () => {
                     </div>
                 </div>
             </main>
-            <Footer />
         </>
     );
 };

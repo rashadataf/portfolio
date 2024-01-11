@@ -29,7 +29,7 @@ const Navbar = () => {
         [setIsOpen, isOpen]
     );
     return (
-        <nav className="bg-primary p-4 text-main">
+        <nav className="sticky top-0 bg-primary p-4 text-main z-50">
             <div className="max-w-6xl mx-auto px-4">
                 <div className="flex justify-between">
                     <div className="flex space-x-16">
