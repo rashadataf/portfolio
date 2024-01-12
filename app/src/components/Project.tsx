@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { Modal } from "./Modal";
 import { useSafeState } from "@/hooks/useSafeState.hook";
+import Link from "next/link";
 
 interface ProjectProps {
     title: string;
@@ -42,7 +43,7 @@ export const Project = ({
                 <div className="text-main text-base flex-grow overflow-hidden max-h-12 truncate my-2">
                     {description}
                 </div>
-                <button onClick={() => setModalOpen(true)} className="text-sm text-main hover:text-secondary focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50 transition duration-300 bg-main hover:bg-accent rounded px-2 py-1 cursor-pointer my-2">
+                <button onClick={() => setModalOpen(true)} className="text-sm text-main hover:text-primary focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50 transition duration-300 bg-main hover:bg-secondary rounded px-2 py-1 cursor-pointer my-2">
                     Read More
                 </button>
                 <div className="flex flex-wrap my-2">
@@ -52,10 +53,10 @@ export const Project = ({
                 </div>
                 <div className="mt-auto">
                     <div className="flex justify-between items-center pt-2">
-                        {liveUrl && <a href={liveUrl} className="text-sm text-main hover:text-secondary transition duration-300">Live Demo</a>}
-                        {sourceCodeUrl && <a href={sourceCodeUrl} className="text-sm text-main hover:text-secondary transition duration-300">Source Code</a>}
-                        {playStoreUrl && <a href={playStoreUrl} className="text-sm text-main hover:text-secondary transition duration-300">Play Store</a>}
-                        {appStoreUrl && <a href={appStoreUrl} className="text-sm text-main hover:text-secondary transition duration-300">App Store</a>}
+                        {liveUrl && <Link href={liveUrl} className="text-sm text-main hover:text-secondary transition duration-300" target="_blank" rel="noreferrer">Live Demo</Link>}
+                        {sourceCodeUrl && <Link href={sourceCodeUrl} className="text-sm text-main hover:text-secondary transition duration-300" target="_blank" rel="noreferrer">Source Code</Link>}
+                        {playStoreUrl && <Link href={playStoreUrl} className="text-sm text-main hover:text-secondary transition duration-300" target="_blank" rel="noreferrer">Play Store</Link>}
+                        {appStoreUrl && <Link href={appStoreUrl} className="text-sm text-main hover:text-secondary transition duration-300" target="_blank" rel="noreferrer">App Store</Link>}
                     </div>
                 </div>
             </div>

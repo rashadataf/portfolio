@@ -5,6 +5,7 @@ import { Metadata } from 'next';
 import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
     title: 'Rashad Portfolio | Software Engineer | About',
@@ -104,16 +105,25 @@ const AboutPage = () => {
                 </div>
                 <div className="container mx-auto px-4">
                     <p className="text-xl leading-relaxed max-w-prose mx-auto">
-                        Experienced software engineer with a strong background in MERN stack development...
+                        Embarking on my programming journey in 2010,
+                        I began with Visual Basic 6 during my high school years.
+                        Since then, my passion for technology has led me to a Bachelor&apos;s degree in Computer Engineering and over five years of professional experience in the tech industry.
+                        Currently, I am part of the <Link className='text-primary' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer">ZIM Connections</Link> team,
+                        where I continue to hone my expertise in various JavaScript technologies,
+                        frameworks, and libraries.
+                        My career has been marked by a rapid adaptation to new challenges and a commitment to innovative problem-solving.
+                        With a keen interest in continuous learning and skill development,
+                        I consistently seek out opportunities to grow and excel in the ever-evolving landscape of software development.
+
                     </p>
                 </div>
                 <div className="container mx-auto px-8 py-10 flex flex-wrap justify-around items-center">
                     <Image
                         src='/images/selfie.png'
                         alt="Rashad Ataf"
-                        className="rounded-full w-60 h-64 shadow-secondary shadow-lg"
+                        className="rounded-full w-60 h-72 shadow-secondary shadow-lg"
                         width={1280}
-                        height={1280}                   
+                        height={1280}
                         quality={100}
                     />
                     <div className="m-4">
