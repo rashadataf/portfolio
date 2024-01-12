@@ -33,9 +33,11 @@ export const Project = ({
                 <Image
                     src={imageUrl}
                     alt={`Screenshot of ${title}`}
-                    layout="fill"
-                    objectFit="cover"
-                    className="w-full"
+                    className="w-full object-cover"
+                    sizes="(max-width: 600px) 80vw, (min-width: 1024px) 50vw, 33vw"
+                    placeholder="blur"
+                    blurDataURL={imageUrl}
+                    fill
                     priority
                 />
             </div>
