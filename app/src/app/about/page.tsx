@@ -8,8 +8,12 @@ import { Education } from '@/components/Education';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-    title: 'Rashad Portfolio | Software Engineer | About',
-    description: 'portfolio for Rashad Ataf',
+    title: "About Rashad Ataf - Full Stack Developer",
+    description: "Learn more about Rashad Ataf's background in Full Stack Development, skills, experience in the tech industry, and professional journey.",
+    keywords: "About Rashad Ataf, Full Stack Developer, Developer Background, Programming Skills, Tech Experience, Zim Connections",
+    alternates: {
+        canonical: "https://www.rashadataf.tech/about"
+    }
 }
 
 const proficientSkills = {

@@ -1,3 +1,14 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Rashad Ataf's Articles - Insights in Full Stack Development",
+    description: "Dive into articles by Rashad Ataf covering topics in Full Stack Development, latest trends in web and mobile technologies, tutorials, and industry insights.",
+    keywords: "Dive into articles by Rashad Ataf covering topics in Full Stack Development, latest trends in web and mobile technologies, tutorials, and industry insights, Zim Connections",
+    alternates: {
+        canonical: "https://www.rashadataf.tech/articles"
+    }
+}
+
 const ArticlesPage = () => {
     return (
         <div className="container mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-screen">

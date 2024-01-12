@@ -1,0 +1,17 @@
+# robots.txt
+User-agent: *
+Disallow: /api/
+Disallow: /.next/
+Disallow: /admin/
+
+User-agent: *
+Allow: *.css
+Allow: *.js
+Allow: *.html
+Allow: *.png
+Allow: *.pdf
+Allow: *.xml
+Allow: *.txt
+
+# Sitemap
+Sitemap: https://www.rashadataf.tech/sitemap.xml

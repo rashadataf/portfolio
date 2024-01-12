@@ -36,6 +36,7 @@ export const Project = ({
                     layout="fill"
                     objectFit="cover"
                     className="w-full"
+                    priority
                 />
             </div>
             <div className="bg-primary p-4 flex flex-col flex-1">
