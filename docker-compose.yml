@@ -60,6 +60,8 @@ services:
   nginx-http:
     image: nginx:latest
     container_name: nginx-http
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
     volumes:
       - ./logs/nginx/:/var/log/nginx:rw
       - ./nginx/includes:/etc/nginx/includes:ro
@@ -80,15 +82,15 @@ services:
       - ./certs:/etc/letsencrypt
       - ./data:/data/letsencrypt
     entrypoint: >
-      /bin/sh -c "
-      certbot certonly --webroot --webroot-path=/data/letsencrypt --email $$EMAIL_ADDRESS --agree-tos --no-eff-email --force-renewal -d $$DOMAIN_NAME -d www.$$DOMAIN_NAME;
-      "
+      /bin/sh -c " certbot certonly --webroot --webroot-path=/data/letsencrypt --email $$EMAIL_ADDRESS --agree-tos --no-eff-email --force-renewal -d $$DOMAIN_NAME -d www.$$DOMAIN_NAME; "
     depends_on:
       - nginx-http
 
   nginx-https:
     image: nginx:latest
     container_name: nginx-https
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
     volumes:
       - ./logs/nginx/:/var/log/nginx:rw
       - ./nginx/includes:/etc/nginx/includes:ro
