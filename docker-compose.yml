@@ -30,7 +30,7 @@ services:
       - ./nginx/includes:/etc/nginx/includes:ro
       - ./nginx/conf:/etc/nginx/conf.d
       - ./certs/:/etc/letsencrypt
-      - ./data/:data/letsencrypt
+      - ./data/:/data/letsencrypt
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
     ports:
