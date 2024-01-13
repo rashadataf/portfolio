@@ -40,7 +40,7 @@ services:
     depends_on:
       - production
 
-  certbot:
+  certbot-old:
     image: certbot/certbot
     container_name: certbot
     volumes:
@@ -56,3 +56,47 @@ services:
       done; "
     depends_on:
       - nginx
+
+  nginx-http:
+    image: nginx:latest
+    container_name: nginx-http
+    volumes:
+      - ./logs/nginx/:/var/log/nginx:rw
+      - ./nginx/includes:/etc/nginx/includes:ro
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./certs/:/etc/letsencrypt
+      - ./data/:/data/letsencrypt
+    ports:
+      - "80:80"
+    command: /bin/sh -c "envsubst '$$DOMAIN_NAME' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./data:/data/letsencrypt
+    entrypoint: >
+      /bin/sh -c "
+      certbot certonly --webroot --webroot-path=/data/letsencrypt --email $$EMAIL_ADDRESS --agree-tos --no-eff-email --force-renewal -d $$DOMAIN_NAME -d www.$$DOMAIN_NAME;
+      "
+    depends_on:
+      - nginx-http
+
+  nginx-https:
+    image: nginx:latest
+    container_name: nginx-https
+    volumes:
+      - ./logs/nginx/:/var/log/nginx:rw
+      - ./nginx/includes:/etc/nginx/includes:ro
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./certs/:/etc/letsencrypt
+      - ./data/:/data/letsencrypt
+    ports:
+      - "443:443"
+    command: /bin/sh -c "envsubst '$$DOMAIN_NAME' < /etc/nginx/conf.d/https.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    depends_on:
+      - certbot
