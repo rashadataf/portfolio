@@ -1,6 +1,6 @@
 FROM nginx:latest
 
-RUN apk add --no-cache certbot certbot-nginx
+RUN apt-get update && apt-get install -y certbot python3-certbot-nginx
 
 COPY entrypoint.sh /entrypoint.sh
 
