@@ -22,52 +22,20 @@ services:
     environment:
       NODE_ENV: production
 
-  nginx-http:
-    image: nginx:latest
-    container_name: nginx-http
-    environment:
-      - DOMAIN_NAME=${DOMAIN_NAME}
-    volumes:
-      - ./logs/nginx/:/var/log/nginx:rw
-      - ./nginx/includes:/etc/nginx/includes:ro
-      - ./nginx/conf:/etc/nginx/conf.d
-      - ./certs/:/etc/letsencrypt
-      - ./data/:/data/letsencrypt
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
     ports:
       - "80:80"
-    command: /bin/sh -c "envsubst '$$DOMAIN_NAME' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
-    depends_on:
-      - production
-
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
+      - "443:443"
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
     volumes:
-      - ./certs:/etc/letsencrypt
-      - ./data:/data/letsencrypt
-      - ./nginx/conf:/etc/nginx/conf.d
-    entrypoint: >
-      /bin/sh -c "
-      certbot --nginx --email $$EMAIL_ADDRESS --agree-tos --no-eff-email --non-interactive --expand -d $$DOMAIN_NAME -d www.$$DOMAIN_NAME;
-      "
-    depends_on:
-      - nginx-http
-
-  nginx-https:
-    image: nginx:latest
-    container_name: nginx
-    volumes:
       - ./logs/nginx/:/var/log/nginx:rw
       - ./nginx/includes:/etc/nginx/includes:ro
       - ./nginx/conf:/etc/nginx/conf.d
       - ./certs/:/etc/letsencrypt
       - ./data/:/data/letsencrypt
-    ports:
-      - "443:443"
-      - "80:80"
-    command: nginx -g 'daemon off;'
-    depends_on:
-      - certbot
