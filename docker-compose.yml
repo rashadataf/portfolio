@@ -18,6 +18,7 @@ services:
       target: production
     ports:
       - "3000:3000"
+    container_name: production
     environment:
       NODE_ENV: production
 
