@@ -27,6 +27,9 @@
 
 # local env files
 **/**/.env*.local
+*.env
+
+DO
 
 # vercel
 **/**/.vercel
