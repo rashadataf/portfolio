@@ -37,8 +37,10 @@ export const Skill = ({ name, percentage }: SkillProps) => {
     return (
         <div ref={ref} className="flex items-center space-x-3 border-secondary border-b-[.1px] py-3">
             <span className="text-main font-medium w-2/5">{name}</span>
-            <div className="bg-secondary w-3/5 rounded">
-                <div className="bg-primary h-[6px] rounded transition-all duration-1000" style={{ width: width }}></div>
+            <div className="bg-secondary w-3/5 rounded" role="progressbar" aria-valuenow={percentage} aria-valuemin={0} aria-valuemax={100}>
+                <div className="bg-primary h-[6px] rounded transition-all duration-1000" style={{ width: width }}>
+                    <span className="sr-only">{percentage}% proficient</span>
+                </div>
             </div>
         </div>
     );

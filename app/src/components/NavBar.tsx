@@ -14,7 +14,7 @@ const NavLink = ({ href, title, className }: NavLinkProp) => {
     const linkClass = `${className ? className : 'py-5 px-3 hover:text-secondary'} 
                        ${isActive ? 'text-secondary font-bold' : ''}`;
     return (
-        <Link href={href} className={linkClass} >
+        <Link href={href} className={linkClass} scroll={false}>
             {title}
         </Link >
     );
@@ -28,18 +28,27 @@ const Navbar = () => {
         },
         [setIsOpen, isOpen]
     );
+    const handleKeyDown = useCallback(
+        (event: { key: string; preventDefault: () => void; }) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                setIsOpen(!isOpen);
+                event.preventDefault();
+            }
+        },
+        [setIsOpen, isOpen]
+    );
     return (
-        <nav className="sticky top-0 bg-primary p-4 text-main z-50">
+        <nav className="sticky top-0 bg-primary p-4 text-main z-50" aria-label="Main navigation">
             <div className="max-w-6xl mx-auto px-4">
                 <div className="flex justify-between">
                     <div className="flex space-x-16">
                         <div>
-                            <Link href="/" className="flex items-center py-5 hover:text-secondary" >
+                            <Link href="/" className="flex items-center py-5 hover:text-secondary" aria-label="Go to Home Page">
                                 <span className="font-bold">Rashad Ataf</span>
                             </Link>
                         </div>
 
-                        <div className="hidden md:flex items-center space-x-10">
+                        <div className="hidden md:flex items-center space-x-10" aria-label="Primary Menu">
                             <NavLink href='/' title='Home' />
                             <NavLink href='/about' title='About' />
                             <NavLink href='/projects' title='Projects' />
@@ -48,8 +57,14 @@ const Navbar = () => {
                         </div>
                     </div>
 
-                    <div className="md:hidden flex items-center">
-                        <button className="mobile-menu-button" onClick={handleMenuClick}>
+                    <div id="mobile-menu" className="md:hidden flex items-center" aria-label="Mobile Menu">
+                        <button
+                            className="mobile-menu-button"
+                            onClick={handleMenuClick}
+                            onKeyDown={handleKeyDown}
+                            aria-expanded={isOpen}
+                            aria-controls="mobile-menu"
+                        >
                             <MenuIcon className={`w-6 h-6 hover:stroke-secondary ${isOpen && 'stroke-secondary'}`} />
                         </button>
                     </div>
