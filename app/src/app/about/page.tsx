@@ -149,8 +149,8 @@ const AboutPage = () => {
                     </div>
                 </section>
 
-                <section aria-labelledby="skills-header" className="container mx-auto px-4 py-10 my-10">
-                    <h2 id="skills-header" className="text-4xl my-6 sm:text-6xl font-semibold sm:my-12 text-center">Skills</h2>
+                <section aria-labelledby="skills-header" className="container mx-auto px-4 my-8">
+                    <h2 id="skills-header" className="text-4xl sm:text-6xl font-semibold text-center">Skills</h2>
                     <div className="flex flex-col md:flex-row justify-between">
                         <article aria-labelledby="proficient-skills-header" className="my-10 w-full md:w-5/12">
                             <h3 id="proficient-skills-header" className="text-xl font-semibold mb-5 md:mb-10 text-center">Proficient</h3>
@@ -175,8 +175,8 @@ const AboutPage = () => {
                 </section>
 
                 <section aria-labelledby="experience-header" className="flex flex-col items-center">
-                    <div className="container mx-auto px-4 py-10">
-                        <h2 id="experience-header" className="text-4xl mb-20 my-6 sm:text-6xl font-semibold sm:my-12 text-center">Experience</h2>
+                    <div className="container mx-auto px-4 py-6">
+                        <h2 id="experience-header" className="text-4xl mb-10 sm:text-6xl font-semibold text-center">Experience</h2>
                         <ol className="relative border-l-2 border-main pl-5 md:pl-20 w-full">
                             {experiences.map((item, index) => (
                                 <li key={index} className="mb-10">
@@ -196,8 +196,8 @@ const AboutPage = () => {
 
 
                 <section aria-labelledby="education-header" className="flex flex-col items-center">
-                    <div className="container mx-auto px-4 py-10">
-                        <h2 id="education-header" className="text-4xl mb-20 my-6 sm:text-6xl font-semibold sm:my-12 text-center">Education</h2>
+                    <div className="container mx-auto px-4 py-6">
+                        <h2 id="education-header" className="text-4xl mb-4 sm:text-6xl font-semibold text-center">Education</h2>
                         <div className="relative border-l-2 border-main pl-5 md:pl-20 w-full">
                             <article>
                                 <Education degree='Bachelor' field='Computer Sceincs' from='SEP 2012' to='SEP 2019' institution='Tishreen University' />
