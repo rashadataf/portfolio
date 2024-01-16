@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 const Footer = () => {
     return (
-        <footer className="bg-primary p-4 text-secondary">
+        <footer className="sticky bottom-0 bg-primary p-4 text-secondary">
             <ul className="flex justify-center space-x-4 list-none">
                 <li>
                     <Link href="https://www.linkedin.com/in/rashad-ataf-99081416b/" target="_blank" rel="noreferrer" title="linkedin" aria-label="Visit my LinkedIn">

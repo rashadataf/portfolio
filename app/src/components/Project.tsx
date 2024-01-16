@@ -46,7 +46,10 @@ export const Project = ({
                 <div className="text-main text-base flex-grow overflow-hidden max-h-12 truncate my-2">
                     {description}
                 </div>
-                <button onClick={() => setModalOpen(true)} className="text-sm text-main hover:text-primary focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50 transition duration-300 bg-main hover:bg-secondary rounded px-2 py-1 cursor-pointer my-2">
+                <button
+                    onClick={() => setModalOpen(true)}
+                    aria-label="Read more about project description"
+                    className="text-sm text-main hover:text-primary focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50 transition duration-300 bg-main hover:bg-secondary rounded px-2 py-1 cursor-pointer my-2">
                     Read More
                 </button>
                 <div className="flex flex-wrap my-2">
