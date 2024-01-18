@@ -34,9 +34,10 @@ export const Project = ({
                     src={imageUrl}
                     alt={`Screenshot of ${title}`}
                     className="w-full object-cover"
-                    sizes="(max-width: 600px) 80vw, (min-width: 1024px) 50vw, 33vw"
+                    sizes="(max-width: 600px) 30vw, 20vw"
                     placeholder="blur"
                     blurDataURL={imageUrl}
+                    quality={30}
                     fill
                     priority
                 />

@@ -125,9 +125,9 @@ const AboutPage = () => {
                             src='/images/selfie.png'
                             alt="Rashad Ataf\'s selfie image"
                             className="rounded-full w-60 h-72 shadow-secondary shadow-lg"
-                            width={1280}
-                            height={1280}
-                            quality={100}
+                            width={300}
+                            height={300}
+                            quality={20}
                         />
                         <section aria-labelledby="key-achievements-header">
                             <h2 id="key-achievements-header" className="text-3xl font-semibold">Key Achievements</h2>

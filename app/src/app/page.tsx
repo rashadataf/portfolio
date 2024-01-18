@@ -20,8 +20,9 @@ export default function Home() {
         src={profilePic}
         alt="Portrait of Rashad Ataf, Full Stack Developer."
         className="w-full p-28 md:w-1/2"
-        width={2000}
-        height={2300}
+        width={450}
+        height={450}
+        quality={20}
         priority
       />
       <section aria-labelledby="main-page" className="w-full md:w-1/2 p-4">
