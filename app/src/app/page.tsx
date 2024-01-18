@@ -25,7 +25,7 @@ export default function Home() {
         quality={20}
         priority
       />
-      <section aria-labelledby="main-page" className="w-full md:w-1/2 p-4">
+      <section aria-labelledby="main-page-header" className="w-full md:w-1/2 p-4">
         <h1 id="main-page-header" className="text-2xl md:text-4xl font-bold mb-4">Welcome to My Portfolio</h1>
         <p className="text-lg">
           I am a Full Stack Developer with a focus on crafting user-centric web and mobile applications. My expertise lies in delivering simple yet effective solutions across diverse platforms, ensuring a seamless user experience.
