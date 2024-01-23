@@ -37,3 +37,8 @@ DO
 # typescript
 **/**/*.tsbuildinfo
 **/**/next-env.d.ts
+
+# certbot + nginx
+certs/
+logs/
+nginx/conf/
