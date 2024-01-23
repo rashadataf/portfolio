@@ -20,7 +20,7 @@ export const ThemeToggler = ({ className }: Props) => {
     return (
         <button
             onClick={toggleTheme}
-            className={`text-main hover:text-secondary focus:outline-none focus:border-primary ${className}`}
+            className={`text-secondary hover:text-accent focus:outline-none focus:border-primary ${className}`}
             aria-label={`The ${theme} Mode Is Active, Press to switch mode`}
         >
             {renderIconConditionally[theme]}
