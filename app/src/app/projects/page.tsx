@@ -34,7 +34,7 @@ const ProjectsPage = () => {
 
     return (
         <main role="main">
-            <section aria-labelledby="projects-page" className="container mx-auto py-10">
+            <section aria-labelledby="projects-page-heder" className="container mx-auto py-10">
                 <h1 id="projects-page-header" className="text-4xl font-bold text-center mb-10">Projects</h1>
                 <section className="flex flex-wrap justify-evenly px-4 lg:px-10 xl:px-24">
                     {projects.map((project, index) => (
