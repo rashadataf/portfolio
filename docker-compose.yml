@@ -1,42 +1,39 @@
-version: '3'
-
 services:
   dev:
     build:
-      context: ./app
-      target: development
+      context: ${APP_CONTEXT}
+      target: ${DEV_TARGET}
     ports:
-      - "3000:3000"
+      - "${APP_PORT}"
     volumes:
-      - ./app:/usr/portfolio
+      - ${DEV_VOLUME}
     environment:
-      NODE_ENV: development
+      NODE_ENV: ${DEV_NODE_ENV}
 
   production:
     build:
-      context: ./app
-      target: production
+      context: ${APP_CONTEXT}
+      target: ${PROD_TARGET}
     ports:
-      - "3000:3000"
-    container_name: production
+      - "${APP_PORT}"
+    container_name: ${PROD_CONTAINER_NAME}
     environment:
-      NODE_ENV: production
+      NODE_ENV: ${PROD_NODE_ENV}
 
   nginx:
     build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: nginx
+      context: ${DOCKER_CONTEXT}
+    container_name: ${NGINX_CONTAINER_NAME}
     ports:
-      - "80:80"
-      - "443:443"
+      - "${HTTP_PORT}"
+      - "${HTTPS_PORT}"
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
     volumes:
-      - ./logs/nginx/:/var/log/nginx:rw
-      - ./nginx/includes:/etc/nginx/includes:ro
-      - ./nginx/conf:/etc/nginx/conf.d
-      - ./certs/:/etc/letsencrypt
-      - ./data/:/data/letsencrypt
-      - ./nginx/templates:/etc/nginx/templates
+      - ${NGINX_LOG_VOLUME}
+      - ${NGINX_INCLUDES_VOLUME}
+      - ${NGINX_CONF_VOLUME}
+      - ${CERTS_VOLUME}
+      - ${DATA_VOLUME}
+      - ${NGINX_TEMPLATES_VOLUME}
