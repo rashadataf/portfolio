@@ -24,7 +24,8 @@ services:
 
   nginx:
     build:
-      context: ${DOCKER_CONTEXT}
+      context: ${NGINX_CONTEXT}
+      target: ${NGINX_TARGET}
     container_name: ${NGINX_CONTAINER_NAME}
     ports:
       - "${HTTP_PORT}"
@@ -39,3 +40,16 @@ services:
       - ${CERTS_VOLUME}
       - ${DATA_VOLUME}
       - ${NGINX_TEMPLATES_VOLUME}
+
+
+  certbot:
+    build:
+      context: ${NGINX_CONTEXT}
+      target: ${CERTBOT_TARGET}
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+    volumes:
+      - ${NGINX_CONF_VOLUME}
+      - ${CERTS_VOLUME}
+      - ${DATA_VOLUME}
