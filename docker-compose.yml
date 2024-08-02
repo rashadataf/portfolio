@@ -9,6 +9,8 @@ services:
       - ${DEV_VOLUME}
     environment:
       NODE_ENV: ${DEV_NODE_ENV}
+    depends_on:
+      - nginx
 
   production:
     build:
