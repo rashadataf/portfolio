@@ -1,4 +1,4 @@
-FROM node:alpine AS base
+FROM node:alpine3.20 AS base
 
 WORKDIR /usr/portfolio
 
