@@ -1,5 +1,9 @@
 FROM nginx:latest AS base
 
+ARG CHALLENGE_DIR
+
+RUN mkdir -p $CHALLENGE_DIR
+
 RUN apt-get update && apt-get install -y python3 python3-venv libaugeas0
 
 RUN python3 -m venv /opt/certbot/

@@ -48,6 +48,8 @@ services:
 
   nginx:
     build:
+      args:
+        - CHALLENGE_DIR=${CHALLENGE_DIR}
       context: ${NGINX_CONTEXT}
       target: ${NGINX_TARGET}
     container_name: ${NGINX_CONTAINER_NAME}
@@ -58,6 +60,7 @@ services:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
       - PORT=${APP_PORT}
+      - NODE_ENV=${NODE_ENV}
     volumes:
       - ${NGINX_LOG_VOLUME}
       - ${NGINX_INCLUDES_VOLUME}
