@@ -42,3 +42,4 @@ DO
 certs/
 logs/
 nginx/conf/
+postgres_data/

@@ -12,10 +12,6 @@ RUN ln -s /opt/certbot/bin/certbot /usr/bin/certbot
 
 FROM base AS nginx
 
-ARG CHALLENGE_DIR
-
-RUN mkdir -p $CHALLENGE_DIR
-
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
