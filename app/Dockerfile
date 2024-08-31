@@ -1,6 +1,8 @@
 FROM node:alpine3.20 AS base
 
-WORKDIR /usr/portfolio
+ARG WORKDIR_PATH
+
+WORKDIR $WORKDIR_PATH
 
 COPY package.json yarn.lock ./
 

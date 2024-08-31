@@ -1,26 +1,50 @@
 services:
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - ${POSTGRES_VOLUME}
+
   dev:
+    profiles: [ dev ]
     build:
+      args:
+        - WORKDIR_PATH=${WORKDIR_PATH}
       context: ${APP_CONTEXT}
       target: ${DEV_TARGET}
     ports:
-      - "${APP_PORT}"
+      - "${APP_PORT}:${APP_PORT}"
+    container_name: ${DEV_CONTAINER_NAME}
     volumes:
       - ${DEV_VOLUME}
+      - ${NODEMODULES_DEV_VOLUME}
+      - ${NEXT_DEV_VOLUME}
     environment:
       NODE_ENV: ${DEV_NODE_ENV}
+      PORT: ${APP_PORT}
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
-      - nginx
+      - postgres
 
   production:
+    profiles: [ production ]
     build:
       context: ${APP_CONTEXT}
       target: ${PROD_TARGET}
     ports:
-      - "${APP_PORT}"
+      - "${APP_PORT}:${APP_PORT}"
     container_name: ${PROD_CONTAINER_NAME}
     environment:
       NODE_ENV: ${PROD_NODE_ENV}
+      PORT: ${APP_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - postgres
 
   nginx:
     build:
@@ -33,6 +57,7 @@ services:
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - PORT=${APP_PORT}
     volumes:
       - ${NGINX_LOG_VOLUME}
       - ${NGINX_INCLUDES_VOLUME}
@@ -41,8 +66,8 @@ services:
       - ${DATA_VOLUME}
       - ${NGINX_TEMPLATES_VOLUME}
 
-
   certbot:
+    profiles: [ certbot ]
     build:
       context: ${NGINX_CONTEXT}
       target: ${CERTBOT_TARGET}
@@ -53,3 +78,8 @@ services:
       - ${NGINX_CONF_VOLUME}
       - ${CERTS_VOLUME}
       - ${DATA_VOLUME}
+
+volumes:
+  postgres_data:
+    external: true
+    name: ${POSTGRES_VOLUME}
