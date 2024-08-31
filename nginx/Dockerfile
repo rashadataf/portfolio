@@ -1,9 +1,5 @@
 FROM nginx:latest AS base
 
-ARG CHALLENGE_DIR
-
-RUN mkdir -p $CHALLENGE_DIR
-
 RUN apt-get update && apt-get install -y python3 python3-venv libaugeas0
 
 RUN python3 -m venv /opt/certbot/
@@ -15,6 +11,10 @@ RUN /opt/certbot/bin/pip install certbot certbot-nginx
 RUN ln -s /opt/certbot/bin/certbot /usr/bin/certbot
 
 FROM base AS nginx
+
+ARG CHALLENGE_DIR
+
+RUN mkdir -p $CHALLENGE_DIR
 
 COPY entrypoint.sh /entrypoint.sh
 
