@@ -70,6 +70,7 @@ services:
       # - ${CERT_VAR_VOLUME}
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
+      - nginx-var:/var/www/html
 
   certbot:
     profiles: [ certbot ]
@@ -86,6 +87,7 @@ services:
       # - ${CERT_VAR_VOLUME}
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
+      - nginx-var:/var/www/html
 
 volumes:
   postgres_data:
@@ -93,4 +95,5 @@ volumes:
     name: ${POSTGRES_VOLUME}
   certbot-etc:
   certbot-var:
+  nginx-var:
     driver: local
