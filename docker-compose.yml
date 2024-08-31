@@ -64,9 +64,12 @@ services:
       - ${NGINX_LOG_VOLUME}
       - ${NGINX_INCLUDES_VOLUME}
       - ${NGINX_CONF_VOLUME}
-      - ${CERTS_VOLUME}
-      - ${DATA_VOLUME}
+      # - ${CERTS_VOLUME}
+      # - ${DATA_VOLUME}
       - ${NGINX_TEMPLATES_VOLUME}
+      # - ${CERT_VAR_VOLUME}
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
 
   certbot:
     profiles: [ certbot ]
@@ -78,10 +81,16 @@ services:
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
     volumes:
       - ${NGINX_CONF_VOLUME}
-      - ${CERTS_VOLUME}
-      - ${DATA_VOLUME}
+      # - ${CERTS_VOLUME}
+      # - ${DATA_VOLUME}
+      # - ${CERT_VAR_VOLUME}
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
 
 volumes:
   postgres_data:
     external: true
     name: ${POSTGRES_VOLUME}
+  certbot-etc:
+  certbot-var:
+    driver: local

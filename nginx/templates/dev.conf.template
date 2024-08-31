@@ -1,5 +1,9 @@
 server {
     listen 80;
+    listen [::]:80;
+
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
     server_name ${DOMAIN_NAME} www.${DOMAIN_NAME};
     
     location / {
@@ -12,5 +16,10 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
 		proxy_cache_bypass $http_upgrade;
+    }
+
+    location ~ /.well-known/acme-challenge {
+        allow all;
+        root /var/www/html;
     }
 }
