@@ -71,6 +71,7 @@ services:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
       - nginx-var:/var/www/html
+      - nginx-var-well:/var/www/html/.well-known/acme-challenge
 
   certbot:
     profiles: [ certbot ]
@@ -88,6 +89,7 @@ services:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
       - nginx-var:/var/www/html
+      - nginx-var-well:/var/www/html/.well-known/acme-challenge
 
 volumes:
   postgres_data:
@@ -96,4 +98,5 @@ volumes:
   certbot-etc:
   certbot-var:
   nginx-var:
+  nginx-var-well:
     driver: local
