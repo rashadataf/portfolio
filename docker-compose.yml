@@ -47,9 +47,13 @@ services:
       - postgres
 
   nginx:
+
+
+  nginx_dev:
+    profiles: [ dev ]
     build:
       context: ${NGINX_CONTEXT}
-    container_name: ${NGINX_CONTAINER_NAME}
+    container_name: nginx_dev
     ports:
       - "${HTTP_PORT}"
       - "${HTTPS_PORT}"
@@ -57,7 +61,7 @@ services:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
       - PORT=${APP_PORT}
-      - NODE_ENV=${NODE_ENV}
+      - NODE_ENV=development
       - CHALLENGE_DIR=${CHALLENGE_DIR}
       - WITH_CERTBOT=${WITH_CERTBOT}
       - RESET_CONFIG=${RESET_CONFIG}
@@ -65,32 +69,35 @@ services:
       - ${NGINX_LOG_VOLUME}
       - ${NGINX_INCLUDES_VOLUME}
       - ${NGINX_CONF_VOLUME}
-      # - ${CERTS_VOLUME}
-      # - ${DATA_VOLUME}
+      - ${CERTS_VOLUME}
+      - ${DATA_VOLUME}
       - ${NGINX_TEMPLATES_VOLUME}
-      # - ${CERT_VAR_VOLUME}
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - nginx-var:/var/www/html
-      - nginx-var-well:/var/www/html/.well-known/acme-challenge
 
-  certbot:
-    profiles: [ certbot ]
+  nginx_production:
+    profiles: [ production ]
     build:
       context: ${NGINX_CONTEXT}
-      target: ${CERTBOT_TARGET}
+    container_name: nginx_production
+    ports:
+      - "${HTTP_PORT}"
+      - "${HTTPS_PORT}"
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - PORT=${APP_PORT}
+      - NODE_ENV=production
+      - CHALLENGE_DIR=${CHALLENGE_DIR}
+      - WITH_CERTBOT=${WITH_CERTBOT}
+      - RESET_CONFIG=${RESET_CONFIG}
     volumes:
+      - ${NGINX_LOG_VOLUME}
+      - ${NGINX_INCLUDES_VOLUME}
       - ${NGINX_CONF_VOLUME}
-      # - ${CERTS_VOLUME}
-      # - ${DATA_VOLUME}
-      # - ${CERT_VAR_VOLUME}
-      - certbot-etc:/etc/letsencrypt
-      - certbot-var:/var/lib/letsencrypt
-      - nginx-var:/var/www/html
-      - nginx-var-well:/var/www/html/.well-known/acme-challenge
+      - ${CERTS_VOLUME}
+      - ${DATA_VOLUME}
+      - ${NGINX_TEMPLATES_VOLUME}
+    depends_on:
+      - production
 
 volumes:
   postgres_data:
