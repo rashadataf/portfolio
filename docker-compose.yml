@@ -49,7 +49,6 @@ services:
   nginx:
     build:
       context: ${NGINX_CONTEXT}
-      target: ${NGINX_TARGET}
     container_name: ${NGINX_CONTAINER_NAME}
     ports:
       - "${HTTP_PORT}"
@@ -60,6 +59,8 @@ services:
       - PORT=${APP_PORT}
       - NODE_ENV=${NODE_ENV}
       - CHALLENGE_DIR=${CHALLENGE_DIR}
+      - WITH_CERTBOT=${WITH_CERTBOT}
+      - RESET_CONFIG=${RESET_CONFIG}
     volumes:
       - ${NGINX_LOG_VOLUME}
       - ${NGINX_INCLUDES_VOLUME}
