@@ -9,11 +9,11 @@ function dev_reset() {
 }
 
 function restart_production() {
-  WITH_CERTBOT=false RESET_CONFIG=false docker compose --profile production up --build
+  WITH_CERTBOT=false RESET_CONFIG=false docker compose --profile production up --build --detach
 }
 
 function production_ssl() {
-  WITH_CERTBOT=true docker compose --profile production up --detach
+  WITH_CERTBOT=true RESET_CONFIG=true docker compose --profile production up --build --detach
 }
 
 function production_no_ssl() {
@@ -51,6 +51,9 @@ function clear_all() {
 
   echo "Removing certs folder ..."
   rm -rf certs
+
+  echo "Removing certs data folder ..."
+  rm -rf data
 
   echo "Removing logs folder ..."
   rm -rf logs
