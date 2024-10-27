@@ -23,7 +23,7 @@ services:
     volumes:
       - ${DEV_VOLUME}
       - ${NODEMODULES_DEV_VOLUME}
-      - ${NEXT_DEV_VOLUME}
+      - ${NEXT_VOLUME}
     environment:
       NODE_ENV: ${DEV_NODE_ENV}
       PORT: ${APP_PORT}
@@ -34,6 +34,8 @@ services:
   production:
     profiles: [ production ]
     build:
+      args:
+        - WORKDIR_PATH=${WORKDIR_PATH}
       context: ${APP_CONTEXT}
       target: ${PROD_TARGET}
     ports:
@@ -100,8 +102,3 @@ volumes:
   postgres_data:
     external: true
     name: ${POSTGRES_VOLUME}
-  certbot-etc:
-  certbot-var:
-  nginx-var:
-  nginx-var-well:
-    driver: local

@@ -13,7 +13,11 @@ function restart_production() {
 }
 
 function production_ssl() {
-  WITH_CERTBOT=true docker compose --profile production up --build
+  WITH_CERTBOT=true docker compose --profile production up --detach
+}
+
+function production_no_ssl() {
+  WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile production up
 }
 
 function nginx_reload() {
@@ -37,6 +41,22 @@ function clear_docker() {
   docker volume rm $(docker volume ls -q)
   
   echo "Docker environment is clean."
+}
+
+function clear_all() {
+  clear_docker
+
+  echo "Removing node_modules folder ..."
+  rm -rf node_modules
+
+  echo "Removing certs folder ..."
+  rm -rf certs
+
+  echo "Removing logs folder ..."
+  rm -rf logs
+
+  echo "Removing nginx config folder ..."
+  rm -rf nginx/conf
 }
 
 "$@"

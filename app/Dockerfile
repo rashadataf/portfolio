@@ -1,4 +1,4 @@
-FROM node:alpine3.20 AS base
+FROM node:20.18.0 AS base
 
 ARG WORKDIR_PATH
 
