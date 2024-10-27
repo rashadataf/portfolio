@@ -1,42 +1,104 @@
-version: '3'
-
 services:
-  dev:
-    build:
-      context: ./app
-      target: development
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./app:/usr/portfolio
+  postgres:
+    image: postgres:13-alpine
     environment:
-      NODE_ENV: development
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - ${POSTGRES_VOLUME}
+
+  dev:
+    profiles: [ dev ]
+    build:
+      args:
+        - WORKDIR_PATH=${WORKDIR_PATH}
+      context: ${APP_CONTEXT}
+      target: ${DEV_TARGET}
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    container_name: ${DEV_CONTAINER_NAME}
+    volumes:
+      - ${DEV_VOLUME}
+      - ${NODEMODULES_DEV_VOLUME}
+      - ${NEXT_VOLUME}
+    environment:
+      NODE_ENV: ${DEV_NODE_ENV}
+      PORT: ${APP_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - postgres
 
   production:
+    profiles: [ production ]
     build:
-      context: ./app
-      target: production
+      args:
+        - WORKDIR_PATH=${WORKDIR_PATH}
+      context: ${APP_CONTEXT}
+      target: ${PROD_TARGET}
     ports:
-      - "3000:3000"
-    container_name: production
+      - "${APP_PORT}:${APP_PORT}"
+    container_name: ${PROD_CONTAINER_NAME}
     environment:
-      NODE_ENV: production
+      NODE_ENV: ${PROD_NODE_ENV}
+      PORT: ${APP_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - postgres
 
-  nginx:
+  nginx_dev:
+    profiles: [ dev ]
     build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: nginx
+      context: ${NGINX_CONTEXT}
+    container_name: nginx_dev
     ports:
-      - "80:80"
-      - "443:443"
+      - "${HTTP_PORT}"
+      - "${HTTPS_PORT}"
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - PORT=${APP_PORT}
+      - NODE_ENV=development
+      - CHALLENGE_DIR=${CHALLENGE_DIR}
+      - WITH_CERTBOT=${WITH_CERTBOT}
+      - RESET_CONFIG=${RESET_CONFIG}
     volumes:
-      - ./logs/nginx/:/var/log/nginx:rw
-      - ./nginx/includes:/etc/nginx/includes:ro
-      - ./nginx/conf:/etc/nginx/conf.d
-      - ./certs/:/etc/letsencrypt
-      - ./data/:/data/letsencrypt
-      - ./nginx/templates:/etc/nginx/templates
+      - ${NGINX_LOG_VOLUME}
+      - ${NGINX_INCLUDES_VOLUME}
+      - ${NGINX_CONF_VOLUME}
+      - ${CERTS_VOLUME}
+      - ${DATA_VOLUME}
+      - ${NGINX_TEMPLATES_VOLUME}
+
+  nginx_production:
+    profiles: [ production ]
+    build:
+      context: ${NGINX_CONTEXT}
+    container_name: nginx_production
+    ports:
+      - "${HTTP_PORT}"
+      - "${HTTPS_PORT}"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - PORT=${APP_PORT}
+      - NODE_ENV=production
+      - CHALLENGE_DIR=${CHALLENGE_DIR}
+      - WITH_CERTBOT=${WITH_CERTBOT}
+      - RESET_CONFIG=${RESET_CONFIG}
+    volumes:
+      - ${NGINX_LOG_VOLUME}
+      - ${NGINX_INCLUDES_VOLUME}
+      - ${NGINX_CONF_VOLUME}
+      - ${CERTS_VOLUME}
+      - ${DATA_VOLUME}
+      - ${NGINX_TEMPLATES_VOLUME}
+    depends_on:
+      - production
+
+volumes:
+  postgres_data:
+    external: true
+    name: ${POSTGRES_VOLUME}
