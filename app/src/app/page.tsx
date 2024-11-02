@@ -23,7 +23,7 @@ export default function Home() {
         className="w-full p-28 md:w-1/2"
         width={450}
         height={450}
-        loading="lazy"
+        priority
       />
 
       <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-4 md:w-1/2">
@@ -33,7 +33,7 @@ export default function Home() {
         </p>
         <div className="flex flex-col max-w-[200px] md:max-w-none md:flex-row md:space-x-4 space-y-4 md:space-y-0 mt-8">
           <Link
-            href="/Rashad_Ataf.pdf"
+            href="/Rashad Ataf.pdf"
             className="bg-[--text-color] text-white hover:scale-110 hover:shadow-md hover:shadow-accent font-semibold py-2 px-4 rounded shadow"
             aria-label="Download Rashad Ataf’s Resume"
             target="_blank"
