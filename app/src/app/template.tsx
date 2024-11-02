@@ -4,15 +4,14 @@ import { ThemeProvider } from '@/context/theme.provider'
 import Navbar from '@/components/NavBar'
 import Footer from '@/components/Footer'
 
-const montserrat = Montserrat(
-    {
-        subsets: ['latin'],
-        variable: '--font-montserrat'
-    })
+const montserrat = Montserrat({
+    subsets: ['latin'],
+    variable: '--font-montserrat'
+})
 
 export const metadata: Metadata = {
     title: 'Rashad Portfolio | Software Engineer',
-    description: 'portfolio for Rashad Ataf',
+    description: 'Portfolio for Rashad Ataf',
     manifest: "/manifest.json"
 }
 
@@ -25,7 +24,9 @@ export default function TemplateLayout({
         <body className={`${montserrat.className} flex flex-col min-h-screen bg-main text-main`}>
             <ThemeProvider>
                 <Navbar />
-                {children}
+                <main role="main">
+                    {children}
+                </main>
                 <Footer />
             </ThemeProvider>
         </body>

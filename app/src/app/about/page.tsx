@@ -6,6 +6,7 @@ import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
 import Link from 'next/link';
+import Section from '@/components/Section';
 
 export const metadata: Metadata = {
     title: "About Rashad Ataf - Full Stack Developer",
@@ -102,25 +103,25 @@ const experiences = [
 const AboutPage = () => {
 
     return (
-        <>
-            <main role="main" className="text-main flex flex-col items-center p-8">
-                <section aria-labelledby="about-me-header" className="text-center">
-                    <h1 id="about-me-header" className="text-5xl font-bold my-6 sm:my-12">About Me</h1>
-                    <div className="container mx-auto px-4 mt-6 text-left">
-                        <p className="text-base sm:text-xl leading-relaxed max-w-prose mx-auto">
-                            Embarking on my programming journey in 2010,
-                            I began with Visual Basic 6 during my high school years.
-                            Since then, my passion for technology has led me to a Bachelor&apos;s degree in Computer Engineering and over five years of professional experience in the tech industry.
-                            Currently, I am part of the <Link className='text-accent font-bold' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer">ZIM Connections</Link> team,
-                            where I continue to hone my expertise in various JavaScript technologies,
-                            frameworks, and libraries.
-                            My career has been marked by a rapid adaptation to new challenges and a commitment to innovative problem-solving.
-                            With a keen interest in continuous learning and skill development,
-                            I consistently seek out opportunities to grow and excel in the ever-evolving landscape of software development.
+        <div className="text-main flex flex-col items-center p-8">
+            <Section id='about-me' ariaLabelledBy='about-me-header' className="text-center">
+                <h1 id="about-me-header" className="text-5xl font-bold my-6 sm:my-12">About Me</h1>
+                <div className="container mx-auto px-4 mt-6 text-left">
+                    <p className="text-base sm:text-xl leading-relaxed max-w-prose mx-auto">
+                        Embarking on my programming journey in 2010,
+                        I began with Visual Basic 6 during my high school years.
+                        Since then, my passion for technology has led me to a Bachelor&apos;s degree in Computer Engineering and over five years of professional experience in the tech industry.
+                        Currently, I am part of the <Link className='text-accent font-bold' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer">ZIM Connections</Link> team,
+                        where I continue to hone my expertise in various JavaScript technologies,
+                        frameworks, and libraries.
+                        My career has been marked by a rapid adaptation to new challenges and a commitment to innovative problem-solving.
+                        With a keen interest in continuous learning and skill development,
+                        I consistently seek out opportunities to grow and excel in the ever-evolving landscape of software development.
 
-                        </p>
-                    </div>
-                    <div className="container mx-auto px-8 py-10 flex flex-wrap justify-around items-center">
+                    </p>
+                </div>
+                <div className="container mx-auto px-8 py-10 flex flex-wrap justify-between items-center">
+                    <div className="w-1/2 flex justify-center">
                         <Image
                             src='/images/selfie.png'
                             alt="Rashad Ataf\'s selfie image"
@@ -129,84 +130,84 @@ const AboutPage = () => {
                             height={300}
                             quality={20}
                         />
-                        <section aria-labelledby="key-achievements-header" className='mt-10 md:mt-auto'>
-                            <h2 id="key-achievements-header" className="text-3xl font-bold text-accent">Key Achievements</h2>
-                            <dl>
-                                <div className="mt-2">
-                                    <dt className="text-lg font-medium">Happy Clients:</dt>
-                                    <dd className="text-lg text-accent font-semibold">100+</dd>
-                                </div>
-                                <div>
-                                    <dt className="text-lg font-medium">Projects Completed:</dt>
-                                    <dd className="text-lg text-accent font-semibold">200+</dd>
-                                </div>
-                                <div>
-                                    <dt className="text-lg font-medium">Years of Experience:</dt>
-                                    <dd className="text-lg text-accent font-semibold">5</dd>
-                                </div>
-                            </dl>
-                        </section>
                     </div>
-                </section>
+                    <Section id="key-achievements" ariaLabelledBy="key-achievements-header" className='w-1/2 mt-10 md:mt-auto'>
+                        <h2 id="key-achievements-header" className="text-3xl font-bold text-accent">Key Achievements</h2>
+                        <dl>
+                            <div className="mt-2">
+                                <dt className="text-lg font-medium">Happy Clients:</dt>
+                                <dd className="text-lg text-accent font-semibold">100+</dd>
+                            </div>
+                            <div>
+                                <dt className="text-lg font-medium">Projects Completed:</dt>
+                                <dd className="text-lg text-accent font-semibold">200+</dd>
+                            </div>
+                            <div>
+                                <dt className="text-lg font-medium">Years of Experience:</dt>
+                                <dd className="text-lg text-accent font-semibold">5</dd>
+                            </div>
+                        </dl>
+                    </Section>
+                </div>
+            </Section>
 
-                <section aria-labelledby="skills-header" className="container mx-auto px-4 my-8">
-                    <h2 id="skills-header" className="text-4xl sm:text-6xl font-semibold text-center">Skills</h2>
-                    <div className="flex flex-col md:flex-row justify-between">
-                        <article aria-labelledby="proficient-skills-header" className="my-10 w-full md:w-5/12">
-                            <h3 id="proficient-skills-header" className="text-xl font-semibold mb-5 md:mb-10 text-center">Proficient</h3>
-                            <ul className="list-none">
-                                {Object.entries(proficientSkills).map(([skill, proficiency]) => (
-                                    <li key={skill}><Skill name={skill} percentage={proficiency} /></li>
-                                ))}
-                            </ul>
-                        </article>
-
-                        <div className="md:mx-4 w-px h-full my-4"></div>
-
-                        <article aria-labelledby="familiar-skills-header" className="my-10 w-full md:w-5/12">
-                            <h3 id="familiar-skills-header" className="text-xl font-semibold mb-5 md:mb-10 text-center">Familiar</h3>
-                            <ul className="list-none">
-                                {Object.entries(familiarSkills).map(([skill, proficiency]) => (
-                                    <li key={skill}><Skill name={skill} percentage={proficiency} /></li>
-                                ))}
-                            </ul>
-                        </article>
-                    </div>
-                </section>
-
-                <section aria-labelledby="experience-header" className="flex flex-col items-center">
-                    <div className="container mx-auto px-4 py-6">
-                        <h2 id="experience-header" className="text-4xl mb-10 sm:text-6xl font-semibold text-center">Experience</h2>
-                        <ol className="relative border-l-2 border-accent pl-5 md:pl-20 w-full">
-                            {experiences.map((item, index) => (
-                                <li key={index} className="mb-10">
-                                    <Experience
-                                        company={item.company}
-                                        from={item.from}
-                                        to={item.to}
-                                        location={item.location}
-                                        position={item.position}
-                                        responsibilities={item.responsibilities}
-                                    />
-                                </li>
+            <Section id="skills" ariaLabelledBy="skills-header" className="container mx-auto px-4 my-8">
+                <h2 id="skills-header" className="text-4xl sm:text-6xl font-semibold text-center">Skills</h2>
+                <div className="flex flex-col md:flex-row justify-between">
+                    <article aria-labelledby="proficient-skills-header" className="my-10 w-full md:w-5/12">
+                        <h3 id="proficient-skills-header" className="text-xl font-semibold mb-5 md:mb-10 text-center">Proficient</h3>
+                        <ul className="list-none">
+                            {Object.entries(proficientSkills).map(([skill, proficiency]) => (
+                                <li key={skill}><Skill name={skill} percentage={proficiency} /></li>
                             ))}
-                        </ol>
-                    </div>
-                </section>
+                        </ul>
+                    </article>
+
+                    <div className="md:mx-4 w-px h-full my-4"></div>
+
+                    <article aria-labelledby="familiar-skills-header" className="my-10 w-full md:w-5/12">
+                        <h3 id="familiar-skills-header" className="text-xl font-semibold mb-5 md:mb-10 text-center">Familiar</h3>
+                        <ul className="list-none">
+                            {Object.entries(familiarSkills).map(([skill, proficiency]) => (
+                                <li key={skill}><Skill name={skill} percentage={proficiency} /></li>
+                            ))}
+                        </ul>
+                    </article>
+                </div>
+            </Section>
+
+            <Section id="experience" ariaLabelledBy="experience-header" className="flex flex-col items-center">
+                <div className="container mx-auto px-4 py-6">
+                    <h2 id="experience-header" className="text-4xl mb-10 sm:text-6xl font-semibold text-center">Experience</h2>
+                    <ol className="relative border-l-2 border-accent pl-5 md:pl-20 w-full">
+                        {experiences.map((item, index) => (
+                            <li key={index} className="mb-10">
+                                <Experience
+                                    company={item.company}
+                                    from={item.from}
+                                    to={item.to}
+                                    location={item.location}
+                                    position={item.position}
+                                    responsibilities={item.responsibilities}
+                                />
+                            </li>
+                        ))}
+                    </ol>
+                </div>
+            </Section>
 
 
-                <section aria-labelledby="education-header" className="flex flex-col items-center">
-                    <div className="container mx-auto px-4 py-6">
-                        <h2 id="education-header" className="text-4xl mb-4 sm:text-6xl font-semibold text-center">Education</h2>
-                        <div className="relative border-l-2 border-accent pl-5 md:pl-20 w-full">
-                            <article>
-                                <Education degree='Bachelor' field='Computer Sceincs' from='SEP 2012' to='SEP 2019' institution='Tishreen University' />
-                            </article>
-                        </div>
+            <Section id="education" ariaLabelledBy="education-header" className="flex flex-col items-center">
+                <div className="container mx-auto px-4 py-6">
+                    <h2 id="education-header" className="text-4xl mb-4 sm:text-6xl font-semibold text-center">Education</h2>
+                    <div className="relative border-l-2 border-accent pl-5 md:pl-20 w-full">
+                        <article>
+                            <Education degree='Bachelor' field='Computer Sceincs' from='SEP 2012' to='SEP 2019' institution='Tishreen University' />
+                        </article>
                     </div>
-                </section>
-            </main>
-        </>
+                </div>
+            </Section>
+        </div>
     );
 };
 

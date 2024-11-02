@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import profilePic from '../../public/images/rashad.png';
 import { Metadata } from "next";
+import Section from "@/components/Section";
 
 export const metadata: Metadata = {
   title: "Rashad Ataf - Full Stack Developer",
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 export default function Home() {
 
   return (
-    <main role="main" className="flex flex-col md:flex-row items-center justify-around flex-grow">
+    <div className="flex flex-col md:flex-row items-center justify-around flex-grow">
       <Image
         src={profilePic}
         alt="Portrait of Rashad Ataf, Full Stack Developer."
@@ -25,7 +26,7 @@ export default function Home() {
         quality={20}
         priority
       />
-      <section aria-labelledby="main-page-header" className="w-full md:w-1/2 p-4">
+      <Section id="main-page" ariaLabelledBy="main-page-header" className="md:w-1/2">
         <h1 id="main-page-header" className="text-2xl md:text-4xl font-bold mb-4">Welcome to My <span className="text-accent">Portfolio</span></h1>
         <p className="text-lg">
           I am a Full Stack Developer with a focus on crafting user-centric web and mobile applications. My expertise lies in delivering simple yet effective solutions across diverse platforms, ensuring a seamless user experience.
@@ -46,7 +47,7 @@ export default function Home() {
             Contact Me
           </Link>
         </div>
-      </section>
-    </main>
+      </Section>
+    </div>
   )
 }

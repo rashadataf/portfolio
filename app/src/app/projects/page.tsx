@@ -1,4 +1,5 @@
 import { Project } from "@/components/Project";
+import Section from "@/components/Section";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -33,18 +34,16 @@ const projects = [
 const ProjectsPage = () => {
 
     return (
-        <main role="main">
-            <section aria-labelledby="projects-page-heder" className="container mx-auto py-10">
-                <h1 id="projects-page-header" className="text-4xl font-bold text-center mb-10">Projects</h1>
-                <section className="flex flex-wrap justify-evenly px-4 lg:px-10 xl:px-24">
-                    {projects.map((project, index) => (
-                        <article key={index} className="w-full p-6 md:w-1/2 md:p-5 lg:w-1/3 lg:p-3 xl:w-1/4 xl:p-2">
-                            <Project {...project} />
-                        </article>
-                    ))}
-                </section>
-            </section>
-        </main>
+        <Section id="projects" ariaLabelledBy="projects-page-heder" className="container mx-auto py-10">
+            <h1 id="projects-page-header" className="text-4xl font-bold text-center mb-10">Projects</h1>
+            <div className="flex flex-wrap justify-evenly px-4 lg:px-10 xl:px-24">
+                {projects.map((project, index) => (
+                    <article key={index} className="w-full p-6 md:w-1/2 md:p-5 lg:w-1/3 lg:p-3 xl:w-1/4 xl:p-2">
+                        <Project {...project} />
+                    </article>
+                ))}
+            </div>
+        </Section>
     );
 }
 
