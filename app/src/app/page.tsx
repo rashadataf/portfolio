@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import profilePic from '../../public/images/rashad.png';
+import profilePic from '../../public/images/rashad.webp';
 import { Metadata } from "next";
 import Section from "@/components/Section";
 
@@ -23,10 +23,10 @@ export default function Home() {
         className="w-full p-28 md:w-1/2"
         width={450}
         height={450}
-        quality={20}
-        priority
+        loading="lazy"
       />
-      <Section id="main-page" ariaLabelledBy="main-page-header" className="md:w-1/2">
+
+      <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-4 md:w-1/2">
         <h1 id="main-page-header" className="text-2xl md:text-4xl font-bold mb-4">Welcome to My <span className="text-accent">Portfolio</span></h1>
         <p className="text-lg">
           I am a Full Stack Developer with a focus on crafting user-centric web and mobile applications. My expertise lies in delivering simple yet effective solutions across diverse platforms, ensuring a seamless user experience.
@@ -34,7 +34,7 @@ export default function Home() {
         <div className="flex flex-col max-w-[200px] md:max-w-none md:flex-row md:space-x-4 space-y-4 md:space-y-0 mt-8">
           <Link
             href="/Rashad_Ataf.pdf"
-            className="bg-[--text-color] text-accent hover:scale-110 hover:shadow-md hover:shadow-accent font-semibold py-2 px-4 rounded shadow"
+            className="bg-[--text-color] text-white hover:scale-110 hover:shadow-md hover:shadow-accent font-semibold py-2 px-4 rounded shadow"
             aria-label="Download Rashad Ataf’s Resume"
             target="_blank"
           >
@@ -42,7 +42,7 @@ export default function Home() {
           </Link>
           <Link
             href="mailto:rashadattaf@gmail.com"
-            className="bg-accent text-main hover:scale-110 hover:shadow-md hover:shadow-[--text-color] font-semibold py-2 px-4 rounded shadow"
+            className="bg-accent text-white hover:scale-110 hover:shadow-md hover:shadow-[--text-color] font-semibold py-2 px-4 rounded shadow"
           >
             Contact Me
           </Link>

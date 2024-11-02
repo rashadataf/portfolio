@@ -7,6 +7,7 @@ import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
 import Link from 'next/link';
 import Section from '@/components/Section';
+import selfiePic from '../../../public/images/selfie.webp';
 
 export const metadata: Metadata = {
     title: "About Rashad Ataf - Full Stack Developer",
@@ -121,17 +122,18 @@ const AboutPage = () => {
                     </p>
                 </div>
                 <div className="container mx-auto px-8 py-10 flex flex-wrap justify-between items-center">
-                    <div className="w-1/2 flex justify-center">
+                    <div className="w-full md:w-1/2 flex justify-center">
                         <Image
-                            src='/images/selfie.png'
+                            src={selfiePic}
                             alt="Rashad Ataf\'s selfie image"
                             className="rounded-full w-60 h-72 shadow-accent shadow-xl"
                             width={300}
                             height={300}
                             quality={20}
+                            loading="lazy"
                         />
                     </div>
-                    <Section id="key-achievements" ariaLabelledBy="key-achievements-header" className='w-1/2 mt-10 md:mt-auto'>
+                    <Section id="key-achievements" ariaLabelledBy="key-achievements-header" className='w-full md:w-1/2 mt-10 md:mt-auto'>
                         <h2 id="key-achievements-header" className="text-3xl font-bold text-accent">Key Achievements</h2>
                         <dl>
                             <div className="mt-2">

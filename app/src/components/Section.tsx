@@ -10,7 +10,7 @@ export default function Section({ id, ariaLabelledBy, className = "", children }
         <section
             id={id}
             aria-labelledby={ariaLabelledBy}
-            className={`w-full p-4 ${className}`}
+            className={className}
         >
             {children}
         </section>
