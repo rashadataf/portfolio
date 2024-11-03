@@ -1,7 +1,7 @@
 'use client';
 import { useThemeContext } from '@/context/theme.provider';
 import { THEME } from '@/types';
-import { MoonIcon, SunIcon } from './Icons';
+import { MoonIcon, SunIcon } from '@/components/Icons';
 
 const renderIconConditionally: {
     [key in THEME]: JSX.Element;

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { Montserrat } from 'next/font/google'
 import { ThemeProvider } from '@/context/theme.provider'
-import Navbar from '@/components/NavBar'
-import Footer from '@/components/Footer'
+import dynamic from 'next/dynamic'
+import { Loader } from '@/components/Loader'
 
 const montserrat = Montserrat({
     subsets: ['latin'],
@@ -14,6 +14,20 @@ export const metadata: Metadata = {
     description: 'Portfolio for Rashad Ataf',
     manifest: "/manifest.json"
 }
+
+const Navbar = dynamic(() =>
+    import('@/components/NavBar').then((mod) => mod.Navbar),
+    {
+        loading: () => <Loader />,
+    }
+)
+
+const Footer = dynamic(() =>
+    import('@/components/Footer').then((mod) => mod.Footer),
+    {
+        loading: () => <Loader />,
+    }
+)
 
 export default function TemplateLayout({
     children,

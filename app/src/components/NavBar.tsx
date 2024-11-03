@@ -1,11 +1,11 @@
 'use client';
-import Link from 'next/link';
-import { NavLinkProp } from '@/types';
-import { usePathname } from 'next/navigation';
-import { ThemeToggler } from './DarkModeToggle';
 import React, { useCallback } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { NavLinkProp } from '@/types';
+import { ThemeToggler } from '@/components/DarkModeToggle';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { MenuIcon } from './Icons';
+import { MenuIcon } from '@/components/Icons';
 
 const NavLink = ({ href, title, className }: NavLinkProp) => {
     const pathname = usePathname();
@@ -21,7 +21,7 @@ const NavLink = ({ href, title, className }: NavLinkProp) => {
     );
 }
 
-const Navbar = () => {
+export const Navbar = () => {
     const [isOpen, setIsOpen] = useSafeState(false);
     const handleMenuClick = useCallback(
         () => {
@@ -82,5 +82,3 @@ const Navbar = () => {
         </nav>
     );
 };
-
-export default Navbar;
