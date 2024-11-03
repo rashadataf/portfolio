@@ -1,9 +1,16 @@
+'use client';
 import Image from "next/image";
 import Link from "next/link";
 import profilePic from '@public/images/rashad.webp';
 import Section from "@/components/Section";
+import { useEffect } from "react";
 
 export const HomePage = () => {
+    useEffect(() => {
+        if (process.env.NODE_ENV === 'production') {
+            console.log = () => { };
+        }
+    }, []);
     return (
         <div className="flex flex-col md:flex-row items-center justify-around flex-grow">
             <Image
