@@ -1,7 +1,6 @@
 'use client';
-import React from 'react';
-import { FacebookIcon, GithubIcon, InstagramIcon, LinkedinIcon, StackOverflowIcon, TwitterIcon, WhatsAppIcon } from '@/components/Icons';
 import Link from 'next/link';
+import { FacebookIcon, GithubIcon, InstagramIcon, LinkedinIcon, StackOverflowIcon, TwitterIcon, WhatsAppIcon } from '@/components/Icons';
 
 export const Footer = () => {
     return (

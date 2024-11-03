@@ -1,12 +1,11 @@
-import React from 'react';
-import Image from 'next/image';
 import { Metadata } from 'next';
+import Link from 'next/link';
+import Image from 'next/image';
 import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
-import Link from 'next/link';
 import Section from '@/components/Section';
-import selfiePic from '../../../public/images/selfie.webp';
+import selfiePic from '@public/images/selfie.webp';
 
 export const metadata: Metadata = {
     title: "About Rashad Ataf - Full Stack Developer",
@@ -129,7 +128,7 @@ const AboutPage = () => {
                             width={300}
                             height={300}
                             quality={20}
-                            loading="lazy"
+                            priority
                         />
                     </div>
                     <Section id="key-achievements" ariaLabelledBy="key-achievements-header" className='w-full md:w-1/2 mt-10 md:mt-auto'>

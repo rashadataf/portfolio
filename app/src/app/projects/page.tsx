@@ -1,6 +1,6 @@
+import { Metadata } from "next";
 import { Project } from "@/components/Project";
 import Section from "@/components/Section";
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Rashad Ataf's Projects - Full Stack Development Portfolio",

@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NavLinkProp } from '@/types';

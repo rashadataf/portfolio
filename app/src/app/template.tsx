@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import { Montserrat } from 'next/font/google'
 import { ThemeProvider } from '@/context/theme.provider'
-import dynamic from 'next/dynamic'
 import { Loader } from '@/components/Loader'
 
 const montserrat = Montserrat({
@@ -35,7 +35,7 @@ export default function TemplateLayout({
     children: React.ReactNode
 }) {
     return (
-        <body className={`${montserrat.className} flex flex-col min-h-screen bg-main text-main`}>
+        <body className={`${montserrat.className} flex flex-col min-h-screen bg-main text-main justify-between`}>
             <ThemeProvider>
                 <Navbar />
                 <main role="main">
