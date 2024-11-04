@@ -9,7 +9,7 @@ export const NavLink = ({ href, title, className }: NavLinkProp) => {
                        ${isActive ? 'text-accent font-bold' : 'text-secondary'}
                        ${className ? className : ''}`;
     return (
-        <Link href={href} className={linkClass} scroll={false}>
+        <Link href={href} className={linkClass} scroll={false} prefetch={false}>
             {title}
         </Link>
     );

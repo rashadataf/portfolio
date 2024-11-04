@@ -16,7 +16,7 @@ export const Navbar = () => {
     return (
         <nav className="sticky top-0 bg-primary p-4 text-accent z-50" aria-label="Main navigation">
             <div className="max-w-6xl mx-auto px-4 flex justify-between">
-                <Link href="/" className="flex items-center py-5 text-secondary hover:text-accent" aria-label="Go to Home Page">
+                <Link href="/" className="flex items-center py-5 text-secondary hover:text-accent" aria-label="Go to Home Page" prefetch={false}>
                     <span className="font-bold text-lg">{`"<Rashad Ataf>"`}</span>
                 </Link>
 
