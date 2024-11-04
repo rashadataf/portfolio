@@ -1,13 +1,9 @@
 import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'
-import { Montserrat } from 'next/font/google'
 import { ThemeProvider } from '@/context/theme.provider'
 import { Loader } from '@/components/Loader'
 
-const montserrat = Montserrat({
-    subsets: ['latin'],
-    variable: '--font-montserrat'
-})
+
 
 export const metadata: Metadata = {
     title: 'Rashad Portfolio | Software Engineer',
@@ -35,14 +31,12 @@ export default function TemplateLayout({
     children: React.ReactNode
 }) {
     return (
-        <body className={`${montserrat.className} flex flex-col min-h-screen bg-main text-main justify-between`}>
-            <ThemeProvider>
-                <Navbar />
-                <main role="main">
-                    {children}
-                </main>
-                <Footer />
-            </ThemeProvider>
-        </body>
+        <ThemeProvider>
+            <Navbar />
+            <main role="main">
+                {children}
+            </main>
+            <Footer />
+        </ThemeProvider>
     )
 }
