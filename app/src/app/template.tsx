@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
-import dynamic from 'next/dynamic'
 import { ThemeProvider } from '@/context/theme.provider'
-import { Loader } from '@/components/Loader'
 import { Navbar } from '@/components/NavBar'
 import { Footer } from '@/components/Footer'
 
