@@ -7,8 +7,8 @@
   --primary-color: #e5e5e5;
   --secondary-color: #000000;
   --bg-color: #ffffff;
-  --text-color: #14213d;
-  --accent-color: #fca311;
+  --text-color: #000000;
+  --accent-color: #840400;
 }
 
 .dark {
@@ -16,5 +16,5 @@
   --secondary-color: #ffffff;
   --text-color: #000000;
   --bg-color: #f5f5f5;
-  --accent-color: #F86397;
+  --accent-color: #c420d9;
 }

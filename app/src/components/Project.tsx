@@ -1,8 +1,8 @@
 'use client';
 import Image from "next/image";
-import { Modal } from "./Modal";
-import { useSafeState } from "@/hooks/useSafeState.hook";
 import Link from "next/link";
+import { useSafeState } from "@/hooks/useSafeState.hook";
+import { Modal } from "@/components/Modal";
 
 interface ProjectProps {
     title: string;

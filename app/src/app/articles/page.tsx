@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import dynamic from "next/dynamic";
+import { Loader } from "@/components/Loader";
 
 export const metadata: Metadata = {
     title: "Rashad Ataf's Articles - Insights in Full Stack Development",
@@ -9,17 +11,13 @@ export const metadata: Metadata = {
     }
 }
 
-const ArticlesPage = () => {
-    return (
-        <main role="main">
-            <div className="container mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-screen">
-                <h1 className="text-4xl font-bold text-center mb-4">Articles Coming Soon!</h1>
-                <p className="text-xl text-center mb-6">I&apos;m currently working on some exciting articles. Stay tuned!</p>
-                <div className="flex space-x-4">
-                </div>
-            </div>
-        </main>
-    );
-}
+const ArticlesPage = dynamic(() =>
+    import('@/components/ArticlesPage').then((mod) => mod.ArticlesPage),
+    {
+        loading: () => <Loader />,
+    }
+)
 
-export default ArticlesPage;
+export default function Articles() {
+    return <ArticlesPage />
+}
