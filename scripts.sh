@@ -17,7 +17,7 @@ function production_ssl() {
 }
 
 function production_no_ssl() {
-  WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile production up
+  WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile production up --build --detach
 }
 
 function nginx_reload() {
@@ -25,7 +25,13 @@ function nginx_reload() {
 }
 
 function clear_docker() {
-  echo "Stopping all containers..."
+  echo "Stopping nginx_production container..."
+  docker stop nginx_production
+
+  echo "Stopping production container..."
+  docker stop production
+
+  echo "Killing all containers..."
   docker compose down
 
   echo "Prune docker builder..."

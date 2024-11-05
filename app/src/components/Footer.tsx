@@ -1,9 +1,7 @@
-'use client';
-import React from 'react';
-import { FacebookIcon, GithubIcon, InstagramIcon, LinkedinIcon, StackOverflowIcon, TwitterIcon, WhatsAppIcon } from './Icons';
 import Link from 'next/link';
+import { FacebookIcon, GithubIcon, InstagramIcon, LinkedinIcon, StackOverflowIcon, TwitterIcon, WhatsAppIcon } from '@/components/Icons';
 
-const Footer = () => {
+export const Footer = () => {
     return (
         <footer className="sticky bottom-0 bg-primary p-4 text-secondary">
             <ul className="flex justify-center space-x-4 list-none">
@@ -46,5 +44,3 @@ const Footer = () => {
         </footer>
     );
 };
-
-export default Footer;

@@ -1,27 +1,12 @@
 'use client';
+import { useCallback } from 'react';
 import Link from 'next/link';
-import { NavLinkProp } from '@/types';
-import { usePathname } from 'next/navigation';
-import { ThemeToggler } from './DarkModeToggle';
-import React, { useCallback } from 'react';
+import { ThemeToggler } from '@/components/DarkModeToggle';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { MenuIcon } from './Icons';
+import { MenuIcon } from '@/components/Icons';
+import { NavLink } from '@/components/NavLink';
 
-const NavLink = ({ href, title, className }: NavLinkProp) => {
-    const pathname = usePathname();
-    const isActive = pathname === href;
-
-    const linkClass = `py-5 px-3 hover:text-accent 
-                       ${isActive ? 'text-accent font-bold' : 'text-secondary'}
-                       ${className ? className : ''}`;
-    return (
-        <Link href={href} className={linkClass} scroll={false}>
-            {title}
-        </Link >
-    );
-}
-
-const Navbar = () => {
+export const Navbar = () => {
     const [isOpen, setIsOpen] = useSafeState(false);
     const handleMenuClick = useCallback(
         () => {
@@ -82,5 +67,3 @@ const Navbar = () => {
         </nav>
     );
 };
-
-export default Navbar;
