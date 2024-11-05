@@ -26,14 +26,14 @@ export const HomePage = () => {
                         className="bg-[--text-color] text-white hover:scale-110 hover:shadow-md hover:shadow-accent font-semibold py-2 px-4 rounded shadow"
                         aria-label="Download Rashad Ataf’s Resume"
                         target="_blank"
-                        prefetch={false}
+                       
                     >
                         Download Resume
                     </Link>
                     <Link
                         href="mailto:rashadattaf@gmail.com"
                         className="bg-accent text-white hover:scale-110 hover:shadow-md hover:shadow-[--text-color] font-semibold py-2 px-4 rounded shadow"
-                        prefetch={false}
+                       
                     >
                         Contact Me
                     </Link>

@@ -97,7 +97,7 @@ export const AboutPage = () => {
                         Embarking on my programming journey in 2010,
                         I began with Visual Basic 6 during my high school years.
                         Since then, my passion for technology has led me to a Bachelor&apos;s degree in Computer Engineering and over five years of professional experience in the tech industry.
-                        Currently, I am part of the <Link className='text-accent font-bold' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer" prefetch={false}>ZIM Connections</Link> team,
+                        Currently, I am part of the <Link className='text-accent font-bold' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer">ZIM Connections</Link> team,
                         where I continue to hone my expertise in various JavaScript technologies,
                         frameworks, and libraries.
                         My career has been marked by a rapid adaptation to new challenges and a commitment to innovative problem-solving.

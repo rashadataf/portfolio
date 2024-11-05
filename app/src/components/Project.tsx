@@ -60,10 +60,10 @@ export const Project = ({
                 </div>
                 <div className="mt-auto">
                     <div className="text-[--bg-color] flex justify-between items-center pt-2">
-                        {liveUrl && <Link href={liveUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer" prefetch={false}>Live Demo</Link>}
-                        {sourceCodeUrl && <Link href={sourceCodeUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer" prefetch={false}>Source Code</Link>}
-                        {playStoreUrl && <Link href={playStoreUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer" prefetch={false}>Play Store</Link>}
-                        {appStoreUrl && <Link href={appStoreUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer" prefetch={false}>App Store</Link>}
+                        {liveUrl && <Link href={liveUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer">Live Demo</Link>}
+                        {sourceCodeUrl && <Link href={sourceCodeUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer">Source Code</Link>}
+                        {playStoreUrl && <Link href={playStoreUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer">Play Store</Link>}
+                        {appStoreUrl && <Link href={appStoreUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer">App Store</Link>}
                     </div>
                 </div>
             </div>
