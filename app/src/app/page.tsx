@@ -1,5 +1,6 @@
 import { Metadata } from "next";
-import { HomePage } from "@/components/HomePage";
+import dynamic from "next/dynamic";
+import { Loader } from "@/components/Loader";
 
 export const metadata: Metadata = {
   title: "Rashad Ataf - Full Stack Developer",
@@ -9,6 +10,13 @@ export const metadata: Metadata = {
     canonical: "https://www.rashadataf.tech/"
   }
 }
+
+const HomePage = dynamic(() =>
+  import('@/components/HomePage').then((mod) => mod.HomePage),
+  {
+    loading: () => <Loader />,
+  }
+)
 
 export default function Home() {
 
