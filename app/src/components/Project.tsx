@@ -50,25 +50,25 @@ export const Project = ({
                 <button
                     onClick={() => setModalOpen(true)}
                     aria-label="Read more about project description"
-                    className="text-sm text-[--bg-color] font-semibold border-2 border-accent hover:scale-105 hover:shadow-[0_0px_10px_1px_var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-accent focus:ring-opacity-50 transition duration-300 rounded px-2 py-1 cursor-pointer my-2">
+                    className="text-sm text-[--bg-color] font-semibold border-2 border-accent-color hover:scale-105 hover:shadow-[0_0px_10px_1px_var(--accent-color)] focus:outline-none focus:ring-2 focus:ring-accent-color focus:ring-opacity-50 transition duration-300 rounded px-2 py-1 cursor-pointer my-2">
                     Read More
                 </button>
                 <div className="flex flex-wrap mt-4">
                     {technologies.map((tech, index) => (
-                        <span key={index} className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-[--bg-color] bg-accent mr-2 mb-2 text-shadow">{tech}</span>
+                        <span key={index} className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-[--bg-color] bg-accent-color mr-2 mb-2 text-shadow">{tech}</span>
                     ))}
                 </div>
                 <div className="mt-auto">
                     <div className="text-[--bg-color] flex justify-between items-center pt-2">
-                        {liveUrl && <Link href={liveUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer">Live Demo</Link>}
-                        {sourceCodeUrl && <Link href={sourceCodeUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer">Source Code</Link>}
-                        {playStoreUrl && <Link href={playStoreUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer">Play Store</Link>}
-                        {appStoreUrl && <Link href={appStoreUrl} className="text-sm hover:scale-105 hover:text-accent transition duration-300" target="_blank" rel="noreferrer">App Store</Link>}
+                        {liveUrl && <Link href={liveUrl} className="text-sm hover:scale-105 hover:text-accent-color transition duration-300" target="_blank" rel="noreferrer">Live Demo</Link>}
+                        {sourceCodeUrl && <Link href={sourceCodeUrl} className="text-sm hover:scale-105 hover:text-accent-color transition duration-300" target="_blank" rel="noreferrer">Source Code</Link>}
+                        {playStoreUrl && <Link href={playStoreUrl} className="text-sm hover:scale-105 hover:text-accent-color transition duration-300" target="_blank" rel="noreferrer">Play Store</Link>}
+                        {appStoreUrl && <Link href={appStoreUrl} className="text-sm hover:scale-105 hover:text-accent-color transition duration-300" target="_blank" rel="noreferrer">App Store</Link>}
                     </div>
                 </div>
             </div>
             <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
-                <h3 className="text-accent text-lg font-bold mb-3">{title}</h3>
+                <h3 className="text-accent-color text-lg font-bold mb-3">{title}</h3>
                 <p className="text-secondary">{description}</p>
             </Modal>
         </div>

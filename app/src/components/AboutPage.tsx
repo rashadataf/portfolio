@@ -97,7 +97,7 @@ export const AboutPage = () => {
                         Embarking on my programming journey in 2010,
                         I began with Visual Basic 6 during my high school years.
                         Since then, my passion for technology has led me to a Bachelor&apos;s degree in Computer Engineering and over five years of professional experience in the tech industry.
-                        Currently, I am part of the <Link className='text-accent font-bold' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer">ZIM Connections</Link> team,
+                        Currently, I am part of the <Link className='text-accent-color font-bold' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer">ZIM Connections</Link> team,
                         where I continue to hone my expertise in various JavaScript technologies,
                         frameworks, and libraries.
                         My career has been marked by a rapid adaptation to new challenges and a commitment to innovative problem-solving.
@@ -111,7 +111,7 @@ export const AboutPage = () => {
                         <Image
                             src={selfiePic}
                             alt="Rashad Ataf\'s selfie image"
-                            className="rounded-full w-60 h-72 shadow-accent shadow-xl"
+                            className="rounded-full w-60 h-72 shadow-accent-color shadow-xl"
                             width={300}
                             height={300}
                             quality={20}
@@ -119,19 +119,19 @@ export const AboutPage = () => {
                         />
                     </div>
                     <Section id="key-achievements" ariaLabelledBy="key-achievements-header" className='w-full md:w-1/2 mt-10 md:mt-auto'>
-                        <h2 id="key-achievements-header" className="text-3xl font-bold text-accent">Key Achievements</h2>
+                        <h2 id="key-achievements-header" className="text-3xl font-bold text-accent-color">Key Achievements</h2>
                         <dl>
                             <div className="mt-2">
                                 <dt className="text-lg font-medium">Happy Clients:</dt>
-                                <dd className="text-lg text-accent font-semibold">100+</dd>
+                                <dd className="text-lg text-accent-color font-semibold">100+</dd>
                             </div>
                             <div>
                                 <dt className="text-lg font-medium">Projects Completed:</dt>
-                                <dd className="text-lg text-accent font-semibold">200+</dd>
+                                <dd className="text-lg text-accent-color font-semibold">200+</dd>
                             </div>
                             <div>
                                 <dt className="text-lg font-medium">Years of Experience:</dt>
-                                <dd className="text-lg text-accent font-semibold">5</dd>
+                                <dd className="text-lg text-accent-color font-semibold">5</dd>
                             </div>
                         </dl>
                     </Section>
@@ -166,7 +166,7 @@ export const AboutPage = () => {
             <Section id="experience" ariaLabelledBy="experience-header" className="flex flex-col items-center">
                 <div className="container mx-auto px-4 py-6">
                     <h2 id="experience-header" className="text-4xl mb-10 sm:text-6xl font-semibold text-center">Experience</h2>
-                    <ol className="relative border-l-2 border-accent pl-5 md:pl-20 w-full">
+                    <ol className="relative border-l-2 border-accent-color pl-5 md:pl-20 w-full">
                         {experiences.map((item, index) => (
                             <li key={index} className="mb-10">
                                 <Experience
@@ -187,7 +187,7 @@ export const AboutPage = () => {
             <Section id="education" ariaLabelledBy="education-header" className="flex flex-col items-center">
                 <div className="container mx-auto px-4 py-6">
                     <h2 id="education-header" className="text-4xl mb-4 sm:text-6xl font-semibold text-center">Education</h2>
-                    <div className="relative border-l-2 border-accent pl-5 md:pl-20 w-full">
+                    <div className="relative border-l-2 border-accent-color pl-5 md:pl-20 w-full">
                         <article>
                             <Education degree='Bachelor' field='Computer Sceincs' from='SEP 2012' to='SEP 2019' institution='Tishreen University' />
                         </article>

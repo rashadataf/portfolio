@@ -807,7 +807,7 @@
   resolved "https://registry.yarnpkg.com/@swc/counter/-/counter-0.1.3.tgz#cc7463bd02949611c6329596fccd2b0ec782b0e9"
   integrity sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==
 
-"@swc/helpers@0.5.13", "@swc/helpers@^0.5.3":
+"@swc/helpers@0.5.13":
   version "0.5.13"
   resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.5.13.tgz#33e63ff3cd0cade557672bd7888a39ce7d115a8c"
   integrity sha512-UoKGxQ3r5kYI9dALKJapMmuK+1zWM/H17Z1+iwnNmzcJRnfFuevZs375TA5rW31pu4BS4NoSy1fRsexDXfWn5w==
@@ -850,16 +850,6 @@
   version "2.9.1"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-bullet-list/-/extension-bullet-list-2.9.1.tgz#25d28f5f141404142be9f965413ab2ecea61de9e"
   integrity sha512-0hizL/0j9PragJObjAWUVSuGhN1jKjCFnhLQVRxtx4HutcvS/lhoWMvFg6ZF8xqWgIa06n6A7MaknQkqhTdhKA==
-
-"@tiptap/extension-character-count@^2.3.0":
-  version "2.9.1"
-  resolved "https://registry.yarnpkg.com/@tiptap/extension-character-count/-/extension-character-count-2.9.1.tgz#9be252fd71b01f0e877695c9da0016ba5797f309"
-  integrity sha512-1V4gi+jA2B0W0aB8dH9W60YitZF88R5+Ck9LsxHsaEBRxPym+s382cYl1A7mXJyvv51WzYlr72iX4S0cdl3KOw==
-
-"@tiptap/extension-code-block-lowlight@^2.2.6":
-  version "2.9.1"
-  resolved "https://registry.yarnpkg.com/@tiptap/extension-code-block-lowlight/-/extension-code-block-lowlight-2.9.1.tgz#f069412537ed9a9fa5b1702c06de67fa9c4beb9e"
-  integrity sha512-SJtOE4b0VKgfdb+DQaXUTPT2xFa3nN37ejjZyOMsn/IX1LayVDciWM+3OD5Mq7KiNIEC6v++LDG88XSaPpM04Q==
 
 "@tiptap/extension-code-block@^2.9.1":
   version "2.9.1"
@@ -989,11 +979,6 @@
   version "2.9.1"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-underline/-/extension-underline-2.9.1.tgz#2aecccf70630a1d9de695402b746b4ae79079cc2"
   integrity sha512-IrUsIqKPgD7GcAjr4D+RC0WvLHUDBTMkD8uPNEoeD1uH9t9zFyDfMRPnx/z3/6Gf6fTh3HzLcHGibiW2HiMi2A==
-
-"@tiptap/extension-youtube@^2.4.0":
-  version "2.9.1"
-  resolved "https://registry.yarnpkg.com/@tiptap/extension-youtube/-/extension-youtube-2.9.1.tgz#39e954efe10581936020b62c1180e410a2216802"
-  integrity sha512-wGclckWIXCzzGMb2yN2LsfCEiJu2pMZaR6eRhHCiZWuewZeXNvlYIo73xNnR7JvwyLynwEA/VEb0jw4HMhOnrQ==
 
 "@tiptap/pm@^2.1.7", "@tiptap/pm@^2.9.1":
   version "2.9.1"
@@ -1615,7 +1600,7 @@ class-variance-authority@^0.7.0:
   dependencies:
     clsx "2.0.0"
 
-client-only@0.0.1, client-only@^0.0.1:
+client-only@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/client-only/-/client-only-0.0.1.tgz#38bba5d403c41ab150bff64a95c85013cf73bca1"
   integrity sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==
@@ -1624,11 +1609,6 @@ clsx@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-2.0.0.tgz#12658f3fd98fafe62075595a5c30e43d18f3d00b"
   integrity sha512-rQ1+kcj+ttHG0MKVGBUXwayCCF1oh39BF5COIpRzuCEv8Mwjv0XucrI2ExNTOn9IlLifGClWQcU9BrZORvtw6Q==
-
-clsx@^2.0.0:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/clsx/-/clsx-2.1.1.tgz#eed397c9fd8bd882bfb18deab7102049a2f32999"
-  integrity sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==
 
 cmdk@^0.2.1:
   version "0.2.1"
@@ -1684,11 +1664,6 @@ commander@^7.2.0:
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-7.2.0.tgz#a36cb57d0b501ce108e4d20559a150a391d97ab7"
   integrity sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==
-
-commander@^8.3.0:
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-8.3.0.tgz#4837ea1b2da67b9c616a67afbb0fafee567bca66"
-  integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
 
 concat-map@0.0.1:
   version "0.0.1"
@@ -3024,13 +2999,6 @@ json5@^1.0.2:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
-katex@^0.16.10:
-  version "0.16.11"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.11.tgz#4bc84d5584f996abece5f01c6ad11304276a33f5"
-  integrity sha512-RQrI8rlHY92OLf3rho/Ts8i/XvjgguEjOkO1BEXcU3N8BqPpSzBNwV/G0Ukr+P/l3ivvJUE/Fa/CwbS6HesGNQ==
-  dependencies:
-    commander "^8.3.0"
-
 keycode@^2.2.0:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/keycode/-/keycode-2.2.1.tgz#09c23b2be0611d26117ea2501c2c391a01f39eff"
@@ -3537,15 +3505,13 @@ normalize-range@^0.1.2:
   resolved "https://registry.yarnpkg.com/normalize-range/-/normalize-range-0.1.2.tgz#2d10c06bdfd312ea9777695a4d28439456b75942"
   integrity sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==
 
-novel@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/novel/-/novel-0.5.0.tgz#68e0f9cf49395da9a48b8d231824d8f14a440790"
-  integrity sha512-Wb4fGSQ7nGxgiZDs7XPeSjC/Kr6YPb4KxzxuJp+80W+lqqG0yu265yRPGROTUvJWcZtiLpWjMSwz978I1PTOww==
+novel@^0.2.13:
+  version "0.2.13"
+  resolved "https://registry.yarnpkg.com/novel/-/novel-0.2.13.tgz#b9df75aeddf2ea00baa0755e4644c888efcca088"
+  integrity sha512-YNye8L2mdinrEZ46jqvvZftA4ZMqrN+s8RGsgKdD55f1I91W1ifm1cq4m+jMLY9/wNMGJUksL7h7fQGDzvvu7Q==
   dependencies:
     "@radix-ui/react-slot" "^1.0.2"
     "@tiptap/core" "^2.1.7"
-    "@tiptap/extension-character-count" "^2.3.0"
-    "@tiptap/extension-code-block-lowlight" "^2.2.6"
     "@tiptap/extension-color" "^2.1.7"
     "@tiptap/extension-highlight" "^2.1.7"
     "@tiptap/extension-horizontal-rule" "^2.1.7"
@@ -3556,7 +3522,6 @@ novel@^0.5.0:
     "@tiptap/extension-task-list" "^2.1.7"
     "@tiptap/extension-text-style" "^2.1.7"
     "@tiptap/extension-underline" "^2.1.7"
-    "@tiptap/extension-youtube" "^2.4.0"
     "@tiptap/pm" "^2.1.7"
     "@tiptap/react" "^2.1.7"
     "@tiptap/starter-kit" "^2.1.7"
@@ -3564,12 +3529,9 @@ novel@^0.5.0:
     "@types/node" "18.15.3"
     cmdk "^0.2.1"
     jotai "^2.6.4"
-    katex "^0.16.10"
     react-markdown "^8.0.7"
     react-moveable "^0.56.0"
-    react-tweet "^3.2.1"
     tippy.js "^6.3.7"
-    tiptap-extension-global-drag-handle "^0.1.7"
     tiptap-markdown "^0.8.9"
     tunnel-rat "^0.1.2"
 
@@ -4352,15 +4314,6 @@ react-style-singleton@^2.2.1:
     invariant "^2.2.4"
     tslib "^2.0.0"
 
-react-tweet@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/react-tweet/-/react-tweet-3.2.1.tgz#000d9bf2b2ce919fdec0e14241f05631e8917143"
-  integrity sha512-dktP3RMuwRB4pnSDocKpSsW5Hq1IXRW6fONkHhxT5EBIXsKZzdQuI70qtub1XN2dtZdkJWWxfBm/Q+kN+vRYFA==
-  dependencies:
-    "@swc/helpers" "^0.5.3"
-    clsx "^2.0.0"
-    swr "^2.2.4"
-
 react@19.0.0-rc-02c0e824-20241028:
   version "19.0.0-rc-02c0e824-20241028"
   resolved "https://registry.yarnpkg.com/react/-/react-19.0.0-rc-02c0e824-20241028.tgz#d0f92b734b245471359fec4be89b3f26e23f3197"
@@ -4827,14 +4780,6 @@ svgo@^3.3.2:
     csso "^5.0.5"
     picocolors "^1.0.0"
 
-swr@^2.2.4:
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/swr/-/swr-2.2.5.tgz#063eea0e9939f947227d5ca760cc53696f46446b"
-  integrity sha512-QtxqyclFeAsxEUeZIYmsaQ0UjimSq1RZ9Un7I68/0ClKK/U3LoyQunwkQfJZr2fc22DfIXLNDc2wFyTEikCUpg==
-  dependencies:
-    client-only "^0.0.1"
-    use-sync-external-store "^1.2.0"
-
 tailwind-merge@^2.5.4:
   version "2.5.4"
   resolved "https://registry.yarnpkg.com/tailwind-merge/-/tailwind-merge-2.5.4.tgz#4bf574e81fa061adeceba099ae4df56edcee78d1"
@@ -4898,11 +4843,6 @@ tippy.js@^6.3.7:
   integrity sha512-E1d3oP2emgJ9dRQZdf3Kkn0qJgI6ZLpyS5z6ZkY1DF3kaQaBsGZsndEpHwx+eC+tYM41HaSNvNtLx8tU57FzTQ==
   dependencies:
     "@popperjs/core" "^2.9.0"
-
-tiptap-extension-global-drag-handle@^0.1.7:
-  version "0.1.16"
-  resolved "https://registry.yarnpkg.com/tiptap-extension-global-drag-handle/-/tiptap-extension-global-drag-handle-0.1.16.tgz#64889c12dbc79cdb02b2b28535ec648f460ad0a0"
-  integrity sha512-Toke8gAgvgmSTmpU5Zome29ywdcIPxVZVkzI3GpUbaX8DF7o2ukyb+g/x5PAwBWQt/E4nhX91QlClo96psSYHQ==
 
 tiptap-markdown@^0.8.9:
   version "0.8.10"
@@ -5135,7 +5075,7 @@ use-sidecar@^1.1.2:
     detect-node-es "^1.1.0"
     tslib "^2.0.0"
 
-use-sync-external-store@1.2.2, use-sync-external-store@^1.2.0, use-sync-external-store@^1.2.2:
+use-sync-external-store@1.2.2, use-sync-external-store@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.2.tgz#c3b6390f3a30eba13200d2302dcdf1e7b57b2ef9"
   integrity sha512-PElTlVMwpblvbNqQ82d2n6RjStvdSoNe9FG28kNfz3WiXilJm4DdNkEzRhCZuIDwY8U08WVihhGR5iRqAwfDiw==

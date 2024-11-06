@@ -24,12 +24,12 @@ export const Navbar = () => {
         [setIsOpen, isOpen]
     );
     return (
-        <nav className="sticky top-0 bg-primary p-4 text-accent z-50" aria-label="Main navigation">
+        <nav className="sticky top-0 bg-primary-color p-4 text-accent-color z-50" aria-label="Main navigation">
             <div className="max-w-6xl mx-auto px-4">
                 <div className="flex justify-between">
                     <div className="flex space-x-16">
                         <div>
-                            <Link href="/" className="flex items-center py-5 text-secondary hover:text-accent" aria-label="Go to Home Page">
+                            <Link href="/" className="flex items-center py-5 text-secondary-color hover:text-accent-color" aria-label="Go to Home Page">
                                 <span className="font-bold text-lg">{`"<Rashad Ataf>"`}</span>
                             </Link>
                         </div>
@@ -51,7 +51,7 @@ export const Navbar = () => {
                             aria-expanded={isOpen}
                             aria-controls="mobile-menu"
                         >
-                            <MenuIcon className={`w-6 h-6 stroke-secondary hover:stroke-accent ${isOpen && 'stroke-secondary'}`} />
+                            <MenuIcon className={`w-6 h-6 stroke-secondary-color hover:stroke-accent-color ${isOpen && 'stroke-secondary-color'}`} />
                         </button>
                     </div>
                 </div>
