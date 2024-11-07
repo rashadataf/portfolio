@@ -22,7 +22,7 @@
 //     return <ArticlesPage />
 // }
 "use client";
-import Editor from "@/components/editor/advanced-editor";
+import { Editor } from "@/components/Editor/Editor";
 import { JSONContent } from "novel";
 import { useState } from "react";
 import { defaultValue } from "../default-value";

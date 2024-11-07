@@ -109,7 +109,7 @@ export const defaultExtensions = [
   placeholder,
   tiptapLink,
   tiptapImage,
-  updatedImage,
+  // updatedImage,
   taskList,
   taskItem,
   horizontalRule,

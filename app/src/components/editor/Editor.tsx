@@ -1,5 +1,4 @@
 "use client";
-import React, { useEffect, useState } from "react";
 import {
   EditorRoot,
   EditorCommand,
@@ -11,16 +10,17 @@ import {
   EditorBubble,
 } from "novel";
 import { ImageResizer, handleCommandNavigation } from "novel/extensions";
-import { defaultExtensions } from "./extensions";
-import { NodeSelector } from "./selectors/node-selector";
-import { LinkSelector } from "./selectors/link-selector";
-import { ColorSelector } from "./selectors/color-selector";
-
-import { TextButtons } from "./selectors/text-buttons";
-import { slashCommand, suggestionItems } from "./slash-command";
 import { handleImageDrop, handleImagePaste } from "novel/plugins";
-import { uploadFn } from "./image-upload";
-import { Separator } from "../ui/separator";
+
+import { defaultExtensions } from "@/components/Editor/extensions";
+import { NodeSelector } from "@/components/Editor/Selectors/nodeSelector";
+import { LinkSelector } from "@/components/Editor/Selectors/linkSelector";
+import { ColorSelector } from "@/components/Editor/Selectors/colorSelector";
+import { TextButtons } from "@/components/Editor/Selectors/textButtons";
+import { slashCommand, suggestionItems } from "@/components/Editor/slashCommand";
+import { uploadFn } from "@/components/Editor/imageUpload";
+import { Separator } from "@/components/UI/Separator";
+import { useSafeState } from "@/hooks/useSafeState.hook";
 
 const extensions = [...defaultExtensions, slashCommand];
 
@@ -28,14 +28,15 @@ interface EditorProp {
   initialValue?: JSONContent;
   onChange: (value: JSONContent) => void;
 }
-const Editor = ({ initialValue, onChange }: EditorProp) => {
-  const [openNode, setOpenNode] = useState(false);
-  const [openColor, setOpenColor] = useState(false);
-  const [openLink, setOpenLink] = useState(false);
+export const Editor = ({ initialValue, onChange }: EditorProp) => {
+  const [openNode, setOpenNode] = useSafeState(false);
+  const [openColor, setOpenColor] = useSafeState(false);
+  const [openLink, setOpenLink] = useSafeState(false);
 
   return (
     <EditorRoot>
       <EditorContent
+        immediatelyRender={false}
         className="border p-4 rounded-xl"
         {...(initialValue && { initialContent: initialValue })}
         extensions={extensions}
@@ -101,5 +102,3 @@ const Editor = ({ initialValue, onChange }: EditorProp) => {
     </EditorRoot>
   );
 };
-
-export default Editor;

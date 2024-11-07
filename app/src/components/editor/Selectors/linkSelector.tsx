@@ -1,19 +1,17 @@
-import { cn } from "@/lib/utils";
-import { useEditor } from "novel";
-import { Check, Trash } from "lucide-react";
 import {
-  type Dispatch,
-  type FC,
-  type SetStateAction,
   useEffect,
   useRef,
 } from "react";
-import { Button } from "@/components/ui/button";
+import { useEditor } from "novel";
+import { Check, Trash } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/UI/Button";
 import {
   PopoverContent,
   Popover,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/UI/Popover";
 
 export function isValidUrl(url: string) {
   try {
@@ -42,10 +40,12 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { editor } = useEditor();
 
-  // Autofocus on input by default
-  useEffect(() => {
-    inputRef.current && inputRef.current?.focus();
-  });
+  useEffect(
+    () => {
+      inputRef.current && inputRef.current?.focus();
+    },
+    []
+  );
   if (!editor) return null;
 
   return (

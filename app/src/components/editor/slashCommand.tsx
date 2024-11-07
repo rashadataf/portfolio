@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { createSuggestionItems } from "novel/extensions";
 import { Command, renderItems } from "novel/extensions";
-import { uploadFn } from "./image-upload";
+import { uploadFn } from "@/components/Editor/imageUpload";
 
 export const suggestionItems = createSuggestionItems([
   {
@@ -137,7 +137,6 @@ export const suggestionItems = createSuggestionItems([
     icon: <ImageIcon size={18} />,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
-      // upload image
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "image/*";
