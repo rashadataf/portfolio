@@ -4,8 +4,8 @@ function dev() {
   RESET_CONFIG=true docker compose --profile dev up
 }
 
-function dev_reset() {
-  RESET_CONFIG=false docker compose --profile dev up
+function restart_dev() {
+  RESET_CONFIG=false docker compose --profile dev up --build
 }
 
 function restart_production() {

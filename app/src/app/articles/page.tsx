@@ -21,3 +21,4 @@ const ArticlesPage = dynamic(() =>
 export default function Articles() {
     return <ArticlesPage />
 }
+
