@@ -19,7 +19,7 @@ export default function TemplateLayout({
     return (
         <ThemeProvider>
             <Navbar />
-            <main role="main">
+            <main role="main" className='flex-1'>
                 {children}
             </main>
             <Footer />

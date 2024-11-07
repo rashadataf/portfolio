@@ -54,10 +54,10 @@ function dev() {
 ```
 Starts the development environment with nginx configuration reset enabled.
 
-#### `dev_reset`
+#### `restart_dev`
 ```bash
-function dev_reset() {
-  RESET_CONFIG=false docker compose --profile dev up
+function restart_dev() {
+  RESET_CONFIG=false docker compose --profile dev up --build
 }
 ```
 Starts the development environment without resetting nginx configuration.
@@ -101,7 +101,13 @@ Reloads the Nginx configuration in the running container.
 #### `clear_docker`
 ```bash
 function clear_docker() {
-  echo "Stopping all containers..."
+  echo "Stopping nginx_production container..."
+  docker stop nginx_production
+
+  echo "Stopping production container..."
+  docker stop production
+
+  echo "Killing all containers..."
   docker compose down
 
   echo "Prune docker builder..."
