@@ -1,5 +1,5 @@
 import { Project } from "@/components/Project";
-import Section from "@/components/Section";
+import { Section } from "@/components/Section";
 
 const projects = [
     {

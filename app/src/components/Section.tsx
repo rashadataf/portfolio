@@ -5,7 +5,7 @@ interface SectionProps {
     children: React.ReactNode;
 }
 
-export default function Section({ id, ariaLabelledBy, className = "", children }: SectionProps) {
+export const Section = ({ id, ariaLabelledBy, className = "", children }: SectionProps) => {
     return (
         <section
             id={id}

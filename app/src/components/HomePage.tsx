@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import profilePic from '@public/images/rashad.webp';
-import Section from "@/components/Section";
+import { Section } from "@/components/Section";
 
 export const HomePage = () => {
     return (

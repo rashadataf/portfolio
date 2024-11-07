@@ -1,8 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useThemeContext } from '@/context/theme.provider';
 import { THEME } from '@/types';
 import { MoonIcon, SunIcon } from '@/components/Icons';
+import { useSafeState } from '@/hooks/useSafeState.hook';
 
 const renderIconConditionally: {
     [key in THEME]: JSX.Element;
@@ -17,7 +18,7 @@ type Props = {
 
 export const ThemeToggler = ({ className }: Props) => {
     const { toggleTheme, theme } = useThemeContext();
-    const [isMounted, setIsMounted] = useState(false);
+    const [isMounted, setIsMounted] = useSafeState(false);
 
     useEffect(() => {
         setIsMounted(true);

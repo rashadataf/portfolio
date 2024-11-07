@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
-import Section from '@/components/Section';
+import { Section } from "@/components/Section";
 import selfiePic from '@public/images/selfie.webp';
 
 const proficientSkills = {
