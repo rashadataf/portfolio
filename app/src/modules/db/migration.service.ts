@@ -5,7 +5,7 @@ import { UsersEntity } from '@/modules/user/user.entity';
 
 export class MigrationService {
 
-  async createTables() {
+  private async createTables() {
     const queries = [
       ...UsersEntity.initializeTable(),
     ];
@@ -17,7 +17,7 @@ export class MigrationService {
     console.log('All tables and indexes have been migrated.');
   }
 
-  async createAdmin() {
+  private async createAdmin() {
     const adminEmail = process.env.ADMIN_EMAIL || '';
     const adminPassword = process.env.ADMIN_PASSWORD || '';
 
@@ -36,7 +36,6 @@ export class MigrationService {
       await this.createAdmin();
     } catch (error) {
       console.error('Error during table migration:', error);
-      process.exit(1);
     }
   };
 }

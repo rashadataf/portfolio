@@ -28,7 +28,7 @@ export class UsersEntity {
       password ${this.UserSchema.password},
       role ${this.UserSchema.role},
       created_at ${this.UserSchema.created_at},
-      updated_at ${this.UserSchema.updated_at},
+      updated_at ${this.UserSchema.updated_at}
     );
   `;
 
