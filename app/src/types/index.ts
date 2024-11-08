@@ -6,6 +6,11 @@ export enum THEME {
     LIGHT = 'light'
 }
 
+export enum Role {
+    User = 'user',
+    Admin = 'admin',
+}
+
 // Types
 type Url = string | UrlObject;
 
