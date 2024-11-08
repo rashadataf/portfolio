@@ -1,5 +1,6 @@
-import { migrationService } from "@/modules/db/migration.service";
-
 export async function register() {
-    await migrationService.initializeDatabase();
+    if (process.env.NEXT_RUNTIME === 'nodejs') {
+        const { migrationService } = await import("@/modules/db/migration.service");
+        await migrationService.initializeDatabase();
+    }
 }
