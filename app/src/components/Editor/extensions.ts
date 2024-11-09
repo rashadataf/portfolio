@@ -1,7 +1,7 @@
 import {
   TiptapImage,
   TiptapLink,
-  UpdatedImage,
+  // UpdatedImage,
   TaskList,
   TaskItem,
   HorizontalRule,
@@ -38,11 +38,11 @@ const tiptapImage = TiptapImage.extend({
   },
 });
 
-const updatedImage = UpdatedImage.configure({
-  HTMLAttributes: {
-    class: cx("rounded-lg border border-muted"),
-  },
-});
+// const updatedImage = UpdatedImage.configure({
+//   HTMLAttributes: {
+//     class: cx("rounded-lg border border-muted"),
+//   },
+// });
 
 const taskList = TaskList.configure({
   HTMLAttributes: {
