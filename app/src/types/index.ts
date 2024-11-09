@@ -6,6 +6,11 @@ export enum THEME {
     LIGHT = 'light'
 }
 
+export enum Role {
+    User = 'user',
+    Admin = 'admin',
+}
+
 // Types
 type Url = string | UrlObject;
 
@@ -18,4 +23,9 @@ export type NavLinkProp = {
     href: Url;
     title: string;
     className?: string;
+}
+
+export type CredentialsType = {
+    email: string;
+    password: string;
 }

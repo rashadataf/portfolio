@@ -5,6 +5,11 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
@@ -28,8 +33,13 @@ services:
       NODE_ENV: ${DEV_NODE_ENV}
       PORT: ${APP_PORT}
       DATABASE_URL: ${DATABASE_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+        restart: true
 
   production:
     profiles: [ production ]
@@ -45,8 +55,15 @@ services:
       NODE_ENV: ${PROD_NODE_ENV}
       PORT: ${APP_PORT}
       DATABASE_URL: ${DATABASE_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      AUTH_TRUST_HOST: ${AUTH_TRUST_HOST}
+      AUTH_BASE_PATH: ${AUTH_BASE_PATH}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+        restart: true
 
   nginx_dev:
     profiles: [ dev ]
@@ -71,6 +88,8 @@ services:
       - ${CERTS_VOLUME}
       - ${DATA_VOLUME}
       - ${NGINX_TEMPLATES_VOLUME}
+    depends_on:
+      - dev
 
   nginx_production:
     profiles: [ production ]
