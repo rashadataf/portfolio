@@ -24,3 +24,8 @@ export type NavLinkProp = {
     title: string;
     className?: string;
 }
+
+export type CredentialsType = {
+    email: string;
+    password: string;
+}

@@ -1,3 +1,5 @@
+import { hash } from 'bcryptjs';
+import { Role } from '@/types';
 import { UserRepository } from '@/modules/user/user.repository';
 import { CreateUserDTO } from '@/modules/user/user.dto';
 
@@ -17,6 +19,8 @@ export class UserService {
     }
 
     async createUser(userDTO: CreateUserDTO) {
-        return this.userRepository.createUser(userDTO);
+        const hashedPassword = await hash(userDTO.password, 10);
+        const role = userDTO.role || Role.User;
+        return this.userRepository.createUser({ ...userDTO, password: hashedPassword, role });
     }
 }
