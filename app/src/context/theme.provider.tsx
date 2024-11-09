@@ -21,14 +21,16 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
     useEffect(
         () => {
             const html = document.querySelector("html");
-            html && html.classList.remove(THEME.DARK);
-            html && html.classList.remove(THEME.LIGHT);
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                html && html.classList.add(THEME.DARK);
-                setTheme(THEME.DARK);
-            } else {
-                html && html.classList.add(THEME.LIGHT);
-                setTheme(THEME.LIGHT);
+            if (html) {
+                html.classList.remove(THEME.DARK);
+                html.classList.remove(THEME.LIGHT);
+                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    html.classList.add(THEME.DARK);
+                    setTheme(THEME.DARK);
+                } else {
+                    html.classList.add(THEME.LIGHT);
+                    setTheme(THEME.LIGHT);
+                }
             }
         },
         [setTheme, theme]

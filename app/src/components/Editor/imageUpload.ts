@@ -15,8 +15,8 @@ const onUpload = (file: File) => {
     toast.promise(
       promise.then(async (res) => {
         if (res.status === 200) {
-          const { url } = (await res.json()) as any;
-          let image = new Image();
+          const { url } = (await res.json());
+          const image = new Image();
           image.src = url;
           image.onload = () => {
             resolve(url);

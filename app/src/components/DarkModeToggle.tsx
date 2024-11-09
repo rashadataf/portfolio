@@ -20,9 +20,12 @@ export const ThemeToggler = ({ className }: Props) => {
     const { toggleTheme, theme } = useThemeContext();
     const [isMounted, setIsMounted] = useSafeState(false);
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+    useEffect(
+        () => {
+            setIsMounted(true);
+        },
+        [setIsMounted]
+    );
 
     return (
         <button

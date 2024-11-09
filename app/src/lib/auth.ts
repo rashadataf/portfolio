@@ -34,8 +34,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     email: user.email,
                     role: user.role,
                 };
-                // return null;
             },
         }),
     ],
+    basePath: process.env.AUTH_BASE_PATH,
 })
