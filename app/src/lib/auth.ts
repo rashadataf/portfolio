@@ -1,8 +1,6 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { CredentialsType } from "@/types";
-import { UserController } from "@/modules/user/user.controller";
-import { compare } from "bcryptjs";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -17,8 +15,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
 
                 const { email, password } = credentials as CredentialsType;
-                // const { compare } = await import("bcryptjs");
-                // const { UserController } = await import("@/modules/user/user.controller");
+                const { compare } = await import("bcryptjs");
+                const { UserController } = await import("@/modules/user/user.controller");
                 const userController = new UserController();
                 const user = await userController.getUserByEmail(email);
                 if (!user) {

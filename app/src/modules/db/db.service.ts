@@ -17,7 +17,7 @@ class DatabaseService {
     });
   }
 
-  async query(text: string, params?: any[]) {
+  async query(text: string, params?: unknown[]) {
     try {
       const result = await this.pool.query(text, params);
       return result;
