@@ -60,6 +60,7 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       AUTH_TRUST_HOST: ${AUTH_TRUST_HOST}
       AUTH_BASE_PATH: ${AUTH_BASE_PATH}
+      AUTH_URL: "${AUTH_URL}"
     depends_on:
       postgres:
         condition: service_healthy
