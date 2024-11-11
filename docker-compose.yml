@@ -36,6 +36,7 @@ services:
       AUTH_SECRET: ${AUTH_SECRET}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      AUTH_BASE_PATH: ${AUTH_BASE_PATH}
     depends_on:
       postgres:
         condition: service_healthy
