@@ -9,7 +9,7 @@ export interface User {
   updatedAt: Date;
 }
 
-export class UsersEntity {
+export class UserEntity {
   static tableName = 'users';
 
   static UserSchema = {
@@ -22,7 +22,7 @@ export class UsersEntity {
   }
 
   static createTableQuery = `
-    CREATE TABLE IF NOT EXISTS ${UsersEntity.tableName} (
+    CREATE TABLE IF NOT EXISTS ${UserEntity.tableName} (
       id ${this.UserSchema.id},
       email ${this.UserSchema.email},
       password ${this.UserSchema.password},
@@ -33,6 +33,6 @@ export class UsersEntity {
   `;
 
   static initializeTable() {
-    return [UsersEntity.createTableQuery];
+    return [UserEntity.createTableQuery];
   }
 }

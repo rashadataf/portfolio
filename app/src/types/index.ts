@@ -11,6 +11,12 @@ export enum Role {
     Admin = 'admin',
 }
 
+export enum ArticleStatus {
+    DRAFT = 'draft',
+    PUBLISHED = 'published',
+    ARCHIVED = 'archived',
+}
+
 // Types
 type Url = string | UrlObject;
 
