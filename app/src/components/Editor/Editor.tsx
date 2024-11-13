@@ -27,8 +27,9 @@ const extensions = [...defaultExtensions, slashCommand];
 interface EditorProp {
   initialValue?: JSONContent;
   onChange: (value: JSONContent) => void;
+  dir?: "ltr" | "rtl";
 }
-export const Editor = ({ initialValue, onChange }: EditorProp) => {
+export const Editor = ({ initialValue, onChange, dir = 'ltr' }: EditorProp) => {
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
@@ -36,6 +37,9 @@ export const Editor = ({ initialValue, onChange }: EditorProp) => {
   return (
     <EditorRoot>
       <EditorContent
+        editorContainerProps={{
+          dir
+        }}
         immediatelyRender={false}
         className="border p-4 rounded-xl"
         {...(initialValue && { initialContent: initialValue })}

@@ -1,5 +1,6 @@
 import { ArticleRepository } from '@/modules/article/article.repository';
 import { CreateArticleDTO, UpdateArticleDTO } from '@/modules/article/article.dto';
+import { ArticleStatus } from '@/types';
 
 export class ArticleService {
     private articleRepository: ArticleRepository;
@@ -17,6 +18,9 @@ export class ArticleService {
     }
 
     async createArticle(articleDTO: CreateArticleDTO) {
+        if (articleDTO.status === ArticleStatus.PUBLISHED) {
+            articleDTO.publicationDate = new Date();
+        }
         return this.articleRepository.createArticle(articleDTO);
     }
 

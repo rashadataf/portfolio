@@ -1,10 +1,11 @@
+import { JSONContent } from "novel";
 import { ArticleStatus } from "@/types";
 
 export type CreateArticleDTO = {
     titleEn: string;
     titleAr: string;
-    contentEn: JSON;
-    contentAr: JSON;
+    contentEn: JSONContent;
+    contentAr: JSONContent;
     coverImage?: string;
     keywordsEn?: string[];
     keywordsAr?: string[];

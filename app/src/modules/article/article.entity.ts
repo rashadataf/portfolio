@@ -1,23 +1,24 @@
+import { JSONContent } from "novel";
 import { ArticleStatus } from "@/types";
 
 export interface Article {
     id: string;
-    title_en: string;
-    title_ar: string;
-    content_en: JSON;
-    content_ar: JSON;
-    content_search_en: string;
-    content_search_ar: string;
+    titleEn: string;
+    titleAr: string;
+    contentEn: JSONContent;
+    contentAr: JSONContent;
+    contentAearchEn: string;
+    contentSearchAr: string;
     coverImage: string;
-    keywords_en: string[];
-    keywords_ar: string[];
+    keywordsEn: string[];
+    keywordsAr: string[];
     author: string;
     publicationDate: Date;
     status: ArticleStatus;
-    slug_en: string;
-    slug_ar: string;
-    created_at: Date;
-    updated_at: Date;
+    slugEn: string;
+    slugAr: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export class ArticleEntity {
