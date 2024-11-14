@@ -28,8 +28,9 @@ interface EditorProp {
   initialValue?: JSONContent;
   onChange: (value: JSONContent) => void;
   dir?: "ltr" | "rtl";
+  editable: boolean;
 }
-export const Editor = ({ initialValue, onChange, dir = 'ltr' }: EditorProp) => {
+export const Editor = ({ initialValue, onChange, dir = 'ltr', editable }: EditorProp) => {
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
@@ -37,6 +38,7 @@ export const Editor = ({ initialValue, onChange, dir = 'ltr' }: EditorProp) => {
   return (
     <EditorRoot>
       <EditorContent
+        editable={editable}
         editorContainerProps={{
           dir
         }}

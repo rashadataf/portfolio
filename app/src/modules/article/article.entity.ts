@@ -35,11 +35,11 @@ export class ArticleEntity {
             content_ar JSON NOT NULL,
             content_search_en tsvector,
             content_search_ar tsvector,
-            coverImage VARCHAR(255),
+            cover_image VARCHAR(255),
             keywords_en TEXT[],
             keywords_ar TEXT[],
             author VARCHAR(255) NOT NULL,
-            publicationDate TIMESTAMP,
+            publication_date TIMESTAMP,
             status VARCHAR(50) CHECK (status IN (${ArticleEntity.articleStatusValues})),
             slug_en VARCHAR(255) UNIQUE NOT NULL,
             slug_ar VARCHAR(255) UNIQUE NOT NULL,
@@ -50,7 +50,7 @@ export class ArticleEntity {
 
     static createIndexQuery = `
         CREATE INDEX IF NOT EXISTS idx_articles_publication_status 
-        ON ${ArticleEntity.tableName}(publicationDate, status);
+        ON ${ArticleEntity.tableName}(publication_date, status);
 
         CREATE INDEX IF NOT EXISTS idx_articles_keywords_en 
         ON ${ArticleEntity.tableName} USING GIN(keywords_en);
