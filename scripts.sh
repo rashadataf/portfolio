@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function dev() {
-  RESET_CONFIG=true docker compose --profile dev up
+   WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile dev up
 }
 
 function restart_dev() {
