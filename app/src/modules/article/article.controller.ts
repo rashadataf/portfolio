@@ -3,11 +3,13 @@ import { promises as fs } from "fs";
 import path from "path";
 import { ArticleService } from "@/modules/article/article.service";
 import { CreateArticleDTO, UpdateArticleDTO } from "@/modules/article/article.dto";
+import { isAdmin } from "@/lib/auth";
 
 const articleService = new ArticleService();
 
 export async function getAllArticles() {
     try {
+        await isAdmin();
         const articles = await articleService.getAllArticles();
         return { articles, status: 200 };
     } catch (error) {
@@ -18,6 +20,7 @@ export async function getAllArticles() {
 
 export async function getArticleById(id: string) {
     try {
+        await isAdmin();
         if (!id) {
             return { message: 'Article ID is required', status: 400 };
         }
@@ -34,6 +37,7 @@ export async function getArticleById(id: string) {
 
 export async function createArticle(data: CreateArticleDTO, coverImage: File | null) {
     try {
+        await isAdmin();
         let coverImageUrl = '';
 
         if (coverImage) {
@@ -59,6 +63,7 @@ export async function createArticle(data: CreateArticleDTO, coverImage: File | n
 
 export async function updateArticle(id: string, data: UpdateArticleDTO) {
     try {
+        await isAdmin();
         const updatedArticle = await articleService.updateArticle(id, data);
         if (!updatedArticle) {
             return { message: 'Article not found', status: 404 };
@@ -72,6 +77,7 @@ export async function updateArticle(id: string, data: UpdateArticleDTO) {
 
 export async function deleteArticle(id: string) {
     try {
+        await isAdmin();
         if (!id) {
             return { message: 'Article ID is required', status: 400 };
         }
