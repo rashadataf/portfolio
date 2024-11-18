@@ -4,12 +4,12 @@ import path from "path";
 import { ArticleService } from "@/modules/article/article.service";
 import { CreateArticleDTO, UpdateArticleDTO } from "@/modules/article/article.dto";
 import { isAdmin } from "@/lib/auth";
+import { Article } from "@/modules/article/article.entity";
 
 const articleService = new ArticleService();
 
 export async function getAllArticles() {
     try {
-        await isAdmin();
         const articles = await articleService.getAllArticles();
         return { articles, status: 200 };
     } catch (error) {
@@ -18,9 +18,8 @@ export async function getAllArticles() {
     }
 }
 
-export async function getArticleById(id: string) {
+export async function getArticleById(id: string): Promise<{ article?: Article, message?: string, error?: unknown, status: number }> {
     try {
-        await isAdmin();
         if (!id) {
             return { message: 'Article ID is required', status: 400 };
         }

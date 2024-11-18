@@ -1,21 +1,31 @@
 "use client";
 import '@/app/prosemirror.css';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
-import { Editor } from "@/components/Editor/Editor";
+
 import { defaultValue } from "@/app/default-value";
 import { Section } from "@/components/Section";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus } from '@/types';
 import { createArticle, getArticleById } from '@/modules/article/article.controller';
 import { CreateArticleDTO } from '@/modules/article/article.dto';
-import { useEffect } from 'react';
+import { Loader } from '@/components//Loader';
 
 interface ArticlePageProps {
     editable: boolean;
     articleId?: string;
 }
+
+const Editor = dynamic(() =>
+    import('@/components/Editor/Editor').then((mod) => mod.Editor),
+    {
+        ssr: false,
+        loading: () => <Loader />,
+    }
+)
 
 export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
     const router = useRouter();
@@ -35,7 +45,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
         if (!articleId) return;
         const fetchArticle = async () => {
             try {
-                // setLoading(true);
                 const response = await getArticleById(articleId);
                 const article = response.article;
                 console.log('article: ', article);
@@ -52,8 +61,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 }
             } catch (error) {
                 console.error("Error fetching article:", error);
-            } finally {
-                // setLoading(false);
             }
         };
 
@@ -160,7 +167,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 }
                 <div>
                     <h2 className="text-lg font-semibold">Content (English)</h2>
-                    <Editor initialValue={contentEn} onChange={setContentEn} editable={editable} />
+                    <Editor initialValue={contentEn} onChange={setContentEn} dir='ltr' editable={editable} />
                 </div>
                 <div>
                     <h2 className="text-lg font-semibold">Content (Arabic)</h2>

@@ -25,9 +25,9 @@ import { useSafeState } from "@/hooks/useSafeState.hook";
 const extensions = [...defaultExtensions, slashCommand];
 
 interface EditorProp {
-  initialValue?: JSONContent;
+  initialValue: JSONContent;
   onChange: (value: JSONContent) => void;
-  dir?: "ltr" | "rtl";
+  dir: "ltr" | "rtl";
   editable: boolean;
 }
 export const Editor = ({ initialValue, onChange, dir = 'ltr', editable }: EditorProp) => {
@@ -42,9 +42,9 @@ export const Editor = ({ initialValue, onChange, dir = 'ltr', editable }: Editor
         editorContainerProps={{
           dir
         }}
-        immediatelyRender={false}
+        immediatelyRender={true}
         className="border p-4 rounded-xl"
-        {...(initialValue && { initialContent: initialValue })}
+        initialContent={initialValue}
         extensions={extensions}
         editorProps={{
           handleDOMEvents: {
