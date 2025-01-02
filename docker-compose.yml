@@ -33,10 +33,12 @@ services:
       NODE_ENV: ${DEV_NODE_ENV}
       PORT: ${APP_PORT}
       DATABASE_URL: ${DATABASE_URL}
-      AUTH_SECRET: ${AUTH_SECRET}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_TRUST_HOST: ${AUTH_TRUST_HOST}
       AUTH_BASE_PATH: ${AUTH_BASE_PATH}
+      AUTH_URL: "${AUTH_URL}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -56,9 +58,9 @@ services:
       NODE_ENV: ${PROD_NODE_ENV}
       PORT: ${APP_PORT}
       DATABASE_URL: ${DATABASE_URL}
-      AUTH_SECRET: ${AUTH_SECRET}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      AUTH_SECRET: ${AUTH_SECRET}
       AUTH_TRUST_HOST: ${AUTH_TRUST_HOST}
       AUTH_BASE_PATH: ${AUTH_BASE_PATH}
       AUTH_URL: "${AUTH_URL}"

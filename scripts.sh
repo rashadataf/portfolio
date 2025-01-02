@@ -1,11 +1,11 @@
 #!/bin/bash
 
 function dev() {
-   WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile dev up
+  WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile dev up
 }
 
 function restart_dev() {
-  RESET_CONFIG=false docker compose --profile dev up --build
+  WITH_CERTBOT=false RESET_CONFIG=false docker compose --profile dev up --build
 }
 
 function restart_production() {
