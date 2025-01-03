@@ -107,7 +107,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     value={titleEn}
                     onChange={(e) => setTitleEn(e.target.value)}
                     placeholder="Title (English)"
-                    className="p-2 border rounded bg-inherit border-secondary-color"
+                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
                     readOnly={!editable}
                 />
@@ -116,7 +116,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     value={titleAr}
                     onChange={(e) => setTitleAr(e.target.value)}
                     placeholder="العنوان (العربي)"
-                    className="p-2 border rounded bg-inherit border-secondary-color"
+                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     dir='rtl'
                     required
                     readOnly={!editable}
@@ -126,7 +126,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                     placeholder="Author"
-                    className="p-2 border rounded bg-inherit border-secondary-color"
+                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
                     readOnly={!editable}
                 />
@@ -135,7 +135,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     value={keywordsEn}
                     onChange={(e) => setKeywordsEn(e.target.value)}
                     placeholder="Keywords (English, comma-separated)"
-                    className="p-2 border rounded bg-inherit border-secondary-color"
+                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
                     readOnly={!editable}
                 />
@@ -144,7 +144,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     value={keywordsAr}
                     onChange={(e) => setKeywordsAr(e.target.value)}
                     placeholder="كلمات مفتاحية (بالعربي، مفصولة بالفاصلة)"
-                    className="p-2 border rounded bg-inherit border-secondary-color"
+                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     dir='rtl'
                     required
                     readOnly={!editable}
@@ -154,7 +154,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                         <input
                             type="file"
                             onChange={handleFileChange}
-                            className="p-2 border rounded bg-inherit border-secondary-color"
+                            className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                             accept="image/*"
                         /> :
                         coverImageUrl && <Image
@@ -165,12 +165,12 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                             height={300}
                         />
                 }
-                <div>
-                    <h2 className="text-lg font-semibold">Content (English)</h2>
+                <div className='border rounded bg-inherit border-secondary-color'>
+                    <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (English)</h2>
                     <Editor initialValue={contentEn} onChange={setContentEn} dir='ltr' editable={editable} />
                 </div>
-                <div>
-                    <h2 className="text-lg font-semibold">Content (Arabic)</h2>
+                <div className='border rounded bg-inherit border-secondary-color'>
+                    <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (Arabic)</h2>
                     <Editor initialValue={contentAr} onChange={setContentAr} dir='rtl' editable={editable} />
                 </div>
                 {

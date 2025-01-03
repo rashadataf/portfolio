@@ -11,6 +11,7 @@
     --bg-color: #ffffff;
     --text-color: #000000;
     --accent-color: #840400;
+    --transparent-accent-color: #84040094;
 
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -49,6 +50,7 @@
     --text-color: #000000;
     --bg-color: #f5f5f5;
     --accent-color: #c420d9;
+    --transparent-accent-color: #c420d94d;
 
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;

@@ -18,6 +18,7 @@ export default {
         "primary-color": "var(--primary-color)",
         "secondary-color": "var(--secondary-color)",
         "accent-color": "var(--accent-color)",
+        "transparent-accent-color": "var(--transparent-accent-color)",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
