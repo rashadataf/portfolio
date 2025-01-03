@@ -1,7 +1,7 @@
 "use client";
 import { Article } from "@/modules/article/article.entity";
 import { useSafeState } from "@/hooks/useSafeState.hook";
-import { Editor } from "@/components/Editor/Editor";
+import { Viewer } from "@/components/Editor/Viewer";
 
 type Props = {
     article: Article;
@@ -28,15 +28,13 @@ export const ArticleDetails = ({ article }: Props) => {
                 </button>
             </div>
             <div
-                className={`rounded-lg shadow-lg bg-white dark:bg-gray-800 p-6 border border-gray-200 dark:border-gray-700 ${isArabic ? "text-right" : "text-left"}`}
+                className={`${isArabic ? "text-right" : "text-left"}`}
                 dir={dir}
             >
-                <Editor
+                <Viewer
                     key={language}
-                    editable={false}
                     initialValue={isArabic ? article.contentAr : article.contentEn}
                     dir={dir}
-                    onChange={() => { }}
                 />
             </div>
         </section>
