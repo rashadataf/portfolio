@@ -12,7 +12,7 @@ export const ArticleDetails = ({ article }: Props) => {
     const isArabic = language === "ar";
     const dir = isArabic ? "rtl" : "ltr";
     return (
-        <section className="container mx-auto py-10 px-4">
+        <section className="container mx-auto py-10 px-4 md:px-10 xl:px-12 2xl:px-24">
             <div className="flex justify-between items-center mb-6" dir={dir}>
                 <div>
                     <h1 className="text-3xl font-bold">
