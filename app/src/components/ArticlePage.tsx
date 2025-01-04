@@ -82,8 +82,8 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 status: publish ? ArticleStatus.PUBLISHED : ArticleStatus.DRAFT,
                 keywordsEn: keywordsEn.split(",").map(kw => kw.trim()),
                 keywordsAr: keywordsAr.split(",").map(kw => kw.trim()),
-                contentEn,
-                contentAr,
+                contentEn: JSON.parse(JSON.stringify(contentEn)),
+                contentAr: JSON.parse(JSON.stringify(contentAr)),
                 slugEn: titleEn.toLowerCase().replace(/ /g, "-"),
                 slugAr: titleAr.toLowerCase().replace(/ /g, "-"),
             };

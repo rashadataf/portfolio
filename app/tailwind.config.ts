@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
-
+import tailwindTypography from '@tailwindcss/typography'
 export default {
   darkMode: ["class"],
   content: [
@@ -56,7 +56,7 @@ export default {
     },
   },
   plugins: [
-    require('@tailwindcss/typography'),
+    tailwindTypography,
     plugin(function ({ addUtilities }) {
       addUtilities({
         '.text-shadow': {

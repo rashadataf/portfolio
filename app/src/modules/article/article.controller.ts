@@ -40,18 +40,18 @@ export async function createArticle(data: CreateArticleDTO, coverImage: File | n
         let coverImageUrl = '';
 
         if (coverImage) {
-            const timestamp = Date.now();
-            const imageFileName = `${timestamp}-${coverImage.name}`;
-            const uploadPath = path.join(process.cwd(), "public", "uploads", imageFileName);
-
-            await fs.mkdir(path.dirname(uploadPath), { recursive: true });
-            const buffer = await coverImage.arrayBuffer();
-            await fs.writeFile(uploadPath, Buffer.from(buffer));
-
-            coverImageUrl = `/uploads/${imageFileName}`;
+            const uploadResponse = await uploadImage(coverImage);
+            if (uploadResponse.url) {
+                coverImageUrl = uploadResponse.url;
+            }
         }
 
         const articleData = { ...data, coverImage: coverImageUrl };
+
+        if (articleData?.contentEn) {
+            console.log('articleData in server: ', articleData.contentEn);
+        }
+
         const createdArticle = await articleService.createArticle(articleData);
         return { article: createdArticle, status: 201 };
     } catch (error) {
@@ -88,5 +88,30 @@ export async function deleteArticle(id: string) {
     } catch (error) {
         console.error('Error deleting article:', error);
         return { message: 'Error deleting article', error, status: 500 };
+    }
+}
+
+export async function uploadImage(file: File) {
+    try {
+        await isAdmin();
+        if (!file) {
+            throw new Error("No file provided for upload.");
+        }
+
+        const timestamp = Date.now();
+        const imageFileName = `${timestamp}-${file.name}`;
+        const uploadPath = path.join(process.cwd(), "public", "uploads", imageFileName);
+
+        await fs.mkdir(path.dirname(uploadPath), { recursive: true });
+
+        const buffer = await file.arrayBuffer();
+        await fs.writeFile(uploadPath, Buffer.from(buffer));
+
+        const imageUrl = `/uploads/${imageFileName}`;
+
+        return { url: imageUrl, status: 200 };
+    } catch (error) {
+        console.error("Error uploading image:", error);
+        return { status: 401, message: "Error uploading image", error };
     }
 }
