@@ -48,10 +48,6 @@ export async function createArticle(data: CreateArticleDTO, coverImage: File | n
 
         const articleData = { ...data, coverImage: coverImageUrl };
 
-        if (articleData?.contentEn) {
-            console.log('articleData in server: ', articleData.contentEn);
-        }
-
         const createdArticle = await articleService.createArticle(articleData);
         return { article: createdArticle, status: 201 };
     } catch (error) {

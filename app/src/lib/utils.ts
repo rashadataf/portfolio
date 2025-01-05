@@ -19,9 +19,14 @@ export function toCamelCase<T>(snakeObj: Record<string, unknown>): T {
       snakeToCamelMapCache[snakeKey] = camelKey;
     }
 
-    if (typeof snakeValue === 'object' && snakeValue !== null) {
+    if (snakeValue instanceof Date) {
+      camelObj[camelKey] = snakeValue;
+    }
+    else if (typeof snakeValue === 'object' && snakeValue !== null) {
       if (Array.isArray(snakeValue)) {
-        camelObj[camelKey] = snakeValue.map(item => (typeof item === 'object' && item !== null ? toCamelCase(item) : item));
+        camelObj[camelKey] = snakeValue.map(item =>
+          typeof item === 'object' && item !== null ? toCamelCase(item) : item
+        );
       } else {
         camelObj[camelKey] = toCamelCase(snakeValue as Record<string, unknown>);
       }
