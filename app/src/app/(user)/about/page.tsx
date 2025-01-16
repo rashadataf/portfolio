@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { Loader } from '@/components/Loader';
+import { trackPageVisit } from "@/lib/metrics";
 
 export const metadata: Metadata = {
     title: "About Rashad Ataf - Full Stack Developer",
@@ -19,6 +20,7 @@ const AboutPage = dynamic(() =>
 )
 
 export default function About() {
+    trackPageVisit('About');
     return <AboutPage />
 }
 

@@ -17,11 +17,11 @@ function production_ssl() {
 }
 
 function production_no_ssl() {
-  WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile production up --build --detach
+  WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile production up --build
 }
 
 function nginx_reload() {
-  docker compose exec nginx nginx -s reload
+  docker compose exec nginx_dev nginx -s reload
 }
 
 function clear_docker() {

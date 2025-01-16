@@ -19,6 +19,5 @@ const HomePage = dynamic(() =>
 )
 
 export default function Home() {
-
   return <HomePage />
 }

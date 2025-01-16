@@ -47,7 +47,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
             try {
                 const response = await getArticleById(articleId);
                 const article = response.article;
-                console.log('article: ', article);
 
                 if (article) {
                     setTitleEn(article.titleEn || "");

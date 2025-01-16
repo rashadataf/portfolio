@@ -46,3 +46,6 @@ certs/
 logs/
 nginx/conf/
 postgres_data/
+
+# prometheus
+prometheus_data/
