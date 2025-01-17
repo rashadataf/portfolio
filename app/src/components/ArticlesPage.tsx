@@ -1,12 +1,21 @@
+'use client';
 import Link from "next/link";
 import Image from "next/image";
 import { Article } from "@/modules/article/article.entity";
+import { useEffect } from "react";
+import { trackPageVisit } from "@/lib/metrics";
 
 type Props = {
     articles: Article[];
 }
 
 export const ArticlesPage = ({ articles }: Props) => {
+    useEffect(
+        () => {
+            trackPageVisit('Articles');
+        },
+        []
+    )
     return (
         <section className="container mx-auto py-10 px-4">
             <h1 className="text-4xl font-bold text-center mb-10">Articles</h1>

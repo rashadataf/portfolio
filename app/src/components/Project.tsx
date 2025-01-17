@@ -3,8 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { Modal } from "@/components/Modal";
-import { useEffect } from "react";
-import { trackPageVisit } from "@/lib/metrics";
 
 interface ProjectProps {
     title: string;
@@ -29,12 +27,6 @@ export const Project = ({
     appStoreUrl
 }: ProjectProps) => {
     const [isModalOpen, setModalOpen] = useSafeState(false);
-    useEffect(
-        () => {
-            trackPageVisit('Project');
-        },
-        []
-    )
     return (
         <div className="flex flex-col bg-[--text-color] text-main shadow-[--text-color] shadow-md rounded-lg overflow-hidden h-full">
             <div className="w-full h-48 relative">

@@ -1,9 +1,12 @@
+'use client';
 import Link from 'next/link';
 // import Image from 'next/image';
 import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
 import { Section } from "@/components/Section";
+import { useEffect } from 'react';
+import { trackPageVisit } from '@/lib/metrics';
 // import selfiePic from '@public/images/selfie.webp';
 
 const proficientSkills = {
@@ -88,6 +91,12 @@ const experiences = [
 ];
 
 export const AboutPage = () => {
+    useEffect(
+        () => {
+            trackPageVisit('About');
+        },
+        []
+    )
     return (
         <div className="text-main flex flex-col items-center p-8">
             <Section id='about-me' ariaLabelledBy='about-me-header' className="text-center">

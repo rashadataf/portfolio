@@ -1,9 +1,18 @@
+'use client';
 import Image from "next/image";
 import Link from "next/link";
 import profilePic from '@public/images/rashad.webp';
 import { Section } from "@/components/Section";
+import { useEffect } from "react";
+import { trackPageVisit } from "@/lib/metrics";
 
 export const HomePage = () => {
+    useEffect(
+        () => {
+            trackPageVisit('Home');
+        },
+        []
+    )
     return (
         <div className="flex flex-col md:flex-row items-center justify-around flex-grow">
             <Image
