@@ -62,3 +62,7 @@ export function toSnakeCase(obj: Record<string, unknown>): Record<string, unknow
 
   return snakeObj;
 }
+
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
