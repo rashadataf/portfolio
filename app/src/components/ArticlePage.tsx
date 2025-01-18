@@ -27,6 +27,15 @@ const Editor = dynamic(() =>
     }
 )
 
+function prepareTextForTSVector(text:string) {
+    return text
+        .replace(/[^\w\s']/g, '')
+        .replace(/\n+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .toLowerCase()
+        .trim();
+}
+
 export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
     const router = useRouter();
 
@@ -37,6 +46,8 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
     const [keywordsAr, setKeywordsAr] = useSafeState("");
     const [contentEn, setContentEn] = useSafeState<JSONContent>(defaultValue);
     const [contentAr, setContentAr] = useSafeState<JSONContent>(defaultValue);
+    const [textEn, setTextEn] = useSafeState<string>('');
+    const [textAr, setTextAr] = useSafeState<string>('');
     const [coverImage, setCoverImage] = useSafeState<File | null>(null);
     const [coverImageUrl, setCoverImageUrl] = useSafeState<string>('');
     const [loading, setLoading] = useSafeState(false);
@@ -83,6 +94,8 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 keywordsAr: keywordsAr.split(",").map(kw => kw.trim()),
                 contentEn: JSON.parse(JSON.stringify(contentEn)),
                 contentAr: JSON.parse(JSON.stringify(contentAr)),
+                contentSearchEn: prepareTextForTSVector(textEn),
+                contentSearchAr: prepareTextForTSVector(textAr),
                 slugEn: titleEn.toLowerCase().replace(/ /g, "-"),
                 slugAr: titleAr.toLowerCase().replace(/ /g, "-"),
             };
@@ -166,11 +179,11 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 }
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (English)</h2>
-                    <Editor initialValue={contentEn} onChange={setContentEn} dir='ltr' editable={editable} />
+                    <Editor initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={editable} />
                 </div>
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (Arabic)</h2>
-                    <Editor initialValue={contentAr} onChange={setContentAr} dir='rtl' editable={editable} />
+                    <Editor initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={editable} />
                 </div>
                 {
                     editable && <div className="flex gap-4 mt-4">

@@ -27,10 +27,11 @@ const extensions = [...defaultExtensions, slashCommand];
 interface EditorProp {
   initialValue: JSONContent;
   onChange: (value: JSONContent) => void;
+  onTextChange: (plainText: string) => void;
   dir: "ltr" | "rtl";
   editable: boolean;
 }
-export const Editor = ({ initialValue, onChange, dir = 'ltr', editable }: EditorProp) => {
+export const Editor = ({ initialValue, onChange, onTextChange, dir = 'ltr', editable }: EditorProp) => {
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
@@ -58,6 +59,7 @@ export const Editor = ({ initialValue, onChange, dir = 'ltr', editable }: Editor
           },
         }}
         onUpdate={({ editor }) => {
+          onTextChange(editor.getText());
           onChange(editor.getJSON());
         }}
         slotAfter={<ImageResizer />}
