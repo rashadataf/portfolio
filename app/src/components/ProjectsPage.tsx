@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { Project } from "@/components/Project";
 import { Section } from "@/components/Section";
-import { trackPageVisit } from "@/lib/metrics";
+import { checkBounceRate, endSessionTimer, markInteraction, startSessionTimer, trackPageVisit } from "@/lib/metrics";
 
 const projects = [
     {
@@ -24,6 +24,13 @@ const projects = [
 
 ];
 
+const initMeter = () => {
+    startSessionTimer();
+    checkBounceRate('Projects');
+    console.log('initMeter: done');
+
+}
+
 export const ProjectsPage = () => {
     useEffect(
         () => {
@@ -31,6 +38,21 @@ export const ProjectsPage = () => {
         },
         []
     )
+
+    useEffect(
+        () => {
+            document.addEventListener('click', markInteraction);
+            document.addEventListener('scroll', markInteraction);
+
+            initMeter();
+            return () => {
+                endSessionTimer('Projects');
+                document.removeEventListener('click', markInteraction);
+                document.removeEventListener('scroll', markInteraction);
+            };
+        },
+        []
+    );
     return (
         <Section id="projects" ariaLabelledBy="projects-page-heder" className="container mx-auto py-10">
             <h1 id="projects-page-header" className="text-4xl font-bold text-center mb-10">Projects</h1>

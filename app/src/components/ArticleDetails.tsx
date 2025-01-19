@@ -1,20 +1,78 @@
 "use client";
+
+import { useEffect } from "react";
 import { Article } from "@/modules/article/article.entity";
-import { useSafeState } from "@/hooks/useSafeState.hook";
 import { Viewer } from "@/components/Editor/Viewer";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import {
+    trackPageVisit,
+    trackBlogView,
+    startSessionTimer,
+    endSessionTimer,
+    checkBounceRate,
+    markInteraction,
+    reportScrollDepth,
+    trackClickEvent,
+} from "@/lib/metrics";
+import { useSafeState } from "@/hooks/useSafeState.hook";
 
 type Props = {
     article: Article;
+    lang: 'en' | 'ar';
 };
 
-export const ArticleDetails = ({ article }: Props) => {
-    const [language, setLanguage] = useSafeState("en");
-    const isArabic = language === "ar";
+export const ArticleDetails = ({ article, lang }: Props) => {
+    const router = useRouter();
+    const [maxScrollDepth, setMaxScrollDepth] = useSafeState(0);
+
+    const handleLanguageToggle = () => {
+        const newLang = lang === 'ar' ? 'en' : 'ar';
+        trackClickEvent('language_toggle', `toggle_to_${newLang}`);
+        router.push(`/articles/${article.id}?lang=${newLang}`);
+    };
+
+    const isArabic = lang === "ar";
     const dir = isArabic ? "rtl" : "ltr";
 
+    useEffect(
+        () => {
+            const handleScroll = () => {
+                const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const currentScrollDepth = (window.scrollY / scrollHeight) * 100;
+                setMaxScrollDepth((prevDepth) => Math.max(prevDepth, currentScrollDepth));
+            };
+
+            const initMetrics = () => {
+                trackPageVisit(`Article_${article.id}`);
+                trackBlogView(article.id.toString());
+                startSessionTimer();
+                checkBounceRate(`Article_${article.id}`);
+            };
+
+            initMetrics();
+
+            window.addEventListener("scroll", handleScroll);
+
+            return () => {
+                reportScrollDepth(maxScrollDepth, article.id.toString());
+                endSessionTimer(`Article_${article.id}`);
+                window.removeEventListener("scroll", handleScroll);
+            };
+        },
+        [article.id, maxScrollDepth, setMaxScrollDepth]
+    );
+
+    const handleInteraction = () => {
+        markInteraction();
+    };
+
     return (
-        <section className="max-w-3xl mx-auto py-10 px-6 md:px-10 xl:px-12 leading-relaxed">
+        <section
+            className="max-w-3xl mx-auto py-10 px-6 md:px-10 xl:px-12 leading-relaxed"
+            onClick={handleInteraction}
+            onScroll={handleInteraction}
+        >
             {article.coverImage && (
                 <div className="relative mb-10 w-full h-[50vh] rounded-lg overflow-hidden">
                     <Image
@@ -33,7 +91,7 @@ export const ArticleDetails = ({ article }: Props) => {
                 </h1>
                 <p className="text-lg text-gray-600">By {article.author}</p>
                 <button
-                    onClick={() => setLanguage(isArabic ? "en" : "ar")}
+                    onClick={handleLanguageToggle}
                     className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
                 >
                     {isArabic ? "View in English" : "عرض باللغة العربية"}
@@ -45,7 +103,7 @@ export const ArticleDetails = ({ article }: Props) => {
                 dir={dir}
             >
                 <Viewer
-                    key={language}
+                    key={lang}
                     initialValue={isArabic ? article.contentAr : article.contentEn}
                     dir={dir}
                 />
