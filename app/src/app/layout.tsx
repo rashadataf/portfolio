@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Rashad Portfolio | Software Engineer',
     description: 'portfolio for Rashad Ataf',
     manifest: "/manifest.json",
-    metadataBase: new URL('https://www.rashadataf.tech'),
+    metadataBase: new URL('https://www.rashadataf.com'),
     twitter: {
         card: "summary_large_image",
         title: 'Rashad Ataf - Full Stack Developer',

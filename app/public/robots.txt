@@ -14,4 +14,4 @@ Allow: *.xml
 Allow: *.txt
 
 # Sitemap
-Sitemap: https://www.rashadataf.tech/sitemap.xml
+Sitemap: https://www.rashadataf.com/sitemap.xml

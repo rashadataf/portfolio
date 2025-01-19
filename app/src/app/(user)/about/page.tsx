@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     description: "Learn more about Rashad Ataf's background in Full Stack Development, skills, experience in the tech industry, and professional journey.",
     keywords: "About Rashad Ataf, Full Stack Developer, Developer Background, Programming Skills, Tech Experience, Zim Connections",
     alternates: {
-        canonical: "https://www.rashadataf.tech/about"
+        canonical: "https://www.rashadataf.com/about"
     }
 }
 

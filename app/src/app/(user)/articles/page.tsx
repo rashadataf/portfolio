@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     description: "Dive into articles by Rashad Ataf covering topics in Full Stack Development, latest trends in web and mobile technologies, tutorials, and industry insights.",
     keywords: "Dive into articles by Rashad Ataf covering topics in Full Stack Development, latest trends in web and mobile technologies, tutorials, and industry insights, Zim Connections",
     alternates: {
-        canonical: "https://www.rashadataf.tech/articles"
+        canonical: "https://www.rashadataf.com/articles"
     }
 }
 

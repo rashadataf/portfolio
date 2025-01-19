@@ -10,7 +10,7 @@ const projects = [
         description: "This portfolio showcases my journey and achievements as a Full Stack Developer. It's a reflection of my professional skills, featuring a clean, modern design and a user-friendly interface. The site includes detailed sections about my work experience, education, projects, and skills, each designed to provide a comprehensive view of my capabilities. Built using Next.js, it demonstrates my expertise in frontend and backend development, offering a seamless and interactive user experience.",
         imageUrl: "/images/rashad.webp",
         technologies: ["Next.js", "React", "Tailwind CSS"],
-        liveUrl: "https://rashadataf.tech",
+        liveUrl: "https://rashadataf.com",
         sourceCodeUrl: "https://github.com/rashadataf/portfolio"
     },
     {

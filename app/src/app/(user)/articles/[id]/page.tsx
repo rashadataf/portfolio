@@ -50,18 +50,18 @@ export async function generateMetadata({
         robots: 'index, follow',
         viewport: 'width=device-width, initial-scale=1.0',
         alternates: {
-            canonical: `https://www.rashadataf.tech/articles/${id}?lang=${lang}`,
+            canonical: `https://www.rashadataf.com/articles/${id}?lang=${lang}`,
         },
         openGraph: {
             title,
             description,
-            url: `https://www.rashadataf.tech/articles/${id}?lang=${lang}`,
+            url: `https://www.rashadataf.com/articles/${id}?lang=${lang}`,
             type: 'article',
             images: article.coverImage ? [{ url: article.coverImage }] : [],
             locale: lang === 'ar' ? 'ar_AR' : 'en_US',
-            siteName: 'Rashad Ataf Tech',
+            siteName: 'Rashad Ataf Portfolio',
             publishedTime: publicationDate || undefined,
-            authors: ['https://www.rashadataf.tech'],
+            authors: ['https://www.rashadataf.com'],
         },
         twitter: {
             card: 'summary_large_image',
