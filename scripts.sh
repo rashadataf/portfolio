@@ -17,6 +17,10 @@ function production_ssl() {
 }
 
 function production_no_ssl() {
+  WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile production up --build --detach
+}
+
+function production_no_ssl_debug() {
   WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile production up --build
 }
 
