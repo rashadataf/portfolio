@@ -24,13 +24,15 @@ export class ArticleRepository {
     async createArticle(article: CreateArticleDTO): Promise<Article> {
         const { rows } = await dbService.query(
             `INSERT INTO articles 
-            (title_en, title_ar, content_en, content_ar, content_search_en, content_search_ar, cover_image, keywords_en, keywords_ar, author, publication_date, status, slug_en, slug_ar, created_at, updated_at) 
+            (title_en, title_ar, description_en, description_ar, content_en, content_ar, content_search_en, content_search_ar, cover_image, keywords_en, keywords_ar, author, publication_date, status, slug_en, slug_ar, created_at, updated_at) 
             VALUES 
-            ($1, $2, $3, $4, to_tsvector('english', $5), to_tsvector('arabic', $6), $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+            ($1, $2, $3, $4, $5, $6, to_tsvector('english', $7), to_tsvector('arabic', $8), $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
             RETURNING *`,
             [
                 article.titleEn,
                 article.titleAr,
+                article.descriptionEn,
+                article.descriptionAr,
                 article.contentEn,
                 article.contentAr,
                 article.contentSearchEn,

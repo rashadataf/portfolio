@@ -6,6 +6,8 @@ export type CreateArticleDTO = {
     titleAr: string;
     contentEn: JSONContent;
     contentAr: JSONContent;
+    descriptionEn: string;
+    descriptionAr: string;
     contentSearchEn: string;
     contentSearchAr: string;
     coverImage?: string;

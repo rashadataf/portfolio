@@ -7,7 +7,9 @@ export interface Article {
     titleAr: string;
     contentEn: JSONContent;
     contentAr: JSONContent;
-    contentAearchEn: string;
+    descriptionEn: string;
+    descriptionAr: string;
+    contentSearchEn: string;
     contentSearchAr: string;
     coverImage: string;
     keywordsEn: string[];
@@ -33,6 +35,8 @@ export class ArticleEntity {
             title_ar VARCHAR(255) NOT NULL,
             content_en JSON NOT NULL,
             content_ar JSON NOT NULL,
+            description_en TEXT,
+            description_ar TEXT,
             content_search_en tsvector,
             content_search_ar tsvector,
             cover_image VARCHAR(255),

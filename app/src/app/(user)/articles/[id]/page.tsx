@@ -27,32 +27,41 @@ export async function generateMetadata({
     const { id } = await params;
     const lang = (await searchParams)?.lang === 'ar' ? 'ar' : 'en';
     const { article } = await getArticleById(id);
+
     if (!article) {
         return {
             title: 'Article Not Found',
             description: 'The article you are looking for does not exist.',
+            robots: 'noindex, nofollow',
         };
     }
 
     const title = lang === 'ar' ? article.titleAr : article.titleEn;
     const keywords =
-        lang === 'ar' ? article.keywordsAr?.join(', ') : article.keywordsEn?.join(', ');
-    const description = keywords || 'Explore our latest article.';
+        lang === 'ar' ? article.keywordsAr?.join(', ') : article.keywordsEn?.join(', ') || '';
+    const description =
+        lang === 'ar' ? article.descriptionAr : article.descriptionEn || 'Explore our latest article.';
+    const publicationDate = article.publicationDate?.toISOString();
 
     return {
         title,
         description,
-        keywords,
+        keywords: keywords || 'blog, articles, insights',
+        robots: 'index, follow',
+        viewport: 'width=device-width, initial-scale=1.0',
         alternates: {
             canonical: `https://www.rashadataf.tech/articles/${id}?lang=${lang}`,
-            languages: {
-            }
         },
         openGraph: {
             title,
             description,
-            url: `/articles/${id}?lang=${lang}`,
+            url: `https://www.rashadataf.tech/articles/${id}?lang=${lang}`,
+            type: 'article',
             images: article.coverImage ? [{ url: article.coverImage }] : [],
+            locale: lang === 'ar' ? 'ar_AR' : 'en_US',
+            siteName: 'Rashad Ataf Tech',
+            publishedTime: publicationDate || undefined,
+            authors: ['https://www.rashadataf.tech'],
         },
         twitter: {
             card: 'summary_large_image',

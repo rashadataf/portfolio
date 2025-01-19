@@ -27,13 +27,14 @@ const Editor = dynamic(() =>
     }
 )
 
-function prepareTextForTSVector(text:string) {
+function prepareTextForTSVector(text: string) {
     return text
-        .replace(/[^\w\s']/g, '')
-        .replace(/\n+/g, ' ')
-        .replace(/\s+/g, ' ')
-        .toLowerCase()
-        .trim();
+        .replace(/[^\w\s\u0600-\u06FF']/g, '') // Preserve Arabic and English alphanumeric characters, apostrophes, and spaces
+        .replace(/[\u060C\u061B\u061F]/g, '') // Remove Arabic punctuation: ، ؛ ؟
+        .replace(/\n+/g, ' ') // Replace newlines with spaces
+        .replace(/\s+/g, ' ') // Normalize multiple spaces to a single space
+        .toLowerCase() // Convert to lowercase (affects only English text)
+        .trim(); // Remove leading and trailing spaces
 }
 
 export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
@@ -46,36 +47,41 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
     const [keywordsAr, setKeywordsAr] = useSafeState("");
     const [contentEn, setContentEn] = useSafeState<JSONContent>(defaultValue);
     const [contentAr, setContentAr] = useSafeState<JSONContent>(defaultValue);
+    const [descriptionEn, setDescriptionEn] = useSafeState("");
+    const [descriptionAr, setDescriptionAr] = useSafeState("");
     const [textEn, setTextEn] = useSafeState<string>('');
     const [textAr, setTextAr] = useSafeState<string>('');
     const [coverImage, setCoverImage] = useSafeState<File | null>(null);
     const [coverImageUrl, setCoverImageUrl] = useSafeState<string>('');
     const [loading, setLoading] = useSafeState(false);
 
-    useEffect(() => {
-        if (!articleId) return;
-        const fetchArticle = async () => {
-            try {
-                const response = await getArticleById(articleId);
-                const article = response.article;
+    useEffect(
+        () => {
+            if (!articleId) return;
+            const fetchArticle = async () => {
+                try {
+                    const response = await getArticleById(articleId);
+                    const article = response.article;
 
-                if (article) {
-                    setTitleEn(article.titleEn || "");
-                    setTitleAr(article.titleAr || "");
-                    setAuthor(article.author || "");
-                    setKeywordsEn(article.keywordsEn?.join(", ") || "");
-                    setKeywordsAr(article.keywordsAr?.join(", ") || "");
-                    setContentEn(article.contentEn || null);
-                    setContentAr(article.contentAr || null);
-                    setCoverImageUrl(article.coverImage);
+                    if (article) {
+                        setTitleEn(article.titleEn || "");
+                        setTitleAr(article.titleAr || "");
+                        setAuthor(article.author || "");
+                        setKeywordsEn(article.keywordsEn?.join(", ") || "");
+                        setKeywordsAr(article.keywordsAr?.join(", ") || "");
+                        setContentEn(article.contentEn || null);
+                        setContentAr(article.contentAr || null);
+                        setCoverImageUrl(article.coverImage);
+                    }
+                } catch (error) {
+                    console.error("Error fetching article:", error);
                 }
-            } catch (error) {
-                console.error("Error fetching article:", error);
-            }
-        };
+            };
 
-        fetchArticle();
-    }, [articleId, setAuthor, setContentAr, setContentEn, setCoverImage, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn]);
+            fetchArticle();
+        },
+        [articleId, setAuthor, setContentAr, setContentEn, setCoverImage, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn]
+    );
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
@@ -89,6 +95,8 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 titleEn,
                 titleAr,
                 author,
+                descriptionEn,
+                descriptionAr,
                 status: publish ? ArticleStatus.PUBLISHED : ArticleStatus.DRAFT,
                 keywordsEn: keywordsEn.split(",").map(kw => kw.trim()),
                 keywordsAr: keywordsAr.split(",").map(kw => kw.trim()),
@@ -158,6 +166,25 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     placeholder="كلمات مفتاحية (بالعربي، مفصولة بالفاصلة)"
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     dir='rtl'
+                    required
+                    readOnly={!editable}
+                />
+                <input
+                    type="text"
+                    value={descriptionEn}
+                    onChange={(e) => setDescriptionEn(e.target.value)}
+                    placeholder="Description (English)"
+                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
+                    required
+                    readOnly={!editable}
+                />
+                <input
+                    type="text"
+                    value={descriptionAr}
+                    onChange={(e) => setDescriptionAr(e.target.value)}
+                    placeholder="الوصف (بالعربي)"
+                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
+                    dir="rtl"
                     required
                     readOnly={!editable}
                 />
