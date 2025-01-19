@@ -95,7 +95,8 @@ export async function uploadImage(file: File) {
         }
 
         const timestamp = Date.now();
-        const imageFileName = `${timestamp}-${file.name}`;
+        const fileExtension = file.name.split('.').pop(); // Extract file extension
+        const imageFileName = `${timestamp}_IMG.${fileExtension}`;
         const uploadPath = path.join(process.cwd(), "public", "uploads", imageFileName);
 
         await fs.mkdir(path.dirname(uploadPath), { recursive: true });
