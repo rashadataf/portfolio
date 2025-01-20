@@ -17,6 +17,11 @@ export class ArticleService {
         return this.articleRepository.findAll();
     }
 
+    async executeQuery<T>(query: string, params: unknown[]): Promise<T[]> {
+        return this.articleRepository.executeQuery(query, params);
+    }
+
+
     async createArticle(articleDTO: CreateArticleDTO) {
         if (articleDTO.status === ArticleStatus.PUBLISHED) {
             articleDTO.publicationDate = new Date();

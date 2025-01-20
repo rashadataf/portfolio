@@ -5,6 +5,11 @@ import { toCamelCase, toSnakeCase } from '@/lib/utils';
 
 export class ArticleRepository {
 
+    async executeQuery<T>(query: string, params: unknown[]): Promise<T[]> {
+        const { rows } = await dbService.query(query, params);
+        return rows.map(row => toCamelCase<T>(row));
+    }
+
     async findArticleById(id: string): Promise<Article | null> {
         const { rows } = await dbService.query(
             `SELECT * FROM ${ArticleEntity.tableName} WHERE id = $1`,

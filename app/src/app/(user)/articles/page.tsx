@@ -30,7 +30,7 @@ export default async function Articles() {
             </div>
         </div>;
     }
-    
-    return <ArticlesPage articles={articles} />
+
+    return <ArticlesPage initialArticles={articles} />
 }
 
