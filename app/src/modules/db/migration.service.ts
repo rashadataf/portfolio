@@ -1,13 +1,15 @@
 import { Role } from '@/types';
 import { dbService } from '@/modules/db/db.service';
 import { UserController } from '@/modules/user/user.controller';
-import { UsersEntity } from '@/modules/user/user.entity';
+import { UserEntity } from '@/modules/user/user.entity';
+import { ArticleEntity } from '@/modules/article/article.entity';
 
 export class MigrationService {
 
   private async createTables() {
     const queries = [
-      ...UsersEntity.initializeTable(),
+      ...UserEntity.initializeTable(),
+      ...ArticleEntity.initializeTable(),
     ];
 
     for (const query of queries) {

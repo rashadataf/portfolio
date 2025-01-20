@@ -1,13 +1,13 @@
 import dynamic from 'next/dynamic';
 import { Loader } from '@/components/Loader';
 
-const NewArticlePage = dynamic(() =>
-    import('@/components/NewArticlePage').then((mod) => mod.NewArticlePage),
+const ArticlePage = dynamic(() =>
+    import('@/components/ArticlePage').then((mod) => mod.ArticlePage),
     {
         loading: () => <Loader />,
     }
 )
 export default function NewArticle() {
 
-    return <NewArticlePage />
+    return <ArticlePage editable={true} />
 }

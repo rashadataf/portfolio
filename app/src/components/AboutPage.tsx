@@ -1,10 +1,13 @@
+'use client';
 import Link from 'next/link';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
 import { Section } from "@/components/Section";
-import selfiePic from '@public/images/selfie.webp';
+import { useEffect } from 'react';
+import { trackPageVisit } from '@/lib/metrics';
+// import selfiePic from '@public/images/selfie.webp';
 
 const proficientSkills = {
     "HTML": 90,
@@ -88,6 +91,12 @@ const experiences = [
 ];
 
 export const AboutPage = () => {
+    useEffect(
+        () => {
+            trackPageVisit('About');
+        },
+        []
+    )
     return (
         <div className="text-main flex flex-col items-center p-8">
             <Section id='about-me' ariaLabelledBy='about-me-header' className="text-center">
@@ -107,7 +116,7 @@ export const AboutPage = () => {
                     </p>
                 </div>
                 <div className="container mx-auto px-8 py-10 flex flex-wrap justify-between items-center">
-                    <div className="w-full md:w-1/2 flex justify-center">
+                    {/* <div className="w-full md:w-1/2 flex justify-center">
                         <Image
                             src={selfiePic}
                             alt="Rashad Ataf\'s selfie image"
@@ -117,8 +126,8 @@ export const AboutPage = () => {
                             quality={20}
                             priority
                         />
-                    </div>
-                    <Section id="key-achievements" ariaLabelledBy="key-achievements-header" className='w-full md:w-1/2 mt-10 md:mt-auto'>
+                    </div> */}
+                    <Section id="key-achievements" ariaLabelledBy="key-achievements-header" className='w-full mt-10 md:mt-auto'>
                         <h2 id="key-achievements-header" className="text-3xl font-bold text-accent-color">Key Achievements</h2>
                         <dl>
                             <div className="mt-2">

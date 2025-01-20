@@ -9,10 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.57.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.57.0",
+    "@opentelemetry/resources": "^1.30.0",
+    "@opentelemetry/sdk-metrics": "^1.30.0",
+    "@opentelemetry/sdk-node": "^0.57.0",
+    "@opentelemetry/sdk-trace-node": "^1.30.0",
+    "@opentelemetry/semantic-conventions": "^1.28.0",
     "@radix-ui/react-dropdown-menu": "^2.1.2",
     "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-separator": "^1.1.0",
     "@tailwindcss/typography": "^0.5.15",
+    "@vercel/otel": "^1.10.0",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "lucide-react": "^0.454.0",
@@ -24,7 +32,8 @@
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "sharp": "^0.33.5",
     "sonner": "^1.7.0",
-    "tailwind-merge": "^2.5.4"
+    "tailwind-merge": "^2.5.4",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

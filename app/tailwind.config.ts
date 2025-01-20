@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
-
+import tailwindTypography from '@tailwindcss/typography'
 export default {
   darkMode: ["class"],
   content: [
@@ -18,6 +18,7 @@ export default {
         "primary-color": "var(--primary-color)",
         "secondary-color": "var(--secondary-color)",
         "accent-color": "var(--accent-color)",
+        "transparent-accent-color": "var(--transparent-accent-color)",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -55,7 +56,7 @@ export default {
     },
   },
   plugins: [
-    require('@tailwindcss/typography'),
+    tailwindTypography,
     plugin(function ({ addUtilities }) {
       addUtilities({
         '.text-shadow': {

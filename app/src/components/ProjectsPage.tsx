@@ -1,5 +1,8 @@
+'use client';
+import { useEffect } from "react";
 import { Project } from "@/components/Project";
 import { Section } from "@/components/Section";
+import { checkBounceRate, endSessionTimer, markInteraction, startSessionTimer, trackPageVisit } from "@/lib/metrics";
 
 const projects = [
     {
@@ -7,7 +10,7 @@ const projects = [
         description: "This portfolio showcases my journey and achievements as a Full Stack Developer. It's a reflection of my professional skills, featuring a clean, modern design and a user-friendly interface. The site includes detailed sections about my work experience, education, projects, and skills, each designed to provide a comprehensive view of my capabilities. Built using Next.js, it demonstrates my expertise in frontend and backend development, offering a seamless and interactive user experience.",
         imageUrl: "/images/rashad.webp",
         technologies: ["Next.js", "React", "Tailwind CSS"],
-        liveUrl: "https://rashadataf.tech",
+        liveUrl: "https://rashadataf.com",
         sourceCodeUrl: "https://github.com/rashadataf/portfolio"
     },
     {
@@ -21,8 +24,33 @@ const projects = [
 
 ];
 
-export const ProjectsPage = () => {
+const initMeter = () => {
+    startSessionTimer();
+    checkBounceRate('Projects');
+}
 
+export const ProjectsPage = () => {
+    useEffect(
+        () => {
+            trackPageVisit('Projects');
+        },
+        []
+    )
+
+    useEffect(
+        () => {
+            document.addEventListener('click', markInteraction);
+            document.addEventListener('scroll', markInteraction);
+
+            initMeter();
+            return () => {
+                endSessionTimer('Projects');
+                document.removeEventListener('click', markInteraction);
+                document.removeEventListener('scroll', markInteraction);
+            };
+        },
+        []
+    );
     return (
         <Section id="projects" ariaLabelledBy="projects-page-heder" className="container mx-auto py-10">
             <h1 id="projects-page-header" className="text-4xl font-bold text-center mb-10">Projects</h1>

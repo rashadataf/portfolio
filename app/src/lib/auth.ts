@@ -38,4 +38,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }),
     ],
     basePath: process.env.AUTH_BASE_PATH,
+    session: {
+        strategy: 'jwt'
+    },
+    callbacks: {
+        async session({ session, token }) {
+            if (session.user && token.email) {
+                session.user.id = token.id as string;
+                session.user.email = token.email;
+                session.user.role = token.role;
+            }
+            return session;
+        },
+        async jwt({ token, user }) {
+            if (user && user.id && user.email) {
+                token.id = user.id;
+                token.email = user.email;
+                token.role = user.role;
+            }
+            return token;
+        },
+    },
 })
+
+export const isAdmin = async () => {
+    const session = await auth();
+
+    if (!session || session.user.role !== "admin") {
+        throw new Error("Unauthorized");
+    }
+}

@@ -1,41 +1,21 @@
+import { uploadImage } from "@/modules/article/article.controller";
 import { createImageUpload } from "novel/plugins";
 import { toast } from "sonner";
 
-const onUpload = (file: File) => {
-  const promise = fetch("/api/upload", {
-    method: "POST",
-    headers: {
-      "content-type": file?.type || "application/octet-stream",
-      "x-vercel-filename": file?.name || "image.png",
-    },
-    body: file,
-  });
-
+const onUpload = async (file: File) => {
+  const uploadResponse = await uploadImage(file);
   return new Promise((resolve) => {
-    toast.promise(
-      promise.then(async (res) => {
-        if (res.status === 200) {
-          const { url } = (await res.json());
-          const image = new Image();
-          image.src = url;
-          image.onload = () => {
-            resolve(url);
-          };
-        } else if (res.status === 401) {
-          resolve(file);
-          throw new Error(
-            "Unauthorized Error",
-          );
-        } else {
-          throw new Error(`Error uploading image. Please try again.`);
-        }
-      }),
-      {
-        loading: "Uploading image...",
-        success: "Image uploaded successfully.",
-        error: (e) => e.message,
-      },
-    );
+    if (uploadResponse.url) {
+      const { url } = uploadResponse;
+      const image = new Image();
+      image.src = url;
+      image.onload = () => {
+        resolve(url);
+      };
+    } else {
+      resolve(file);
+      throw new Error(`Error uploading image. Please try again.`);
+    }
   });
 };
 

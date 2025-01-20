@@ -34,7 +34,7 @@ Contributions are welcome! For major changes, please open an issue first to disc
 This project is open source and available under the MIT License.
 
 ## Author
-**Rashad Ataf** - [Portfolio](https://www.rashadataf.tech/)
+**Rashad Ataf** - [Portfolio](https://www.rashadataf.com/)
 
 Thank you for visiting my portfolio repository!
 

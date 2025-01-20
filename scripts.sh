@@ -1,11 +1,11 @@
 #!/bin/bash
 
 function dev() {
-  RESET_CONFIG=true docker compose --profile dev up
+  WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile dev up
 }
 
 function restart_dev() {
-  RESET_CONFIG=false docker compose --profile dev up --build
+  WITH_CERTBOT=false RESET_CONFIG=false docker compose --profile dev up --build
 }
 
 function restart_production() {
@@ -20,8 +20,12 @@ function production_no_ssl() {
   WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile production up --build --detach
 }
 
+function production_no_ssl_debug() {
+  WITH_CERTBOT=false RESET_CONFIG=true docker compose --profile production up --build
+}
+
 function nginx_reload() {
-  docker compose exec nginx nginx -s reload
+  docker compose exec nginx_dev nginx -s reload
 }
 
 function clear_docker() {

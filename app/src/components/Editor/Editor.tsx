@@ -25,10 +25,13 @@ import { useSafeState } from "@/hooks/useSafeState.hook";
 const extensions = [...defaultExtensions, slashCommand];
 
 interface EditorProp {
-  initialValue?: JSONContent;
+  initialValue: JSONContent;
   onChange: (value: JSONContent) => void;
+  onTextChange: (plainText: string) => void;
+  dir: "ltr" | "rtl";
+  editable: boolean;
 }
-export const Editor = ({ initialValue, onChange }: EditorProp) => {
+export const Editor = ({ initialValue, onChange, onTextChange, dir = 'ltr', editable }: EditorProp) => {
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
@@ -36,9 +39,13 @@ export const Editor = ({ initialValue, onChange }: EditorProp) => {
   return (
     <EditorRoot>
       <EditorContent
-        immediatelyRender={false}
+        editable={editable}
+        editorContainerProps={{
+          dir
+        }}
+        immediatelyRender={true}
         className="border p-4 rounded-xl"
-        {...(initialValue && { initialContent: initialValue })}
+        initialContent={initialValue}
         extensions={extensions}
         editorProps={{
           handleDOMEvents: {
@@ -52,6 +59,7 @@ export const Editor = ({ initialValue, onChange }: EditorProp) => {
           },
         }}
         onUpdate={({ editor }) => {
+          onTextChange(editor.getText());
           onChange(editor.getJSON());
         }}
         slotAfter={<ImageResizer />}

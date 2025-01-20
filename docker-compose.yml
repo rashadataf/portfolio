@@ -33,12 +33,21 @@ services:
       NODE_ENV: ${DEV_NODE_ENV}
       PORT: ${APP_PORT}
       DATABASE_URL: ${DATABASE_URL}
-      AUTH_SECRET: ${AUTH_SECRET}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_TRUST_HOST: ${AUTH_TRUST_HOST}
+      AUTH_BASE_PATH: ${AUTH_BASE_PATH}
+      AUTH_URL: ${AUTH_URL}
+      OTEL_COLLECTOR_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
+      OTEL_COLLECTOR_EXPORT_INTERVAL: ${OTEL_COLLECTOR_EXPORT_INTERVAL}
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME}
     depends_on:
       postgres:
         condition: service_healthy
+        restart: true
+      otel-collector:
+        condition: service_started
         restart: true
 
   production:
@@ -51,19 +60,27 @@ services:
     ports:
       - "${APP_PORT}:${APP_PORT}"
     container_name: ${PROD_CONTAINER_NAME}
+    volumes:
+      - ${PRODUCTION_VOLUME}
     environment:
       NODE_ENV: ${PROD_NODE_ENV}
       PORT: ${APP_PORT}
       DATABASE_URL: ${DATABASE_URL}
-      AUTH_SECRET: ${AUTH_SECRET}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      AUTH_SECRET: ${AUTH_SECRET}
       AUTH_TRUST_HOST: ${AUTH_TRUST_HOST}
       AUTH_BASE_PATH: ${AUTH_BASE_PATH}
-      AUTH_URL: "${AUTH_URL}"
+      AUTH_URL: ${AUTH_URL}
+      OTEL_COLLECTOR_ENDPOINT: ${OTEL_COLLECTOR_ENDPOINT}
+      OTEL_COLLECTOR_EXPORT_INTERVAL: ${OTEL_COLLECTOR_EXPORT_INTERVAL}
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME}
     depends_on:
       postgres:
         condition: service_healthy
+        restart: true
+      otel-collector:
+        condition: service_started
         restart: true
 
   nginx_dev:
@@ -78,6 +95,7 @@ services:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
       - PORT=${APP_PORT}
+      - GRAFANA_PORT=${GRAFANA_PORT}
       - NODE_ENV=development
       - CHALLENGE_DIR=${CHALLENGE_DIR}
       - WITH_CERTBOT=${WITH_CERTBOT}
@@ -91,6 +109,7 @@ services:
       - ${NGINX_TEMPLATES_VOLUME}
     depends_on:
       - dev
+      - grafana
 
   nginx_production:
     profiles: [ production ]
@@ -104,6 +123,7 @@ services:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - EMAIL_ADDRESS=${EMAIL_ADDRESS}
       - PORT=${APP_PORT}
+      - GRAFANA_PORT=${GRAFANA_PORT}
       - NODE_ENV=production
       - CHALLENGE_DIR=${CHALLENGE_DIR}
       - WITH_CERTBOT=${WITH_CERTBOT}
@@ -117,8 +137,65 @@ services:
       - ${NGINX_TEMPLATES_VOLUME}
     depends_on:
       - production
+      - grafana
+
+  otel-collector:
+    image: ${OTEL_COLLECTOR_IMG}
+    container_name: ${OTEL_COLLECTOR_CONTAINER_NAME}
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yml", "${OTEL_COLLECTOR_ARGS}"]
+    volumes:
+      - ${OTEL_COLLECTOR_VOLUME}
+    ports:
+      - "${OTEL_PPROF_PORT}:${OTEL_PPROF_PORT}"
+      - "${OTEL_INTERNAL_METRICS_PORT}:${OTEL_INTERNAL_METRICS_PORT}"
+      - "${OTEL_PROMETHEUS_EXPORTER_PORT}:${OTEL_PROMETHEUS_EXPORTER_PORT}"
+      - "${OTEL_HEALTHCHECK_PORT}:${OTEL_HEALTHCHECK_PORT}"
+      - "${OTEL_GRPC_PORT}:${OTEL_GRPC_PORT}"
+      - "${OTEL_HTTP_PORT}:${OTEL_HTTP_PORT}"
+      - "${OTEL_ZPAGES_PORT}:${OTEL_ZPAGES_PORT}"
+    environment:
+      - OTEL_PPROF_PORT=${OTEL_PPROF_PORT}
+      - OTEL_ZPAGES_PORT=${OTEL_ZPAGES_PORT}
+      - OTEL_PROMETHEUS_EXPORTER_ENDPOINT=${OTEL_PROMETHEUS_EXPORTER_ENDPOINT}
+      - OTEL_CONST_LABEL=${OTEL_CONST_LABEL}
+
+  prometheus:
+    image: ${PROMETHEUS_IMG}
+    container_name: ${PROMETHEUS_CONTAINER_NAME}
+    ports:
+      - "${PROMETHEUS_PORT}:${PROMETHEUS_PORT}"
+    volumes:
+      - ${PROMETHEUS_CONFIG_VOLUME}
+      - ${PROMETHEUS_VOLUME}
+    depends_on:
+      - otel-collector
+
+  grafana:
+    image: ${GRAFANA_IMG}
+    container_name: ${GRAFANA_CONTAINER_NAME}
+    ports:
+      - "${GRAFANA_PORT}:${GRAFANA_INTERNAL_PORT}"
+    volumes:
+      - ${GRAFANA_VOLUME}
+    environment:
+      - GF_SERVER_ROOT_URL=${GRAFANA_SERVER_ROOT_URL}
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SERVER_DOMAIN=${DOMAIN_NAME}
+      - GF_SERVER_HTTP_PORT=${GRAFANA_PORT}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+    depends_on:
+      - prometheus
+
+
 
 volumes:
   postgres_data:
     external: true
     name: ${POSTGRES_VOLUME}
+  grafana-data:
+    driver: local
+  prometheus_data:
+    external: true
+    name: ${PROMETHEUS_VOLUME}
