@@ -27,8 +27,6 @@ const projects = [
 const initMeter = () => {
     startSessionTimer();
     checkBounceRate('Projects');
-    console.log('initMeter: done');
-
 }
 
 export const ProjectsPage = () => {
