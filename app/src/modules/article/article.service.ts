@@ -17,6 +17,18 @@ export class ArticleService {
         return this.articleRepository.findAll();
     }
 
+    async getDraftArticles() {
+        return this.articleRepository.findArticlesByStatus(ArticleStatus.DRAFT);
+    }
+
+    async getArchivedArticles() {
+        return this.articleRepository.findArticlesByStatus(ArticleStatus.ARCHIVED);
+    }
+
+    async getPublishedArticles() {
+        return this.articleRepository.findArticlesByStatus(ArticleStatus.PUBLISHED);
+    }
+
     async executeQuery<T>(query: string, params: unknown[]): Promise<T[]> {
         return this.articleRepository.executeQuery(query, params);
     }

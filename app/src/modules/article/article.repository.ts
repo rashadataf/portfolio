@@ -2,6 +2,7 @@ import { dbService } from '@/modules/db/db.service';
 import { Article, ArticleEntity } from '@/modules/article/article.entity';
 import { CreateArticleDTO, UpdateArticleDTO } from '@/modules/article/article.dto';
 import { toCamelCase, toSnakeCase } from '@/lib/utils';
+import { ArticleStatus } from '@/types';
 
 export class ArticleRepository {
 
@@ -23,6 +24,15 @@ export class ArticleRepository {
 
     async findAll(): Promise<Article[]> {
         const { rows } = await dbService.query(`SELECT * FROM ${ArticleEntity.tableName}`);
+        return rows.map(row => toCamelCase<Article>(row));
+    }
+
+    async findArticlesByStatus(status: ArticleStatus): Promise<Article[]> {
+        const sqlQuery = `
+            SELECT * FROM ${ArticleEntity.tableName}
+            WHERE status = $1
+        `;
+        const { rows } = await dbService.query(sqlQuery, [status]);
         return rows.map(row => toCamelCase<Article>(row));
     }
 

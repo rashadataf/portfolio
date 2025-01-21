@@ -38,6 +38,39 @@ export async function getAllArticles() {
     }
 }
 
+export async function getDraftArticles() {
+    try {
+        await isAdmin();
+        const articles = await articleService.getDraftArticles();
+        return { articles, status: 200 };
+    } catch (error) {
+        console.error("Error fetching draft articles:", error);
+        return { message: "Error fetching draft articles", error, status: 500 };
+    }
+}
+
+export async function getArchivedArticles() {
+    try {
+        await isAdmin();
+        const articles = await articleService.getArchivedArticles();
+        return { articles, status: 200 };
+    } catch (error) {
+        console.error("Error fetching archived articles:", error);
+        return { message: "Error fetching archived articles", error, status: 500 };
+    }
+}
+
+export async function getPublishedArticles() {
+    try {
+        await isAdmin();
+        const articles = await articleService.getPublishedArticles();
+        return { articles, status: 200 };
+    } catch (error) {
+        console.error("Error fetching published articles:", error);
+        return { message: "Error fetching published articles", error, status: 500 };
+    }
+}
+
 export async function getArticleById(id: string): Promise<{ article?: Article, message?: string, error?: unknown, status: number }> {
     try {
         if (!id) {
