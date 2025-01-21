@@ -6,35 +6,54 @@ import { Article } from "@/modules/article/article.entity";
 import { trackPageVisit } from "@/lib/metrics";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { getArticlesByQuery } from "@/modules/article/article.controller";
+import { getAllArticles } from "@/modules/article/article.controller";
 
-type Props = {
-    initialArticles: Article[];
-};
-
-export const ArticlesPage = ({ initialArticles }: Props) => {
+export const ArticlesPage = () => {
     const [searchQuery, setSearchQuery] = useSafeState("");
-    const [articles, setArticles] = useSafeState(initialArticles);
+    const [articles, setArticles] = useSafeState<Article[]>([]);
+    const [initialArticles, setInitialArticles] = useSafeState<Article[]>([]);
+
+    useEffect(
+        () => {
+            const fetchArticles = async () => {
+                try {
+                    const res = await getAllArticles();
+                    const fetchedArticles = res.articles ?? [];
+                    setArticles(fetchedArticles);
+                    setInitialArticles(fetchedArticles);
+                } catch (error) {
+                    console.error("Error fetching articles:", error);
+                }
+            };
+
+            fetchArticles();
+            trackPageVisit('Articles');
+        },
+        [setArticles, setInitialArticles]
+    );
 
     const handleQueryChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {
-            if (!e.target.value.trim().length) {
+            const value = e.target.value;
+            setSearchQuery(value);
+
+            if (!value.trim().length) {
                 setArticles(initialArticles);
             }
-            setSearchQuery(e.target.value);
         },
         [initialArticles, setArticles, setSearchQuery]
-    )
+    );
 
-    const handleSearch = useCallback(
-        async () => {
-            if (!searchQuery.trim().length) {
-                return;
-            }
+    const handleSearch = useCallback(async () => {
+        if (!searchQuery.trim().length) return;
+
+        try {
             const searchResult = await getArticlesByQuery(searchQuery);
             setArticles(searchResult.articles ?? []);
-        },
-        [searchQuery, setArticles]
-    );
+        } catch (error) {
+            console.error("Error during search:", error);
+        }
+    }, [searchQuery, setArticles]);
 
     const handleKeyDown = useCallback(
         async (e: KeyboardEvent<HTMLInputElement>) => {
@@ -45,16 +64,20 @@ export const ArticlesPage = ({ initialArticles }: Props) => {
         [handleSearch]
     );
 
-    useEffect(
-        () => {
-            trackPageVisit('Articles');
-        },
-        []
-    );
+    if (!articles.length) {
+        return (
+            <div className="container mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-screen">
+                <h1 className="text-4xl font-bold text-center mb-4">Articles Coming Soon!</h1>
+                <p className="text-xl text-center mb-6">I&apos;m currently working on some exciting articles. Stay tuned!</p>
+                <div className="flex space-x-4"></div>
+            </div>
+        );
+    }
 
     return (
         <section className="container mx-auto py-10 px-4">
             <h1 className="text-4xl font-bold text-center mb-10">Articles</h1>
+
             <div className="mb-6 flex justify-center">
                 <input
                     type="text"
@@ -87,7 +110,6 @@ export const ArticlesPage = ({ initialArticles }: Props) => {
                     articles.map((article) => (
                         <Link key={article.id} href={`/articles/${article.id}?lang=en`} prefetch={false}>
                             <div
-                                key={article.id}
                                 className="cursor-pointer p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-lg hover:border-gray-300 transition-all bg-white"
                             >
                                 {
