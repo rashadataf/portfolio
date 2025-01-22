@@ -1,10 +1,19 @@
 'use client';
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from 'next/dynamic';
 import profilePic from '@public/images/rashad.webp';
-import { Section } from "@/components/Section";
 import { useEffect } from "react";
 import { trackPageVisit } from "@/lib/metrics";
+import { Loader } from "./Loader";
+
+const Section = dynamic(() =>
+    import('@/components/Section').then((mod) => mod.Section),
+    {
+        loading: () => <Loader />,
+        ssr: false
+    }
+)
 
 export async function getStaticProps() {
     return {
