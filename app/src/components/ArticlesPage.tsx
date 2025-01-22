@@ -23,6 +23,7 @@ export const ArticlesPage = () => {
     const [inputDir, setInputDir] = useSafeState<"rtl" | "ltr">("ltr");
     const [articles, setArticles] = useSafeState<Article[]>([]);
     const [initialArticles, setInitialArticles] = useSafeState<Article[]>([]);
+    const [searchPerformed, setSearchPerformed] = useSafeState(false);
 
     useEffect(() => {
         const fetchArticles = async () => {
@@ -50,9 +51,12 @@ export const ArticlesPage = () => {
 
             if (!value.trim().length) {
                 setArticles(initialArticles);
+                setInputDir('ltr');
+                setSearchQuery('');
+                setSearchPerformed(false);
             }
         },
-        [initialArticles, setArticles, setInputDir, setSearchQuery]
+        [initialArticles, setArticles, setInputDir, setSearchQuery, setSearchPerformed]
     );
 
     const handleSearch = useCallback(async () => {
@@ -61,10 +65,11 @@ export const ArticlesPage = () => {
         try {
             const searchResult = await serachPublishedArticles(searchQuery);
             setArticles(searchResult.articles ?? []);
+            setSearchPerformed(true);
         } catch (error) {
             console.error("Error during search:", error);
         }
-    }, [searchQuery, setArticles]);
+    }, [searchQuery, setArticles, setSearchPerformed]);
 
     const handleKeyDown = useCallback(
         async (e: KeyboardEvent<HTMLInputElement>) => {
@@ -122,21 +127,30 @@ export const ArticlesPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {
                     articles.map((article) => (
-                        <Link key={article.id} href={`/articles/${article.slugEn}?lang=en`} prefetch={false}>
-                            <div className="cursor-pointer p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-lg hover:border-gray-300 transition-all bg-white">
-                                {article.coverImage && (
-                                    <Image
-                                        src={article.coverImage}
-                                        alt={article.titleEn}
-                                        className="w-full h-48 object-cover rounded-md mb-4"
-                                        width={300}
-                                        height={300}
-                                        priority
-                                    />
-                                )}
-                                <h2 className="text-xl font-semibold text-gray-800 mb-2">{article.titleEn}</h2>
-                                <p className="text-gray-600 mb-2">By {article.author}</p>
-                                <p className="text-gray-500 text-sm">{new Date(article.createdAt).toLocaleDateString()}</p>
+                        <Link key={article.id} href={inputDir === "rtl" && searchPerformed ? `/articles/${article.slugAr}?lang=ar` : `/articles/${article.slugEn}?lang=en`} prefetch={false}>
+                            <div
+                                className="cursor-pointer p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-lg hover:border-gray-300 transition-all bg-white"
+                                dir={inputDir === 'rtl' && searchPerformed ? 'rtl' : 'ltr'}
+                            >
+                                {
+                                    article.coverImage && (
+                                        <Image
+                                            src={article.coverImage}
+                                            alt={inputDir === "rtl" && searchPerformed ? article.titleAr : article.titleEn}
+                                            className="w-full h-48 object-cover rounded-md mb-4"
+                                            width={300}
+                                            height={300}
+                                            priority
+                                        />
+                                    )
+                                }
+                                <h2 className="text-xl font-semibold text-gray-800 mb-2">{inputDir === "rtl" && searchPerformed ? article.titleAr : article.titleEn}</h2>
+                                <p className={`text-gray-600 mb-2 ${inputDir === 'rtl' && searchPerformed ? 'text-right' : 'text-left'}`}>
+                                    {inputDir === 'rtl' && searchPerformed ? `بواسطة ${article.author}` : `By ${article.author}`}
+                                </p>
+                                <p className={`text-gray-500 text-sm ${inputDir === 'rtl' && searchPerformed ? 'text-right' : 'text-left'}`}>
+                                    {new Date(article.createdAt).toLocaleDateString(inputDir === 'rtl' && searchPerformed ? 'ar-sy' : 'en')}
+                                </p>
                             </div>
                         </Link>
                     ))
