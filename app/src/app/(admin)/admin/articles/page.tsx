@@ -1,9 +1,28 @@
+'use client';
+import { useEffect, useCallback } from "react";
 import Link from "next/link";
 import { getAllArticles } from "@/modules/article/article.controller";
 import { AdminArticleCard } from "@/components/AdminArticleCard";
+import { Article } from "@/modules/article/article.entity";
+import { useSafeState } from "@/hooks/useSafeState.hook";
 
-export default async function AllArticles() {
-    const { articles } = await getAllArticles();
+export default function AllArticles() {
+    const [articles, setArticles] = useSafeState<Article[]>([]);
+
+    const fetchArticles = useCallback(
+        async () => {
+            const { articles } = await getAllArticles();
+            setArticles(articles || []);
+        },
+        [setArticles]
+    );
+
+    useEffect(
+        () => {
+            fetchArticles();
+        },
+        [fetchArticles]
+    );
 
     return (
         <div>
@@ -17,8 +36,12 @@ export default async function AllArticles() {
 
             <ul className="mt-8 space-y-4">
                 {
-                    articles && articles.map((article) => (
-                        <AdminArticleCard article={article} key={article.id} />
+                    articles.map((article) => (
+                        <AdminArticleCard
+                            article={article}
+                            key={article.id}
+                            onActionComplete={fetchArticles}
+                        />
                     ))
                 }
             </ul>
