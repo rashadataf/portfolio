@@ -11,7 +11,7 @@ const Section = dynamic(() =>
     import('@/components/Section').then((mod) => mod.Section),
     {
         loading: () => <Loader />,
-        ssr: false
+        ssr: true
     }
 )
 
@@ -33,7 +33,9 @@ export const HomePage = () => {
             <Image
                 src={profilePic}
                 alt="Portrait of Rashad Ataf, Full Stack Developer."
-                className="w-full p-30 md:w-1/2"
+                sizes="(max-width: 768px) 50vw, (min-width: 768px) 450px"
+                loading="eager"
+                className="p-10 md:p-30 md:w-1/2"
                 width={450}
                 height={450}
                 priority
