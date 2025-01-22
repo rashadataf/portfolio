@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
-import profilePic from '@public/images/rashad.webp';
+import profilePic from '@public/images/rashad_min.png';
 import { useEffect } from "react";
 import { trackPageVisit } from "@/lib/metrics";
 import { Loader } from "./Loader";
@@ -33,13 +33,13 @@ export const HomePage = () => {
             <Image
                 src={profilePic}
                 alt="Portrait of Rashad Ataf, Full Stack Developer."
-                sizes="(max-width: 768px) 90vw, (min-width: 768px) 450px"
-                loading="lazy"
+                sizes="(max-width: 768px) 60vw, (max-width: 1200px) 40vw, 33vw"
+                loading="eager"
                 className="p-10 md:p-30 md:w-1/2"
-                width={450}
-                height={450}
+                width={350}
+                height={350}
                 priority
-                quality={75}
+                quality={65}
             />
 
             <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-4 md:w-1/2">
