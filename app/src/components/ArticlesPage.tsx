@@ -113,30 +113,34 @@ export const ArticlesPage = () => {
                 </button>
             </div>
 
-            {searchQuery.length > 0 && articles.length === 0 && (
-                <p className="text-center text-gray-500">There are no results for your search.</p>
-            )}
+            {
+                searchQuery.length > 0 && articles.length === 0 && (
+                    <p className="text-center text-gray-500">There are no results for your search.</p>
+                )
+            }
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {articles.map((article) => (
-                    <Link key={article.id} href={`/articles/${article.id}?lang=en`} prefetch={false}>
-                        <div className="cursor-pointer p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-lg hover:border-gray-300 transition-all bg-white">
-                            {article.coverImage && (
-                                <Image
-                                    src={article.coverImage}
-                                    alt={article.titleEn}
-                                    className="w-full h-48 object-cover rounded-md mb-4"
-                                    width={300}
-                                    height={300}
-                                    priority
-                                />
-                            )}
-                            <h2 className="text-xl font-semibold text-gray-800 mb-2">{article.titleEn}</h2>
-                            <p className="text-gray-600 mb-2">By {article.author}</p>
-                            <p className="text-gray-500 text-sm">{new Date(article.createdAt).toLocaleDateString()}</p>
-                        </div>
-                    </Link>
-                ))}
+                {
+                    articles.map((article) => (
+                        <Link key={article.id} href={`/articles/${article.id}?lang=en`} prefetch={false}>
+                            <div className="cursor-pointer p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-lg hover:border-gray-300 transition-all bg-white">
+                                {article.coverImage && (
+                                    <Image
+                                        src={article.coverImage}
+                                        alt={article.titleEn}
+                                        className="w-full h-48 object-cover rounded-md mb-4"
+                                        width={300}
+                                        height={300}
+                                        priority
+                                    />
+                                )}
+                                <h2 className="text-xl font-semibold text-gray-800 mb-2">{article.titleEn}</h2>
+                                <p className="text-gray-600 mb-2">By {article.author}</p>
+                                <p className="text-gray-500 text-sm">{new Date(article.createdAt).toLocaleDateString()}</p>
+                            </div>
+                        </Link>
+                    ))
+                }
             </div>
         </section>
     );

@@ -60,8 +60,6 @@ services:
     ports:
       - "${APP_PORT}:${APP_PORT}"
     container_name: ${PROD_CONTAINER_NAME}
-    volumes:
-      - ${PRODUCTION_VOLUME}
     environment:
       NODE_ENV: ${PROD_NODE_ENV}
       PORT: ${APP_PORT}
