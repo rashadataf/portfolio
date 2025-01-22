@@ -6,6 +6,12 @@ import { Section } from "@/components/Section";
 import { useEffect } from "react";
 import { trackPageVisit } from "@/lib/metrics";
 
+export async function getStaticProps() {
+    return {
+        props: {},
+    };
+}
+
 export const HomePage = () => {
     useEffect(
         () => {
@@ -18,7 +24,7 @@ export const HomePage = () => {
             <Image
                 src={profilePic}
                 alt="Portrait of Rashad Ataf, Full Stack Developer."
-                className="w-full p-28 md:w-1/2"
+                className="w-full p-20 md:w-1/2"
                 width={450}
                 height={450}
                 priority

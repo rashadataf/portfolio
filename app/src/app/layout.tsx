@@ -4,6 +4,7 @@ import '@/app/globals.css';
 
 const montserrat = Montserrat({
     subsets: ['latin'],
+    display: 'swap',
 })
 
 export const metadata: Metadata = {
