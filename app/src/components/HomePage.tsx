@@ -29,18 +29,20 @@ export const HomePage = () => {
         []
     )
     return (
-        <div className="flex flex-col md:flex-row items-center justify-around flex-grow">
-            <Image
-                src={profilePic}
-                alt="Portrait of Rashad Ataf, Full Stack Developer."
-                sizes="(max-width: 768px) 60vw, (max-width: 1200px) 40vw, 33vw"
-                loading="eager"
-                className="p-10 md:p-30 md:w-1/2"
-                width={350}
-                height={350}
-                priority
-                quality={65}
-            />
+        <div className="flex flex-col md:flex-row items-center justify-around flex-grow xl:px-64">
+
+            <picture className="p-10 md:p-30 md:w-1/2">
+                <Image
+                    src={profilePic}
+                    alt="Portrait of Rashad Ataf, Full Stack Developer."
+                    sizes="(max-width: 768px) 60vw, (max-width: 1200px) 40vw, 33vw"
+                    loading="eager"
+                    width={450}
+                    height={450}
+                    priority
+                    quality={65}
+                />
+            </picture>
 
             <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-4 md:w-1/2">
                 <h1 id="main-page-header" className="text-2xl md:text-4xl font-bold mb-4">Welcome to My <span className="text-accent-color">Portfolio</span></h1>
