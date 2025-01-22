@@ -122,7 +122,7 @@ export const ArticlesPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {
                     articles.map((article) => (
-                        <Link key={article.id} href={`/articles/${article.id}?lang=en`} prefetch={false}>
+                        <Link key={article.id} href={`/articles/${article.slugEn}?lang=en`} prefetch={false}>
                             <div className="cursor-pointer p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-lg hover:border-gray-300 transition-all bg-white">
                                 {article.coverImage && (
                                     <Image

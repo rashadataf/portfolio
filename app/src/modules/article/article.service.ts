@@ -13,6 +13,10 @@ export class ArticleService {
         return this.articleRepository.findArticleById(id);
     }
 
+    async getArticleBySlugs(slug: string) {
+        return this.articleRepository.findArticleBySlug(slug);
+    }
+
     async getAllArticles() {
         return this.articleRepository.findAll();
     }

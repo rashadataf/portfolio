@@ -81,6 +81,27 @@ export async function getArticleById(id: string): Promise<{ article?: Article, m
     }
 }
 
+export async function getArticleBySlug(slug: string): Promise<{ article?: Article, message?: string, error?: unknown, status: number }> {
+    try {
+        if (!slug) {
+            return { message: 'Slug is required', status: 400 };
+        }
+
+        const decodedSlug = decodeURIComponent(slug);
+        // Query the article service to find an article by either slug_en or slug_ar
+        const article = await articleService.getArticleBySlugs(decodedSlug);
+
+        if (!article) {
+            return { message: 'Article not found', status: 404 };
+        }
+
+        return { article, status: 200 };
+    } catch (error) {
+        console.error('Error fetching article by slug:', error);
+        return { message: 'Error fetching article', error, status: 500 };
+    }
+}
+
 export async function createArticle(data: CreateArticleDTO, coverImage: File | null) {
     try {
         await isAdmin();

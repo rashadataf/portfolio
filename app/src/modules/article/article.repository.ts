@@ -28,6 +28,24 @@ export class ArticleRepository {
         return null;
     }
 
+    async findArticleBySlug(slug: string): Promise<Article | null> {
+        try {
+            console.log('slug: ', slug);
+
+            const { rows } = await dbService.query(
+                `SELECT * FROM ${ArticleEntity.tableName} WHERE slug_en = $1 OR slug_ar = $1`,
+                [slug]
+            );
+            if (rows.length) {
+                return toCamelCase<Article>(rows[0]);
+            }
+            return null;
+        } catch (error) {
+            console.error('Error querying article by slugs:', error);
+            throw error;
+        }
+    }
+
     async findAll(): Promise<Article[]> {
         const { rows } = await dbService.query(`SELECT * FROM ${ArticleEntity.tableName}`);
         return rows.map(row => toCamelCase<Article>(row));
