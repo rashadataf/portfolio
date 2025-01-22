@@ -49,7 +49,10 @@ export function toSnakeCase(obj: Record<string, unknown>): Record<string, unknow
       camelToSnakeMapCache[camelKey] = snakeKey;
     }
 
-    if (typeof camelValue === 'object' && camelValue !== null) {
+    if (camelValue instanceof Date) {
+      snakeObj[snakeKey] = camelValue;
+    }
+    else if (typeof camelValue === 'object' && camelValue !== null) {
       if (Array.isArray(camelValue)) {
         snakeObj[snakeKey] = camelValue.map(item => (typeof item === 'object' && item !== null ? toSnakeCase(item) : item));
       } else {
@@ -62,6 +65,7 @@ export function toSnakeCase(obj: Record<string, unknown>): Record<string, unknow
 
   return snakeObj;
 }
+
 
 export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

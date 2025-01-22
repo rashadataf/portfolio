@@ -4,23 +4,17 @@ import path from "path";
 import { ArticleService } from "@/modules/article/article.service";
 import { CreateArticleDTO, UpdateArticleDTO } from "@/modules/article/article.dto";
 import { isAdmin } from "@/lib/auth";
-import { Article, ArticleEntity } from "@/modules/article/article.entity";
+import { Article } from "@/modules/article/article.entity";
 
 const articleService = new ArticleService();
 
-export async function getArticlesByQuery(query: string) {
+export async function serachPublishedArticles(query: string) {
     try {
         if (!query) {
             return { articles: [], status: 200 };
         }
 
-        const sqlQuery = `
-            SELECT * FROM ${ArticleEntity.tableName}
-            WHERE content_search_en @@ websearch_to_tsquery('english', $1)
-               OR content_search_ar @@ websearch_to_tsquery('arabic', $1)
-        `;
-
-        const articles = await articleService.executeQuery<Article>(sqlQuery, [query]);
+        const articles = await articleService.serachPublishedArticles<Article>([query]);
         return { articles, status: 200 };
     } catch (error) {
         console.error('Error fetching articles by query:', error);
@@ -38,6 +32,39 @@ export async function getAllArticles() {
     }
 }
 
+export async function getDraftArticles() {
+    try {
+        await isAdmin();
+        const articles = await articleService.getDraftArticles();
+        return { articles, status: 200 };
+    } catch (error) {
+        console.error("Error fetching draft articles:", error);
+        return { message: "Error fetching draft articles", error, status: 500 };
+    }
+}
+
+export async function getArchivedArticles() {
+    try {
+        await isAdmin();
+        const articles = await articleService.getArchivedArticles();
+        return { articles, status: 200 };
+    } catch (error) {
+        console.error("Error fetching archived articles:", error);
+        return { message: "Error fetching archived articles", error, status: 500 };
+    }
+}
+
+export async function getPublishedArticles() {
+    try {
+        await isAdmin();
+        const articles = await articleService.getPublishedArticles();
+        return { articles, status: 200 };
+    } catch (error) {
+        console.error("Error fetching published articles:", error);
+        return { message: "Error fetching published articles", error, status: 500 };
+    }
+}
+
 export async function getArticleById(id: string): Promise<{ article?: Article, message?: string, error?: unknown, status: number }> {
     try {
         if (!id) {
@@ -50,6 +77,26 @@ export async function getArticleById(id: string): Promise<{ article?: Article, m
         return { article, status: 200 };
     } catch (error) {
         console.error('Error fetching article:', error);
+        return { message: 'Error fetching article', error, status: 500 };
+    }
+}
+
+export async function getArticleBySlug(slug: string): Promise<{ article?: Article, message?: string, error?: unknown, status: number }> {
+    try {
+        if (!slug) {
+            return { message: 'Slug is required', status: 400 };
+        }
+
+        const decodedSlug = decodeURIComponent(slug);
+        const article = await articleService.getArticleBySlugs(decodedSlug);
+
+        if (!article) {
+            return { message: 'Article not found', status: 404 };
+        }
+
+        return { article, status: 200 };
+    } catch (error) {
+        console.error('Error fetching article by slug:', error);
         return { message: 'Error fetching article', error, status: 500 };
     }
 }

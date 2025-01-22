@@ -1,13 +1,11 @@
 'use client';
 import Link from 'next/link';
-// import Image from 'next/image';
 import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
 import { Section } from "@/components/Section";
 import { useEffect } from 'react';
 import { trackPageVisit } from '@/lib/metrics';
-// import selfiePic from '@public/images/selfie.webp';
 
 const proficientSkills = {
     "HTML": 90,

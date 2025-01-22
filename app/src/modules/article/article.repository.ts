@@ -2,11 +2,18 @@ import { dbService } from '@/modules/db/db.service';
 import { Article, ArticleEntity } from '@/modules/article/article.entity';
 import { CreateArticleDTO, UpdateArticleDTO } from '@/modules/article/article.dto';
 import { toCamelCase, toSnakeCase } from '@/lib/utils';
+import { ArticleStatus } from '@/types';
 
 export class ArticleRepository {
 
-    async executeQuery<T>(query: string, params: unknown[]): Promise<T[]> {
-        const { rows } = await dbService.query(query, params);
+    async serachPublishedArticles<T>(params: unknown[]): Promise<T[]> {
+        const sqlQuery = `
+                    SELECT * FROM ${ArticleEntity.tableName}
+                    WHERE (content_search_en @@ websearch_to_tsquery('english', $1)
+                       OR content_search_ar @@ websearch_to_tsquery('arabic', $1))
+                      AND status = '${ArticleStatus.PUBLISHED}'
+                `;
+        const { rows } = await dbService.query(sqlQuery, params);
         return rows.map(row => toCamelCase<T>(row));
     }
 
@@ -21,8 +28,33 @@ export class ArticleRepository {
         return null;
     }
 
+    async findArticleBySlug(slug: string): Promise<Article | null> {
+        try {
+            const { rows } = await dbService.query(
+                `SELECT * FROM ${ArticleEntity.tableName} WHERE slug_en = $1 OR slug_ar = $1`,
+                [slug]
+            );
+            if (rows.length) {
+                return toCamelCase<Article>(rows[0]);
+            }
+            return null;
+        } catch (error) {
+            console.error('Error querying article by slugs:', error);
+            throw error;
+        }
+    }
+
     async findAll(): Promise<Article[]> {
         const { rows } = await dbService.query(`SELECT * FROM ${ArticleEntity.tableName}`);
+        return rows.map(row => toCamelCase<Article>(row));
+    }
+
+    async findArticlesByStatus(status: ArticleStatus): Promise<Article[]> {
+        const sqlQuery = `
+            SELECT * FROM ${ArticleEntity.tableName}
+            WHERE status = $1
+        `;
+        const { rows } = await dbService.query(sqlQuery, [status]);
         return rows.map(row => toCamelCase<Article>(row));
     }
 

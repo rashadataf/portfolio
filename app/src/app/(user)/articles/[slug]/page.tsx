@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import { Loader } from "@/components/Loader";
-import { getAllArticles, getArticleById } from "@/modules/article/article.controller";
+import { getAllArticles, getArticleBySlug } from "@/modules/article/article.controller";
 import { Metadata } from "next";
 
 export const revalidate = 60
@@ -16,7 +16,7 @@ export async function generateStaticParams() {
 }
 
 type Props = {
-    params: Promise<{ id: string; }>;
+    params: Promise<{ slug: string; }>;
     searchParams?: Promise<{ lang: 'en' | 'ar' }>;
 }
 
@@ -24,9 +24,9 @@ export async function generateMetadata({
     params,
     searchParams,
 }: Props): Promise<Metadata> {
-    const { id } = await params;
+    const { slug } = await params;
     const lang = (await searchParams)?.lang === 'ar' ? 'ar' : 'en';
-    const { article } = await getArticleById(id);
+    const { article } = await getArticleBySlug(slug);
 
     if (!article) {
         return {
@@ -50,12 +50,12 @@ export async function generateMetadata({
         robots: 'index, follow',
         viewport: 'width=device-width, initial-scale=1.0',
         alternates: {
-            canonical: `https://www.rashadataf.com/articles/${id}?lang=${lang}`,
+            canonical: `https://www.rashadataf.com/articles/${slug}?lang=${lang}`,
         },
         openGraph: {
             title,
             description,
-            url: `https://www.rashadataf.com/articles/${id}?lang=${lang}`,
+            url: `https://www.rashadataf.com/articles/${slug}?lang=${lang}`,
             type: 'article',
             images: article.coverImage ? [{ url: article.coverImage }] : [],
             locale: lang === 'ar' ? 'ar_AR' : 'en_US',
@@ -83,9 +83,9 @@ export default async function ArticleDetailPage({
     params,
     searchParams
 }: Props) {
-    const { id } = await params;
+    const { slug } = await params;
     const lang = (await searchParams)?.lang === 'ar' ? 'ar' : 'en';
-    const { article } = await getArticleById(id);
+    const { article } = await getArticleBySlug(slug);
 
     if (!article) {
         return <div className="text-center text-gray-500">Article not found</div>;

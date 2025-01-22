@@ -13,12 +13,28 @@ export class ArticleService {
         return this.articleRepository.findArticleById(id);
     }
 
+    async getArticleBySlugs(slug: string) {
+        return this.articleRepository.findArticleBySlug(slug);
+    }
+
     async getAllArticles() {
         return this.articleRepository.findAll();
     }
 
-    async executeQuery<T>(query: string, params: unknown[]): Promise<T[]> {
-        return this.articleRepository.executeQuery(query, params);
+    async getDraftArticles() {
+        return this.articleRepository.findArticlesByStatus(ArticleStatus.DRAFT);
+    }
+
+    async getArchivedArticles() {
+        return this.articleRepository.findArticlesByStatus(ArticleStatus.ARCHIVED);
+    }
+
+    async getPublishedArticles() {
+        return this.articleRepository.findArticlesByStatus(ArticleStatus.PUBLISHED);
+    }
+
+    async serachPublishedArticles<T>(params: unknown[]): Promise<T[]> {
+        return this.articleRepository.serachPublishedArticles(params);
     }
 
 
