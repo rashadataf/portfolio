@@ -33,7 +33,7 @@ export const HomePage = () => {
             <Image
                 src={profilePic}
                 alt="Portrait of Rashad Ataf, Full Stack Developer."
-                className="w-full p-20 md:w-1/2"
+                className="w-full p-30 md:w-1/2"
                 width={450}
                 height={450}
                 priority
