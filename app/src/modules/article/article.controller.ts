@@ -4,25 +4,17 @@ import path from "path";
 import { ArticleService } from "@/modules/article/article.service";
 import { CreateArticleDTO, UpdateArticleDTO } from "@/modules/article/article.dto";
 import { isAdmin } from "@/lib/auth";
-import { Article, ArticleEntity } from "@/modules/article/article.entity";
-import { ArticleStatus } from "@/types";
+import { Article } from "@/modules/article/article.entity";
 
 const articleService = new ArticleService();
 
-export async function getArticlesByQuery(query: string) {
+export async function serachPublishedArticles(query: string) {
     try {
         if (!query) {
             return { articles: [], status: 200 };
         }
 
-        const sqlQuery = `
-            SELECT * FROM ${ArticleEntity.tableName}
-            WHERE (content_search_en @@ websearch_to_tsquery('english', $1)
-               OR content_search_ar @@ websearch_to_tsquery('arabic', $1))
-              AND status = '${ArticleStatus.PUBLISHED}'
-        `;
-
-        const articles = await articleService.executeQuery<Article>(sqlQuery, [query]);
+        const articles = await articleService.serachPublishedArticles<Article>([query]);
         return { articles, status: 200 };
     } catch (error) {
         console.error('Error fetching articles by query:', error);

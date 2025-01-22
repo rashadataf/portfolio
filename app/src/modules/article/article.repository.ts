@@ -6,8 +6,14 @@ import { ArticleStatus } from '@/types';
 
 export class ArticleRepository {
 
-    async executeQuery<T>(query: string, params: unknown[]): Promise<T[]> {
-        const { rows } = await dbService.query(query, params);
+    async serachPublishedArticles<T>(params: unknown[]): Promise<T[]> {
+        const sqlQuery = `
+                    SELECT * FROM ${ArticleEntity.tableName}
+                    WHERE (content_search_en @@ websearch_to_tsquery('english', $1)
+                       OR content_search_ar @@ websearch_to_tsquery('arabic', $1))
+                      AND status = '${ArticleStatus.PUBLISHED}'
+                `;
+        const { rows } = await dbService.query(sqlQuery, params);
         return rows.map(row => toCamelCase<T>(row));
     }
 

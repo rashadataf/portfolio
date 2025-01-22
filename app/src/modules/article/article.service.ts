@@ -29,8 +29,8 @@ export class ArticleService {
         return this.articleRepository.findArticlesByStatus(ArticleStatus.PUBLISHED);
     }
 
-    async executeQuery<T>(query: string, params: unknown[]): Promise<T[]> {
-        return this.articleRepository.executeQuery(query, params);
+    async serachPublishedArticles<T>(params: unknown[]): Promise<T[]> {
+        return this.articleRepository.serachPublishedArticles(params);
     }
 
 
