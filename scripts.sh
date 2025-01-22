@@ -9,6 +9,7 @@ function restart_dev() {
 }
 
 function restart_production() {
+  WITH_CERTBOT=false RESET_CONFIG=false docker compose down --volumes
   WITH_CERTBOT=false RESET_CONFIG=false docker compose build --no-cache
   WITH_CERTBOT=false RESET_CONFIG=false docker compose --profile production up --build --detach
 }
