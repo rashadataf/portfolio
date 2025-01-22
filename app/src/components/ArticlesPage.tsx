@@ -2,11 +2,10 @@
 import { KeyboardEvent, ChangeEvent, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSafeState } from "@/hooks/useSafeState.hook";
 import { Article } from "@/modules/article/article.entity";
 import { trackPageVisit } from "@/lib/metrics";
-import { useSafeState } from "@/hooks/useSafeState.hook";
-import { getArticlesByQuery } from "@/modules/article/article.controller";
-import { getAllArticles } from "@/modules/article/article.controller";
+import { getPublishedArticles, getArticlesByQuery } from "@/modules/article/article.controller";
 
 export const ArticlesPage = () => {
     const [searchQuery, setSearchQuery] = useSafeState("");
@@ -17,8 +16,8 @@ export const ArticlesPage = () => {
         () => {
             const fetchArticles = async () => {
                 try {
-                    const res = await getAllArticles();
-                    const fetchedArticles = res.articles ?? [];
+                    const { articles } = await getPublishedArticles();
+                    const fetchedArticles = articles ?? [];
                     setArticles(fetchedArticles);
                     setInitialArticles(fetchedArticles);
                 } catch (error) {
@@ -64,7 +63,7 @@ export const ArticlesPage = () => {
         [handleSearch]
     );
 
-    if (!articles.length) {
+    if (!articles.length && !searchQuery.trim()) {
         return (
             <div className="container mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-screen">
                 <h1 className="text-4xl font-bold text-center mb-4">Articles Coming Soon!</h1>

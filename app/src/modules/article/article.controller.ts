@@ -5,6 +5,7 @@ import { ArticleService } from "@/modules/article/article.service";
 import { CreateArticleDTO, UpdateArticleDTO } from "@/modules/article/article.dto";
 import { isAdmin } from "@/lib/auth";
 import { Article, ArticleEntity } from "@/modules/article/article.entity";
+import { ArticleStatus } from "@/types";
 
 const articleService = new ArticleService();
 
@@ -16,8 +17,9 @@ export async function getArticlesByQuery(query: string) {
 
         const sqlQuery = `
             SELECT * FROM ${ArticleEntity.tableName}
-            WHERE content_search_en @@ websearch_to_tsquery('english', $1)
-               OR content_search_ar @@ websearch_to_tsquery('arabic', $1)
+            WHERE (content_search_en @@ websearch_to_tsquery('english', $1)
+               OR content_search_ar @@ websearch_to_tsquery('arabic', $1))
+              AND status = '${ArticleStatus.PUBLISHED}'
         `;
 
         const articles = await articleService.executeQuery<Article>(sqlQuery, [query]);
