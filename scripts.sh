@@ -10,7 +10,6 @@ function restart_dev() {
 
 function restart_production() {
   docker stop production && docker rm production
-  docker rmi portfolio-production
   WITH_CERTBOT=false RESET_CONFIG=false docker compose build --build-arg CACHE_BUST=$(date +%s) --no-cache
   WITH_CERTBOT=false RESET_CONFIG=false docker compose --profile production up --build --detach
 }
