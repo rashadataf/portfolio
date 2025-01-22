@@ -33,12 +33,13 @@ export const HomePage = () => {
             <Image
                 src={profilePic}
                 alt="Portrait of Rashad Ataf, Full Stack Developer."
-                sizes="(max-width: 768px) 50vw, (min-width: 768px) 450px"
-                loading="eager"
+                sizes="(max-width: 768px) 90vw, (min-width: 768px) 450px"
+                loading="lazy"
                 className="p-10 md:p-30 md:w-1/2"
                 width={450}
                 height={450}
                 priority
+                quality={75}
             />
 
             <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-4 md:w-1/2">
