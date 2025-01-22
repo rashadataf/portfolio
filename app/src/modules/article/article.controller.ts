@@ -88,7 +88,6 @@ export async function getArticleBySlug(slug: string): Promise<{ article?: Articl
         }
 
         const decodedSlug = decodeURIComponent(slug);
-        // Query the article service to find an article by either slug_en or slug_ar
         const article = await articleService.getArticleBySlugs(decodedSlug);
 
         if (!article) {

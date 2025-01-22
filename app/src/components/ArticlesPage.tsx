@@ -46,7 +46,6 @@ export const ArticlesPage = () => {
             const value = e.target.value;
             setSearchQuery(value);
 
-            // Dynamically set the direction of the input
             setInputDir(detectDirection(value));
 
             if (!value.trim().length) {

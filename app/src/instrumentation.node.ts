@@ -8,7 +8,6 @@ import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 
 const OTEL_SERVICE_NAME = process.env.OTEL_SERVICE_NAME || "default-service";
 
-// Ensure metrics are only initialized once
 const OTLP_ENDPOINT = process.env.OTEL_COLLECTOR_ENDPOINT;
 const EXPORT_INTERVAL = parseInt(process.env.OTEL_COLLECTOR_EXPORT_INTERVAL || "5000", 10);
 

@@ -30,8 +30,6 @@ export class ArticleRepository {
 
     async findArticleBySlug(slug: string): Promise<Article | null> {
         try {
-            console.log('slug: ', slug);
-
             const { rows } = await dbService.query(
                 `SELECT * FROM ${ArticleEntity.tableName} WHERE slug_en = $1 OR slug_ar = $1`,
                 [slug]
