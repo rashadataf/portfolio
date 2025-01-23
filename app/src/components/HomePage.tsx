@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
-import profilePic from '@public/images/compressed_image_quality_50.webp';
+import profilePic from '@public/images/rashad.webp';
 import { trackPageVisit } from "@/lib/metrics";
 import { Loader } from "./Loader";
 
