@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
-import profilePic from '@public/images/rashad_min.png';
+import profilePic from '@public/images/optimized_image.webp';
 import { useEffect } from "react";
 import { trackPageVisit } from "@/lib/metrics";
 import { Loader } from "./Loader";
@@ -35,12 +35,12 @@ export const HomePage = () => {
                 <Image
                     src={profilePic}
                     alt="Portrait of Rashad Ataf, Full Stack Developer."
-                    sizes="(max-width: 768px) 60vw, (max-width: 1200px) 40vw, 33vw"
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                     loading="eager"
                     width={450}
                     height={450}
                     priority
-                    quality={65}
+                    quality={35}
                 />
             </picture>
 
