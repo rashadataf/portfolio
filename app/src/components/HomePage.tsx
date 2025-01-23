@@ -5,10 +5,12 @@ import dynamic from 'next/dynamic';
 import profilePic from '@public/images/optimized_image.webp';
 import { useEffect } from "react";
 import { trackPageVisit } from "@/lib/metrics";
+import { Loader } from "./Loader";
 
 const Section = dynamic(() =>
     import('@/components/Section').then((mod) => mod.Section),
     {
+        loading: () => <Loader />,
         ssr: true
     }
 )
@@ -38,7 +40,7 @@ export const HomePage = () => {
                     width={450}
                     height={450}
                     priority
-                    quality={25}
+                    quality={35}
                 />
             </picture>
 
