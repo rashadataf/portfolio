@@ -1,11 +1,12 @@
 'use client';
+import { useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
-import { Section } from "@/components/Section";
-import { useEffect } from 'react';
 import { trackPageVisit } from '@/lib/metrics';
+import { Loader } from './Loader';
 
 const proficientSkills = {
     "HTML": 90,
@@ -87,6 +88,20 @@ const experiences = [
         ]
     }
 ];
+
+const Section = dynamic(() =>
+    import('@/components/Section').then((mod) => mod.Section),
+    {
+        loading: () => <Loader />,
+        ssr: true
+    }
+)
+
+export async function getStaticProps() {
+    return {
+        props: {},
+    };
+}
 
 export const AboutPage = () => {
     useEffect(

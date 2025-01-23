@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
-import dynamic from 'next/dynamic';
-import { Loader } from '@/components/Loader';
-import { trackPageVisit } from "@/lib/metrics";
+import { AboutPage } from '@/components/AboutPage';
 
 export const metadata: Metadata = {
     title: "About Rashad Ataf - Full Stack Developer",
@@ -12,15 +10,7 @@ export const metadata: Metadata = {
     }
 }
 
-const AboutPage = dynamic(() =>
-    import('@/components/AboutPage').then((mod) => mod.AboutPage),
-    {
-        loading: () => <Loader />,
-    }
-)
-
 export default function About() {
-    trackPageVisit('About');
     return <AboutPage />
 }
 
