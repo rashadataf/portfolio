@@ -1,9 +1,9 @@
 'use client';
+import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
 import profilePic from '@public/images/optimized_image.webp';
-import { useEffect } from "react";
 import { trackPageVisit } from "@/lib/metrics";
 import { Loader } from "./Loader";
 
@@ -31,7 +31,7 @@ export const HomePage = () => {
     return (
         <div className="flex flex-col md:flex-row items-center justify-around flex-grow xl:px-64">
 
-            <picture className="p-10 md:p-30 md:w-1/2">
+            <Section id="main-image" ariaLabelledBy="main-page-image" className="p-10 md:p-30 md:w-1/2">
                 <Image
                     src={profilePic}
                     alt="Portrait of Rashad Ataf, Full Stack Developer."
@@ -42,7 +42,7 @@ export const HomePage = () => {
                     priority
                     quality={35}
                 />
-            </picture>
+            </Section>
 
             <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-4 md:w-1/2">
                 <h1 id="main-page-header" className="text-2xl md:text-4xl font-bold mb-4">Welcome to My <span className="text-accent-color">Portfolio</span></h1>
