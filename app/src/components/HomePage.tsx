@@ -1,16 +1,13 @@
 'use client';
+import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
 import profilePic from '@public/images/optimized_image.webp';
-import { useEffect } from "react";
-import { trackPageVisit } from "@/lib/metrics";
-import { Loader } from "./Loader";
 
 const Section = dynamic(() =>
     import('@/components/Section').then((mod) => mod.Section),
     {
-        loading: () => <Loader />,
         ssr: true
     }
 )
@@ -24,10 +21,14 @@ export async function getStaticProps() {
 export const HomePage = () => {
     useEffect(
         () => {
-            trackPageVisit('Home');
+            const loadTracking = async () => {
+                const { trackPageVisit } = await import("@/lib/metrics");
+                trackPageVisit('Home');
+            };
+            loadTracking();
         },
         []
-    )
+    );
     return (
         <div className="flex flex-col md:flex-row items-center justify-around flex-grow xl:px-64">
 
