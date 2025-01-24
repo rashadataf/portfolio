@@ -35,6 +35,10 @@ export const metadata: Metadata = {
         url: "/"
     },
     applicationName: "Rashad Attaf\'s Portfolio",
+    icons: {
+        icon: '/images/social.jpg',
+        href: '/images/social.jpg'
+    }
 }
 
 export default function RootLayout({

@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
+import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import profilePic from '@public/images/rashad.webp';
-import { trackPageVisit } from "@/lib/metrics";
-import { Loader } from "./Loader";
+import { Loader } from "@/components/Loader";
 
 const Section = dynamic(() =>
     import('@/components/Section').then((mod) => mod.Section),

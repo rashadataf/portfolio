@@ -2,11 +2,11 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { trackPageVisit } from '@/modules/analytics/analytics.controller';
 import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
-import { trackPageVisit } from '@/lib/metrics';
-import { Loader } from './Loader';
+import { Loader } from "@/components/Loader";
 
 const proficientSkills = {
     "HTML": 90,

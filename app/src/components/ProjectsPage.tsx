@@ -1,9 +1,9 @@
 'use client';
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
+import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import { Project } from "@/components/Project";
-import { checkBounceRate, endSessionTimer, markInteraction, startSessionTimer, trackPageVisit } from "@/lib/metrics";
-import { Loader } from "./Loader";
+import { Loader } from "@/components/Loader";
 
 const projects = [
     {
@@ -24,11 +24,6 @@ const projects = [
     }
 
 ];
-
-const initMeter = () => {
-    startSessionTimer();
-    checkBounceRate('Projects');
-}
 
 const Section = dynamic(() =>
     import('@/components/Section').then((mod) => mod.Section),
@@ -52,20 +47,6 @@ export const ProjectsPage = () => {
         []
     )
 
-    useEffect(
-        () => {
-            document.addEventListener('click', markInteraction);
-            document.addEventListener('scroll', markInteraction);
-
-            initMeter();
-            return () => {
-                endSessionTimer('Projects');
-                document.removeEventListener('click', markInteraction);
-                document.removeEventListener('scroll', markInteraction);
-            };
-        },
-        []
-    );
     return (
         <Section id="projects" ariaLabelledBy="projects-page-heder" className="container mx-auto py-10">
             <h1 id="projects-page-header" className="text-4xl font-bold text-center mb-10">Projects</h1>

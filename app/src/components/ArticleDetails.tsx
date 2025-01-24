@@ -5,17 +5,8 @@ import { Article } from "@/modules/article/article.entity";
 import { Viewer } from "@/components/Editor/Viewer";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import {
-    trackPageVisit,
-    trackBlogView,
-    startSessionTimer,
-    endSessionTimer,
-    checkBounceRate,
-    markInteraction,
-    reportScrollDepth,
-    trackClickEvent,
-} from "@/lib/metrics";
 import { useSafeState } from "@/hooks/useSafeState.hook";
+import { markInteraction, reportScrollDepth, trackBlogView, trackClickEvent, trackPageVisit } from "@/modules/analytics/analytics.controller";
 
 type Props = {
     article: Article;
@@ -28,8 +19,9 @@ export const ArticleDetails = ({ article, lang }: Props) => {
 
     const handleLanguageToggle = () => {
         const newLang = lang === 'ar' ? 'en' : 'ar';
+        const slug = newLang === 'ar' ? article.slugAr : article.slugEn;
         trackClickEvent('language_toggle', `toggle_to_${newLang}`);
-        router.push(`/articles/${article.id}?lang=${newLang}`);
+        router.push(`/articles/${slug}?lang=${newLang}`);
     };
 
     const isArabic = lang === "ar";
@@ -46,8 +38,8 @@ export const ArticleDetails = ({ article, lang }: Props) => {
             const initMetrics = () => {
                 trackPageVisit(`Article_${article.id}`);
                 trackBlogView(article.id.toString());
-                startSessionTimer();
-                checkBounceRate(`Article_${article.id}`);
+                // startSessionTimer();
+                // checkBounceRate(`Article_${article.id}`);
             };
 
             initMetrics();
@@ -56,7 +48,7 @@ export const ArticleDetails = ({ article, lang }: Props) => {
 
             return () => {
                 reportScrollDepth(maxScrollDepth, article.id.toString());
-                endSessionTimer(`Article_${article.id}`);
+                // endSessionTimer(`Article_${article.id}`);
                 window.removeEventListener("scroll", handleScroll);
             };
         },
