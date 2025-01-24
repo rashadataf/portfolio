@@ -40,7 +40,7 @@ export const HomePage = () => {
                     width={450}
                     height={450}
                     priority
-                    quality={35}
+                    quality={15}
                 />
             </Section>
 
