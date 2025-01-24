@@ -6,6 +6,12 @@ import { useSafeState } from '@/hooks/useSafeState.hook';
 import { MenuIcon } from '@/components/Icons';
 import { NavLink } from '@/components/NavLink';
 
+export async function getStaticProps() {
+    return {
+        props: {},
+    };
+}
+
 export const Navbar = () => {
     const [isOpen, setIsOpen] = useSafeState(false);
     const handleMenuClick = useCallback(
