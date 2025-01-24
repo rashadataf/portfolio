@@ -4,6 +4,7 @@ import '@/app/globals.css';
 
 const montserrat = Montserrat({
     subsets: ['latin'],
+    display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -34,6 +35,10 @@ export const metadata: Metadata = {
         url: "/"
     },
     applicationName: "Rashad Attaf\'s Portfolio",
+    icons: {
+        icon: '/images/social.jpg',
+        href: '/images/social.jpg'
+    }
 }
 
 export default function RootLayout({

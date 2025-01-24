@@ -3,8 +3,6 @@ import { ThemeProvider } from '@/context/theme.provider'
 import { Navbar } from '@/components/NavBar'
 import { Footer } from '@/components/Footer'
 
-
-
 export const metadata: Metadata = {
     title: 'Rashad Portfolio | Software Engineer',
     description: 'Portfolio for Rashad Ataf',

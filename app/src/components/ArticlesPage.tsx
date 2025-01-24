@@ -4,8 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { Article } from "@/modules/article/article.entity";
-import { trackPageVisit } from "@/lib/metrics";
 import { getPublishedArticles, serachPublishedArticles } from "@/modules/article/article.controller";
+import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 
 // Function to detect text direction (rtl or ltr)
 const detectDirection = (text: string): "rtl" | "ltr" => {

@@ -1,10 +1,25 @@
 'use client';
+import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from 'next/dynamic';
+import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import profilePic from '@public/images/rashad.webp';
-import { Section } from "@/components/Section";
-import { useEffect } from "react";
-import { trackPageVisit } from "@/lib/metrics";
+import { Loader } from "@/components/Loader";
+
+const Section = dynamic(() =>
+    import('@/components/Section').then((mod) => mod.Section),
+    {
+        loading: () => <Loader />,
+        ssr: true
+    }
+)
+
+export async function getStaticProps() {
+    return {
+        props: {},
+    };
+}
 
 export const HomePage = () => {
     useEffect(
@@ -14,15 +29,20 @@ export const HomePage = () => {
         []
     )
     return (
-        <div className="flex flex-col md:flex-row items-center justify-around flex-grow">
-            <Image
-                src={profilePic}
-                alt="Portrait of Rashad Ataf, Full Stack Developer."
-                className="w-full p-28 md:w-1/2"
-                width={450}
-                height={450}
-                priority
-            />
+        <div className="flex flex-col md:flex-row items-center justify-around flex-grow xl:px-64">
+
+            <Section id="main-image" ariaLabelledBy="main-page-image" className="p-10 md:p-30 md:w-1/2">
+                <Image
+                    src={profilePic}
+                    alt="Portrait of Rashad Ataf, Full Stack Developer."
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                    loading="eager"
+                    width={450}
+                    height={450}
+                    priority
+                    quality={15}
+                />
+            </Section>
 
             <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-4 md:w-1/2">
                 <h1 id="main-page-header" className="text-2xl md:text-4xl font-bold mb-4">Welcome to My <span className="text-accent-color">Portfolio</span></h1>
