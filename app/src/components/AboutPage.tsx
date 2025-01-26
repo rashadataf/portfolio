@@ -101,12 +101,6 @@ export async function getStaticProps() {
 }
 
 export const AboutPage = () => {
-    // useEffect(
-    //     () => {
-    //         trackPageVisit('About');
-    //     },
-    //     []
-    // )
     return (
         <div className="text-main flex flex-col items-center p-8">
             <Section id='about-me' ariaLabelledBy='about-me-header' className="text-center">
