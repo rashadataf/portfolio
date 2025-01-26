@@ -1,8 +1,5 @@
-'use client';
-import { useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { trackPageVisit } from '@/modules/analytics/analytics.controller';
 import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
@@ -104,12 +101,12 @@ export async function getStaticProps() {
 }
 
 export const AboutPage = () => {
-    useEffect(
-        () => {
-            trackPageVisit('About');
-        },
-        []
-    )
+    // useEffect(
+    //     () => {
+    //         trackPageVisit('About');
+    //     },
+    //     []
+    // )
     return (
         <div className="text-main flex flex-col items-center p-8">
             <Section id='about-me' ariaLabelledBy='about-me-header' className="text-center">

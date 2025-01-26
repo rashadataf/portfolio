@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Loader } from "@/components/Loader";
+import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 
 export const metadata: Metadata = {
     title: "Rashad Ataf's Articles - Insights in Full Stack Development",
@@ -19,6 +20,7 @@ const ArticlesPage = dynamic(() =>
 )
 
 export default function Articles() {
+    trackPageVisit("Articles");
     return <ArticlesPage />
 }
 

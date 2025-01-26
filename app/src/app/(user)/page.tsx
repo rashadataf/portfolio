@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { HomePage } from "@/components/HomePage";
+import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 
 export const metadata: Metadata = {
   title: "Rashad Ataf - Full Stack Developer",
@@ -11,5 +12,6 @@ export const metadata: Metadata = {
 }
 
 export default function Home() {
+  trackPageVisit('Home');
   return <HomePage />
 }

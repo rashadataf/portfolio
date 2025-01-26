@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { AboutPage } from '@/components/AboutPage';
+import { trackPageVisit } from '@/modules/analytics/analytics.controller';
 
 export const metadata: Metadata = {
     title: "About Rashad Ataf - Full Stack Developer",
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default function About() {
+    trackPageVisit('About');
     return <AboutPage />
 }
 

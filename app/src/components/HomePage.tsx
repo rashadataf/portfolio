@@ -1,9 +1,6 @@
-'use client';
-import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
-import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import profilePic from '@public/images/rashad.webp';
 import { Loader } from "@/components/Loader";
 
@@ -15,19 +12,7 @@ const Section = dynamic(() =>
     }
 )
 
-export async function getStaticProps() {
-    return {
-        props: {},
-    };
-}
-
 export const HomePage = () => {
-    useEffect(
-        () => {
-            trackPageVisit('Home');
-        },
-        []
-    )
     return (
         <div className="flex flex-col md:flex-row items-center justify-around flex-grow xl:px-64">
 

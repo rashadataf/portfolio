@@ -6,7 +6,7 @@ import { Viewer } from "@/components/Editor/Viewer";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSafeState } from "@/hooks/useSafeState.hook";
-import { markInteraction, reportScrollDepth, trackBlogView, trackClickEvent, trackPageVisit } from "@/modules/analytics/analytics.controller";
+import { markInteraction, reportScrollDepth, trackBlogView, trackClickEvent } from "@/modules/analytics/analytics.controller";
 
 type Props = {
     article: Article;
@@ -36,7 +36,6 @@ export const ArticleDetails = ({ article, lang }: Props) => {
             };
 
             const initMetrics = () => {
-                trackPageVisit(`Article_${article.id}`);
                 trackBlogView(article.id.toString());
                 // startSessionTimer();
                 // checkBounceRate(`Article_${article.id}`);

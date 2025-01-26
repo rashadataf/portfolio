@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { Article } from "@/modules/article/article.entity";
 import { getPublishedArticles, serachPublishedArticles } from "@/modules/article/article.controller";
-import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 
 // Function to detect text direction (rtl or ltr)
 const detectDirection = (text: string): "rtl" | "ltr" => {
@@ -25,21 +24,23 @@ export const ArticlesPage = () => {
     const [initialArticles, setInitialArticles] = useSafeState<Article[]>([]);
     const [searchPerformed, setSearchPerformed] = useSafeState(false);
 
-    useEffect(() => {
-        const fetchArticles = async () => {
-            try {
-                const { articles } = await getPublishedArticles();
-                const fetchedArticles = articles ?? [];
-                setArticles(fetchedArticles);
-                setInitialArticles(fetchedArticles);
-            } catch (error) {
-                console.error("Error fetching articles:", error);
-            }
-        };
+    useEffect(
+        () => {
+            const fetchArticles = async () => {
+                try {
+                    const { articles } = await getPublishedArticles();
+                    const fetchedArticles = articles ?? [];
+                    setArticles(fetchedArticles);
+                    setInitialArticles(fetchedArticles);
+                } catch (error) {
+                    console.error("Error fetching articles:", error);
+                }
+            };
 
-        fetchArticles();
-        trackPageVisit("Articles");
-    }, [setArticles, setInitialArticles]);
+            fetchArticles();
+        },
+        [setArticles, setInitialArticles]
+    );
 
     const handleQueryChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {
@@ -58,17 +59,20 @@ export const ArticlesPage = () => {
         [initialArticles, setArticles, setInputDir, setSearchQuery, setSearchPerformed]
     );
 
-    const handleSearch = useCallback(async () => {
-        if (!searchQuery.trim().length) return;
+    const handleSearch = useCallback(
+        async () => {
+            if (!searchQuery.trim().length) return;
 
-        try {
-            const searchResult = await serachPublishedArticles(searchQuery);
-            setArticles(searchResult.articles ?? []);
-            setSearchPerformed(true);
-        } catch (error) {
-            console.error("Error during search:", error);
-        }
-    }, [searchQuery, setArticles, setSearchPerformed]);
+            try {
+                const searchResult = await serachPublishedArticles(searchQuery);
+                setArticles(searchResult.articles ?? []);
+                setSearchPerformed(true);
+            } catch (error) {
+                console.error("Error during search:", error);
+            }
+        },
+        [searchQuery, setArticles, setSearchPerformed]
+    );
 
     const handleKeyDown = useCallback(
         async (e: KeyboardEvent<HTMLInputElement>) => {

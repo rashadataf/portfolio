@@ -1,7 +1,4 @@
-'use client';
-import { useEffect } from "react";
 import dynamic from "next/dynamic";
-import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import { Project } from "@/components/Project";
 import { Loader } from "@/components/Loader";
 
@@ -33,19 +30,7 @@ const Section = dynamic(() =>
     }
 )
 
-export async function getStaticProps() {
-    return {
-        props: {},
-    };
-}
-
 export const ProjectsPage = () => {
-    useEffect(
-        () => {
-            trackPageVisit('Projects');
-        },
-        []
-    )
 
     return (
         <Section id="projects" ariaLabelledBy="projects-page-heder" className="container mx-auto py-10">

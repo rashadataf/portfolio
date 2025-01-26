@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { Loader } from "@/components/Loader";
 import { getAllArticles, getArticleBySlug } from "@/modules/article/article.controller";
 import { Metadata } from "next";
+import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 
 export const revalidate = 60
 
@@ -90,6 +91,6 @@ export default async function ArticleDetailPage({
     if (!article) {
         return <div className="text-center text-gray-500">Article not found</div>;
     }
-
+    trackPageVisit(`Article_${slug}`);
     return <ArticleDetailsComponent article={article} lang={lang} />
 };
