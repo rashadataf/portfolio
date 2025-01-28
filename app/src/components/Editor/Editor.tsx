@@ -32,29 +32,30 @@ interface EditorProp {
   dir: "ltr" | "rtl";
   editable: boolean;
 }
-export const Editor = ({ initialValue, onChange, onTextChange, dir = 'ltr', editable }: EditorProp) => {
+export const Editor = ({ initialValue, onChange, onTextChange, dir = "ltr", editable }: EditorProp) => {
+  const [editorKey, setEditorKey] = useSafeState(0);
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
-  const [content, setContent] = useSafeState<JSONContent | undefined>();
 
-  console.log('initialValue: ', initialValue);
-
+  // Reinitialize the editor whenever the initialValue changes
   useEffect(
-    () => setContent(initialValue),
+    () => {
+      setEditorKey((prevKey) => prevKey + 1); // Change the key to force reinitialization
+    },
     [initialValue]
-  )
+  );
 
   return (
-    <EditorRoot>
+    <EditorRoot key={editorKey}>
       <EditorContent
         editable={editable}
         editorContainerProps={{
-          dir
+          dir,
         }}
         immediatelyRender={true}
         className="border p-4 rounded-xl"
-        initialContent={content}
+        initialContent={initialValue}
         extensions={extensions}
         editorProps={{
           handleDOMEvents: {
