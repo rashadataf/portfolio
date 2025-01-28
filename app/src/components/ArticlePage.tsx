@@ -13,7 +13,6 @@ import { CreateArticleDTO } from '@/modules/article/article.dto';
 import { Loader } from '@/components//Loader';
 
 interface ArticlePageProps {
-    editable: boolean;
     articleId?: string;
 }
 
@@ -43,7 +42,7 @@ const Editor = dynamic(() =>
     }
 )
 
-export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
+export const ArticlePage = ({ articleId }: ArticlePageProps) => {
     const router = useRouter();
 
     const [titleEn, setTitleEn] = useSafeState("");
@@ -116,7 +115,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 slugAr: generateSlug(titleAr),
             };
 
-            if (editable && articleId) {
+            if (articleId) {
                 // Update existing article
                 await updateArticle(articleId, articlePayload, coverImage);
             } else {
@@ -144,7 +143,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     placeholder="Title (English)"
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -154,7 +152,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     dir='rtl'
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -163,7 +160,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     placeholder="Author"
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -172,7 +168,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     placeholder="Keywords (English, comma-separated)"
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -182,7 +177,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     dir='rtl'
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -191,7 +185,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     placeholder="Description (English)"
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -201,10 +194,9 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     dir="rtl"
                     required
-                    readOnly={!editable}
                 />
                 {
-                    editable ? (
+                    articleId ? (
                         <div className="flex flex-col gap-2">
                             {coverImageUrl && (
                                 <div>
@@ -238,14 +230,14 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 }
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (English)</h2>
-                    <Editor key={'en'} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={editable} />
+                    <Editor key={'en'} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} />
                 </div>
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (Arabic)</h2>
-                    <Editor key={'ar'} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={editable} />
+                    <Editor key={'ar'} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
                 </div>
                 {
-                    editable && (
+                    articleId && (
                         <div className="flex gap-4 mt-4">
                             <button
                                 onClick={() => handleSaveOrUpdate(false)}
@@ -265,7 +257,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     )
                 }
                 {
-                    !editable && (
+                    !articleId && (
                         <div className="flex gap-4 mt-4">
                             <button
                                 onClick={() => handleSaveOrUpdate(false)}

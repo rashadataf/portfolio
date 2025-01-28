@@ -13,5 +13,5 @@ export default async function AdminArticlePage({
     params: Promise<{ id: string }>
 }) {
     const id = (await params).id;
-    return <ArticlePage editable={true} articleId={id} />
+    return <ArticlePage articleId={id} />
 }
