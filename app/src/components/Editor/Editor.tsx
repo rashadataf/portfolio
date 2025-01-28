@@ -44,7 +44,7 @@ export const Editor = ({ initialValue, onChange, onTextChange, dir = 'ltr', edit
         editorContainerProps={{
           dir
         }}
-        immediatelyRender={true}
+        immediatelyRender={false}
         className="border p-4 rounded-xl"
         initialContent={initialValue}
         extensions={extensions}
