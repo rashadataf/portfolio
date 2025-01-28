@@ -12,20 +12,12 @@ import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus } from '@/types';
 import { createArticle, getArticleById } from '@/modules/article/article.controller';
 import { CreateArticleDTO } from '@/modules/article/article.dto';
-import { Loader } from '@/components//Loader';
+import { Editor } from './Editor/Editor';
 
 interface ArticlePageProps {
     editable: boolean;
     articleId?: string;
 }
-
-const Editor = dynamic(() =>
-    import('@/components/Editor/Editor').then((mod) => mod.Editor),
-    {
-        ssr: false,
-        loading: () => <Loader />,
-    }
-)
 
 function prepareTextForTSVector(text: string) {
     return text
@@ -64,6 +56,8 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     const article = response.article;
 
                     if (article) {
+                        console.log('article.contentEn: ', article.contentEn);
+                        console.log('article.contentAr: ', article.contentAr);
                         setTitleEn(article.titleEn || "");
                         setTitleAr(article.titleAr || "");
                         setAuthor(article.author || "");
