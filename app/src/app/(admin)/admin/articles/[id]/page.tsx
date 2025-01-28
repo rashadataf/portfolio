@@ -13,5 +13,5 @@ export default async function ArticlePage({
     params: Promise<{ id: string }>
 }) {
     const id = (await params).id;
-    return <ArticlePageComponent editable={false} articleId={id} />
+    return <ArticlePageComponent editable={true} articleId={id} />
 }

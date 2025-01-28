@@ -72,6 +72,8 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                         setContentEn(article.contentEn || null);
                         setContentAr(article.contentAr || null);
                         setCoverImageUrl(article.coverImage);
+                        setDescriptionEn(article.descriptionEn || "");
+                        setDescriptionAr(article.descriptionAr || "");
                     }
                 } catch (error) {
                     console.error("Error fetching article:", error);
