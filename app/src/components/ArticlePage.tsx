@@ -37,8 +37,8 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
     const [author, setAuthor] = useSafeState("");
     const [keywordsEn, setKeywordsEn] = useSafeState("");
     const [keywordsAr, setKeywordsAr] = useSafeState("");
-    const [contentEn, setContentEn] = useSafeState<JSONContent>(defaultValue);
-    const [contentAr, setContentAr] = useSafeState<JSONContent>(defaultValue);
+    const [contentEn, setContentEn] = useSafeState<JSONContent | undefined>();
+    const [contentAr, setContentAr] = useSafeState<JSONContent | undefined>();
     const [descriptionEn, setDescriptionEn] = useSafeState("");
     const [descriptionAr, setDescriptionAr] = useSafeState("");
     const [textEn, setTextEn] = useSafeState<string>('');
