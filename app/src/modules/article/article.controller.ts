@@ -123,10 +123,19 @@ export async function createArticle(data: CreateArticleDTO, coverImage: File | n
     }
 }
 
-export async function updateArticle(id: string, data: UpdateArticleDTO) {
+export async function updateArticle(id: string, data: UpdateArticleDTO, coverImage: File | null = null) {
     try {
         await isAdmin();
-        const updatedArticle = await articleService.updateArticle(id, data);
+        let coverImageUrl = '';
+
+        if (coverImage) {
+            const uploadResponse = await uploadImage(coverImage);
+            if (uploadResponse.url) {
+                coverImageUrl = uploadResponse.url;
+            }
+        }
+        const articleData = { ...data, coverImage: coverImageUrl };
+        const updatedArticle = await articleService.updateArticle(id, articleData);
         if (!updatedArticle) {
             return { message: 'Article not found', status: 404 };
         }

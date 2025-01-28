@@ -3,14 +3,11 @@ import '@/app/prosemirror.css';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-// import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
-
-// import { defaultValue } from "@/app/default-value";
 import { Section } from "@/components/Section";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus } from '@/types';
-import { createArticle, getArticleById } from '@/modules/article/article.controller';
+import { createArticle, getArticleById, updateArticle } from '@/modules/article/article.controller';
 import { CreateArticleDTO } from '@/modules/article/article.dto';
 import { Editor } from './Editor/Editor';
 
@@ -28,6 +25,14 @@ function prepareTextForTSVector(text: string) {
         .toLowerCase() // Convert to lowercase (affects only English text)
         .trim(); // Remove leading and trailing spaces
 }
+
+// Helper function to sanitize and produce slugs
+const generateSlug = (slug: string) => {
+    return slug
+        .toLowerCase() // Convert to lowercase
+        .replace(/[^a-z0-9-\u0621-\u064A\u0660-\u0669 ]/g, "") // Remove invalid characters (keeps Arabic, numbers, and hyphens)
+        .replace(/\s+/g, "-"); // Replace spaces with hyphens
+};
 
 export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
     const router = useRouter();
@@ -56,8 +61,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     const article = response.article;
 
                     if (article) {
-                        console.log('article.contentEn: ', article.contentEn);
-                        console.log('article.contentAr: ', article.contentAr);
                         setTitleEn(article.titleEn || "");
                         setTitleAr(article.titleAr || "");
                         setAuthor(article.author || "");
@@ -84,10 +87,10 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
         setCoverImage(file);
     };
 
-    const handleSubmit = async (publish: boolean) => {
+    const handleSaveOrUpdate = async (publish: boolean) => {
         setLoading(true);
         try {
-            const newArticle: CreateArticleDTO = {
+            const articlePayload: CreateArticleDTO = {
                 titleEn,
                 titleAr,
                 author,
@@ -100,19 +103,26 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 contentAr: JSON.parse(JSON.stringify(contentAr)),
                 contentSearchEn: prepareTextForTSVector(textEn),
                 contentSearchAr: prepareTextForTSVector(textAr),
-                slugEn: titleEn.toLowerCase().replace(/ /g, "-"),
-                slugAr: titleAr.toLowerCase().replace(/ /g, "-"),
+                slugEn: generateSlug(titleEn),
+                slugAr: generateSlug(titleAr),
             };
 
-            await createArticle(newArticle, coverImage);
+            if (editable && articleId) {
+                // Update existing article
+                await updateArticle(articleId, articlePayload, coverImage);
+            } else {
+                // Create new article
+                await createArticle(articlePayload, coverImage);
+            }
 
             router.push('/admin/articles');
         } catch (error) {
-            console.error("Error saving article:", error);
+            console.error("Error saving/updating article:", error);
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <Section id="new-article" ariaLabelledBy="new-article-header" className="container mx-auto py-10 flex flex-col items-center">
@@ -185,20 +195,37 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     readOnly={!editable}
                 />
                 {
-                    editable ?
-                        <input
-                            type="file"
-                            onChange={handleFileChange}
-                            className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
-                            accept="image/*"
-                        /> :
-                        coverImageUrl && <Image
-                            src={coverImageUrl}
-                            alt="Cover"
-                            className="max-w-full h-auto rounded"
-                            width={300}
-                            height={300}
-                        />
+                    editable ? (
+                        <div className="flex flex-col gap-2">
+                            {coverImageUrl && (
+                                <div>
+                                    <Image
+                                        src={coverImageUrl}
+                                        alt="Cover Preview"
+                                        className="max-w-full h-auto rounded"
+                                        width={300}
+                                        height={300}
+                                    />
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                onChange={handleFileChange}
+                                className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
+                                accept="image/*"
+                            />
+                        </div>
+                    ) : (
+                        coverImageUrl && (
+                            <Image
+                                src={coverImageUrl}
+                                alt="Cover Image"
+                                className="max-w-full h-auto rounded"
+                                width={300}
+                                height={300}
+                            />
+                        )
+                    )
                 }
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (English)</h2>
@@ -209,22 +236,44 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     <Editor key={'ar'} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={editable} />
                 </div>
                 {
-                    editable && <div className="flex gap-4 mt-4">
-                        <button
-                            onClick={() => handleSubmit(false)}
-                            disabled={loading}
-                            className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                        >
-                            {loading ? "Saving..." : "Save as Draft"}
-                        </button>
-                        <button
-                            onClick={() => handleSubmit(true)}
-                            disabled={loading}
-                            className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        >
-                            {loading ? "Publishing..." : "Publish"}
-                        </button>
-                    </div>
+                    editable && (
+                        <div className="flex gap-4 mt-4">
+                            <button
+                                onClick={() => handleSaveOrUpdate(false)}
+                                disabled={loading}
+                                className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                            >
+                                {loading ? "Updating..." : "Save as Draft"}
+                            </button>
+                            <button
+                                onClick={() => handleSaveOrUpdate(true)}
+                                disabled={loading}
+                                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                {loading ? "Updating..." : "Publish"}
+                            </button>
+                        </div>
+                    )
+                }
+                {
+                    !editable && (
+                        <div className="flex gap-4 mt-4">
+                            <button
+                                onClick={() => handleSaveOrUpdate(false)}
+                                disabled={loading}
+                                className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                            >
+                                {loading ? "Saving..." : "Save as Draft"}
+                            </button>
+                            <button
+                                onClick={() => handleSaveOrUpdate(true)}
+                                disabled={loading}
+                                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                {loading ? "Publishing..." : "Publish"}
+                            </button>
+                        </div>
+                    )
                 }
             </div>
         </Section>
