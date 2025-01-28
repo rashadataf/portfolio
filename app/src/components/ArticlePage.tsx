@@ -6,7 +6,7 @@ import Image from 'next/image';
 // import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
 
-import { defaultValue } from "@/app/default-value";
+// import { defaultValue } from "@/app/default-value";
 import { Section } from "@/components/Section";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus } from '@/types';
