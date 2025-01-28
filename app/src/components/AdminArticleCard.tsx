@@ -11,8 +11,31 @@ type ArticleCardProps = {
     onActionComplete?: () => void;
 };
 
+// Helper function to sanitize slugs
+const sanitizeSlug = (slug: string) => {
+    return slug
+        .toLowerCase() // Convert to lowercase
+        .replace(/[^a-z0-9-\u0621-\u064A\u0660-\u0669 ]/g, "") // Remove invalid characters (keeps Arabic, numbers, and hyphens)
+        .replace(/\s+/g, "-"); // Replace spaces with hyphens
+};
+
 export const AdminArticleCard = ({ article, onActionComplete }: ArticleCardProps) => {
     const [loading, setLoading] = useSafeState(false);
+
+    const handleSanitizeSlugs = useCallback(
+        async () => {
+            const sanitizedSlugEn = sanitizeSlug(article.slugEn);
+            const sanitizedSlugAr = sanitizeSlug(article.slugAr);
+
+            if (sanitizedSlugEn !== article.slugEn || sanitizedSlugAr !== article.slugAr) {
+                await updateArticle(article.id, {
+                    slugEn: sanitizedSlugEn,
+                    slugAr: sanitizedSlugAr,
+                });
+            }
+        },
+        [article]
+    );
 
     const handleDelete = useCallback(
         async () => {
@@ -35,6 +58,7 @@ export const AdminArticleCard = ({ article, onActionComplete }: ArticleCardProps
     const handleArchive = useCallback(
         async () => {
             setLoading(true);
+            await handleSanitizeSlugs();
             const { status, message } = await updateArticle(article.id, { status: ArticleStatus.ARCHIVED });
             setLoading(false);
 
@@ -45,7 +69,7 @@ export const AdminArticleCard = ({ article, onActionComplete }: ArticleCardProps
                 alert(message || "Failed to archive article");
             }
         },
-        [article.id, onActionComplete, setLoading]
+        [article.id, onActionComplete, setLoading, handleSanitizeSlugs]
     );
 
     const handlePublish = useCallback(
