@@ -3,7 +3,7 @@ import '@/app/prosemirror.css';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
 
 import { defaultValue } from "@/app/default-value";
