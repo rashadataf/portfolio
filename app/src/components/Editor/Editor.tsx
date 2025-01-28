@@ -35,6 +35,7 @@ export const Editor = ({ initialValue, onChange, onTextChange, dir = 'ltr', edit
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
+  console.log('initialValue: ', initialValue);
 
   return (
     <EditorRoot>
