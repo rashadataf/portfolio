@@ -9,5 +9,5 @@ const ArticlePage = dynamic(() =>
 )
 export default function NewArticle() {
 
-    return <ArticlePage editable={true} />
+    return <ArticlePage editable={false} />
 }

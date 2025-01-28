@@ -3,13 +3,14 @@ import '@/app/prosemirror.css';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
 import { Section } from "@/components/Section";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus } from '@/types';
 import { createArticle, getArticleById, updateArticle } from '@/modules/article/article.controller';
 import { CreateArticleDTO } from '@/modules/article/article.dto';
-import { Editor } from './Editor/Editor';
+import { Loader } from '@/components//Loader';
 
 interface ArticlePageProps {
     editable: boolean;
@@ -33,6 +34,14 @@ const generateSlug = (slug: string) => {
         .replace(/[^a-z0-9-\u0621-\u064A\u0660-\u0669 ]/g, "") // Remove invalid characters (keeps Arabic, numbers, and hyphens)
         .replace(/\s+/g, "-"); // Replace spaces with hyphens
 };
+
+const Editor = dynamic(() =>
+    import('@/components/Editor/Editor').then((mod) => mod.Editor),
+    {
+        ssr: false,
+        loading: () => <Loader />,
+    }
+)
 
 export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
     const router = useRouter();
