@@ -21,6 +21,7 @@ import { slashCommand, suggestionItems } from "@/components/Editor/slashCommand"
 import { uploadFn } from "@/components/Editor/imageUpload";
 import { Separator } from "@/components/UI/Separator";
 import { useSafeState } from "@/hooks/useSafeState.hook";
+import { useEffect } from "react";
 
 const extensions = [...defaultExtensions, slashCommand];
 
@@ -35,7 +36,14 @@ export const Editor = ({ initialValue, onChange, onTextChange, dir = 'ltr', edit
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
+  const [content, setContent] = useSafeState<JSONContent | undefined>();
+
   console.log('initialValue: ', initialValue);
+
+  useEffect(
+    () => setContent(initialValue),
+    [initialValue]
+  )
 
   return (
     <EditorRoot>
@@ -46,7 +54,7 @@ export const Editor = ({ initialValue, onChange, onTextChange, dir = 'ltr', edit
         }}
         immediatelyRender={true}
         className="border p-4 rounded-xl"
-        initialContent={initialValue}
+        initialContent={content}
         extensions={extensions}
         editorProps={{
           handleDOMEvents: {
