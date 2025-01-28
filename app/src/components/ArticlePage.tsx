@@ -202,11 +202,11 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 }
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (English)</h2>
-                    <Editor initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={editable} />
+                    <Editor key={'en'} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={editable} />
                 </div>
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (Arabic)</h2>
-                    <Editor initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={editable} />
+                    <Editor key={'ar'} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={editable} />
                 </div>
                 {
                     editable && <div className="flex gap-4 mt-4">
