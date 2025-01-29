@@ -175,7 +175,7 @@ export async function uploadImage(file: File) {
         const imageFileName = `${timestamp}_IMG.${fileExtension}`;
 
         // Store in "uploads" (not inside "public")
-        const uploadPath = path.join(process.cwd(), "public", "uploads");
+        const uploadPath = path.join(process.cwd(), "uploads");
         await fs.mkdir(path.dirname(uploadPath), { recursive: true });
 
         const buffer = Buffer.from(await file.arrayBuffer());
