@@ -18,12 +18,6 @@ RUN yarn install
 
 COPY . .
 
-# Ensure all project files are owned by appuser (including .next, node_modules, public, uploads)
-USER root  # Temporarily switch back to root to set permissions
-RUN chown -R appuser:appuser $WORKDIR_PATH
-
-USER appuser  # Switch back to appuser
-
 # Development Stage
 FROM base AS development
 
@@ -36,9 +30,14 @@ FROM base AS production
 
 ENV NODE_ENV=production
 
-USER appuser  # Ensure we install dependencies as non-root!
+USER root
+
+RUN chown -R appuser:appuser $WORKDIR_PATH
+
+USER appuser
 
 RUN yarn install --prod --ignore-engines
+
 RUN yarn build
 
 CMD ["yarn", "start"]
