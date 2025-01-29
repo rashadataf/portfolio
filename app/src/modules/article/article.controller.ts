@@ -175,14 +175,15 @@ export async function uploadImage(file: File) {
         const imageFileName = `${timestamp}_IMG.${fileExtension}`;
 
         // Store in "uploads" (not inside "public")
-        const uploadPath = path.join(process.cwd(), "uploads");
+        const uploadPath = path.join(process.cwd(), "public", "uploads", imageFileName);
+
         await fs.mkdir(path.dirname(uploadPath), { recursive: true });
 
-        const buffer = Buffer.from(await file.arrayBuffer());
-        await fs.writeFile(`${uploadPath}/${imageFileName}`, buffer);
+        const buffer = await file.arrayBuffer();
+        await fs.writeFile(uploadPath, Buffer.from(buffer));
 
         // New API route for serving images
-        const imageUrl = `/uploads/${imageFileName}`;
+        const imageUrl = `/api/uploads/${imageFileName}`;
 
         return { url: imageUrl, status: 200 };
     } catch (error) {
