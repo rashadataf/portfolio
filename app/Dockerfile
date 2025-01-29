@@ -37,8 +37,8 @@ ENV NODE_ENV=production
 
 USER appuser
 
-RUN yarn install --prod --ignore-engines
-
 RUN yarn build
+
+RUN yarn install --prod --ignore-engines
 
 CMD ["yarn", "start"]
