@@ -59,6 +59,8 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
     const [coverImage, setCoverImage] = useSafeState<File | null>(null);
     const [coverImageUrl, setCoverImageUrl] = useSafeState<string>('');
     const [loading, setLoading] = useSafeState(false);
+    const [enEditorKey, setEnEditorKey] = useSafeState('en');
+    const [arEditorKey, setArEditorKey] = useSafeState('ar');
 
     useEffect(
         () => {
@@ -79,6 +81,8 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                         setCoverImageUrl(article.coverImage);
                         setDescriptionEn(article.descriptionEn || "");
                         setDescriptionAr(article.descriptionAr || "");
+                        setEnEditorKey(`${articleId}_en`);
+                        setArEditorKey(`${articleId}_ar`);
                     }
                 } catch (error) {
                     console.error("Error fetching article:", error);
@@ -87,7 +91,7 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
 
             fetchArticle();
         },
-        [articleId, setAuthor, setContentAr, setContentEn, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn, setDescriptionEn, setDescriptionAr]
+        [articleId, setAuthor, setContentAr, setContentEn, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn, setDescriptionEn, setDescriptionAr, setEnEditorKey, setArEditorKey]
     );
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,11 +234,11 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 }
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (English)</h2>
-                    <Editor key={'en'} editorKey={articleId ? `${articleId}_en` : 'en'} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} />
+                    <Editor key={'en'} editorKey={enEditorKey} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} />
                 </div>
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (Arabic)</h2>
-                    <Editor key={'ar'} editorKey={articleId ? `${articleId}_ar` : 'ar'} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
+                    <Editor key={'ar'} editorKey={arEditorKey} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
                 </div>
                 {
                     articleId && (
