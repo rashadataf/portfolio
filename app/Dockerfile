@@ -1,8 +1,14 @@
 FROM node:20.18.0 AS base
 
 ARG WORKDIR_PATH
-
 WORKDIR $WORKDIR_PATH
+
+# Create a non-root user
+RUN useradd --create-home --shell /bin/bash appuser
+RUN chown -R appuser:appuser $WORKDIR_PATH
+
+# Switch to the new user
+USER appuser
 
 COPY package.json yarn.lock ./
 
