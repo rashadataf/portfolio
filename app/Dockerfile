@@ -21,12 +21,16 @@ COPY . .
 # Development
 FROM base AS development
 
+USER appuser
+
 ENV NODE_ENV=development
 
 CMD ["yarn", "dev"]
 
 # Production
 FROM base AS production
+
+USER appuser
 
 ENV NODE_ENV=production
 
