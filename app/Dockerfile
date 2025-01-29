@@ -17,6 +17,12 @@ RUN yarn install
 
 COPY . .
 
+USER root
+
+RUN chown -R appuser:appuser $WORKDIR_PATH
+
+USER appuser
+
 # Development Stage
 FROM base AS development
 
@@ -29,14 +35,10 @@ FROM base AS production
 
 ENV NODE_ENV=production
 
+USER appuser
+
 RUN yarn install --prod --ignore-engines
 
 RUN yarn build
-
-USER root
-
-RUN chown -R appuser:appuser $WORKDIR_PATH
-
-USER appuser
 
 CMD ["yarn", "start"]
