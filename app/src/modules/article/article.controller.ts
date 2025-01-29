@@ -179,7 +179,7 @@ export async function uploadImage(file: File) {
         await fs.mkdir(path.dirname(uploadPath), { recursive: true });
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        await fs.writeFile(`${uploadPath}/${imageFileName}`, Buffer.from(buffer));
+        await fs.writeFile(`${uploadPath}/${imageFileName}`, buffer);
 
         // New API route for serving images
         const imageUrl = `/uploads/${imageFileName}`;
