@@ -23,6 +23,8 @@ FROM base AS development
 
 ENV NODE_ENV=development
 
+RUN useradd --create-home --shell /bin/bash appuser
+
 RUN chown -R appuser:appuser $WORKDIR_PATH
 
 USER appuser
@@ -33,6 +35,8 @@ CMD ["yarn", "dev"]
 FROM base AS production
 
 ENV NODE_ENV=production
+
+RUN useradd --create-home --shell /bin/bash appuser
 
 RUN chown -R appuser:appuser $WORKDIR_PATH
 
