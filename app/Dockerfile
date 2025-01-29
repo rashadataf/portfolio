@@ -3,32 +3,36 @@ FROM node:20.18.0 AS base
 ARG WORKDIR_PATH
 WORKDIR $WORKDIR_PATH
 
-# Create a non-root user and set ownership
+# Create a non-root user
 RUN useradd --create-home --shell /bin/bash appuser
 
 COPY package.json yarn.lock ./
 
-# Change ownership AFTER copying
+# Change ownership BEFORE switching users
 RUN chown -R appuser:appuser $WORKDIR_PATH
 
-USER appuser  # Switch user here after ensuring ownership
+USER appuser
 
 RUN yarn add sharp --ignore-engines
 RUN yarn install
 
 COPY . .
 
-# Development
+# Development Stage
 FROM base AS development
 
 ENV NODE_ENV=development
 
+USER appuser
+
 CMD ["yarn", "dev"]
 
-# Production
+# Production Stage
 FROM base AS production
 
 ENV NODE_ENV=production
+
+USER appuser
 
 RUN yarn build
 
