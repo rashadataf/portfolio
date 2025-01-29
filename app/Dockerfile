@@ -29,14 +29,14 @@ FROM base AS production
 
 ENV NODE_ENV=production
 
+RUN yarn install --prod --ignore-engines
+
+RUN yarn build
+
 USER root
 
 RUN chown -R appuser:appuser $WORKDIR_PATH
 
 USER appuser
-
-RUN yarn install --prod --ignore-engines
-
-RUN yarn build
 
 CMD ["yarn", "start"]
