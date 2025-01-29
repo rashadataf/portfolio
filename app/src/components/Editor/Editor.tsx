@@ -21,7 +21,6 @@ import { slashCommand, suggestionItems } from "@/components/Editor/slashCommand"
 import { uploadFn } from "@/components/Editor/imageUpload";
 import { Separator } from "@/components/UI/Separator";
 import { useSafeState } from "@/hooks/useSafeState.hook";
-import { useEffect } from "react";
 
 const extensions = [...defaultExtensions, slashCommand];
 

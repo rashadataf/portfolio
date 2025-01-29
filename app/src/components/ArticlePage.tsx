@@ -87,7 +87,7 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
 
             fetchArticle();
         },
-        [articleId, setAuthor, setContentAr, setContentEn, setCoverImage, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn]
+        [articleId, setAuthor, setContentAr, setContentEn, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn, setDescriptionEn, setDescriptionAr]
     );
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
