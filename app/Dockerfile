@@ -3,17 +3,16 @@ FROM node:20.18.0 AS base
 ARG WORKDIR_PATH
 WORKDIR $WORKDIR_PATH
 
-# Create a non-root user
 RUN useradd --create-home --shell /bin/bash appuser
 
 COPY package.json yarn.lock ./
 
-# Change ownership before switching users
 RUN chown -R appuser:appuser $WORKDIR_PATH
 
-USER appuser  # Switch to non-root user early
+USER appuser
 
 RUN yarn add sharp --ignore-engines
+
 RUN yarn install
 
 COPY . .
