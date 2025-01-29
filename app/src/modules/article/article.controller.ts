@@ -1,5 +1,5 @@
 "use server";
-import { promises as fs } from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { ArticleService } from "@/modules/article/article.service";
 import { CreateArticleDTO, UpdateArticleDTO } from "@/modules/article/article.dto";
@@ -171,16 +171,19 @@ export async function uploadImage(file: File) {
         }
 
         const timestamp = Date.now();
-        const fileExtension = file.name.split('.').pop(); // Extract file extension
+        const fileExtension = file.name.split('.').pop(); 
         const imageFileName = `${timestamp}_IMG.${fileExtension}`;
-        const uploadPath = path.join(process.cwd(), "public", "uploads", imageFileName);
+        
+        // Store in "uploads" (not inside "public")
+        const uploadPath = path.join(process.cwd(), "uploads", imageFileName);
 
         await fs.mkdir(path.dirname(uploadPath), { recursive: true });
 
         const buffer = await file.arrayBuffer();
         await fs.writeFile(uploadPath, Buffer.from(buffer));
 
-        const imageUrl = `/uploads/${imageFileName}`;
+        // New API route for serving images
+        const imageUrl = `/api/uploads/${imageFileName}`;
 
         return { url: imageUrl, status: 200 };
     } catch (error) {
@@ -188,3 +191,4 @@ export async function uploadImage(file: File) {
         return { status: 401, message: "Error uploading image", error };
     }
 }
+
