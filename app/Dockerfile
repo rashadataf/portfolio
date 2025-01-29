@@ -11,7 +11,7 @@ RUN chown -R appuser:appuser $WORKDIR_PATH
 
 USER appuser
 
-RUN yarn add sharp --ignore-engines
+# RUN yarn add sharp --ignore-engines
 
 RUN yarn install
 
@@ -20,6 +20,7 @@ COPY . .
 USER root
 
 RUN chown -R appuser:appuser $WORKDIR_PATH
+RUN chown -R appuser:appuser $WORKDIR_PATH/public
 
 USER appuser
 
@@ -35,14 +36,16 @@ FROM base AS production
 
 ENV NODE_ENV=production
 
+USER appuser
+
+RUN yarn install --frozen-lockfile --prod --ignore-engines
+
 RUN yarn build
 
-RUN yarn install --prod --ignore-engines
+# USER root
 
-USER root
+# RUN chown -R appuser:appuser $WORKDIR_PATH
 
-RUN chown -R appuser:appuser $WORKDIR_PATH
-
-USER appuser
+# USER appuser
 
 CMD ["yarn", "start"]
