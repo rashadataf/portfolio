@@ -8,26 +8,26 @@ RUN useradd --create-home --shell /bin/bash appuser
 
 COPY package.json yarn.lock ./
 
-# Change ownership BEFORE switching users
+# Change ownership before switching users
 RUN chown -R appuser:appuser $WORKDIR_PATH
 
-USER appuser
+USER appuser  # Switch to non-root user early
 
 RUN yarn add sharp --ignore-engines
 RUN yarn install
 
 COPY . .
 
+# Ensure all project files are owned by appuser (including .next, node_modules, public, uploads)
+USER root  # Temporarily switch back to root to set permissions
+RUN chown -R appuser:appuser $WORKDIR_PATH
+
+USER appuser  # Switch back to appuser
+
 # Development Stage
 FROM base AS development
 
 ENV NODE_ENV=development
-
-RUN useradd --create-home --shell /bin/bash appuser
-
-RUN chown -R appuser:appuser $WORKDIR_PATH
-
-USER appuser
 
 CMD ["yarn", "dev"]
 
@@ -36,14 +36,9 @@ FROM base AS production
 
 ENV NODE_ENV=production
 
-RUN useradd --create-home --shell /bin/bash appuser
-
-RUN chown -R appuser:appuser $WORKDIR_PATH
-
-USER appuser
-
-RUN yarn build
+USER appuser  # Ensure we install dependencies as non-root!
 
 RUN yarn install --prod --ignore-engines
+RUN yarn build
 
 CMD ["yarn", "start"]
