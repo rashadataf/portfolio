@@ -35,6 +35,10 @@ FROM base AS production
 
 ENV NODE_ENV=production
 
+USER root
+
+RUN chown -R appuser:appuser $WORKDIR_PATH
+
 USER appuser
 
 RUN yarn build
