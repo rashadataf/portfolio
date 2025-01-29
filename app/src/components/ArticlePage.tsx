@@ -230,11 +230,11 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 }
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (English)</h2>
-                    <Editor key={'en'} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} />
+                    <Editor key={'en'} editorKey={articleId ? `${articleId}_en` : 'en'} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} />
                 </div>
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (Arabic)</h2>
-                    <Editor key={'ar'} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
+                    <Editor key={'ar'} editorKey={articleId ? `${articleId}_ar` : 'ar'} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
                 </div>
                 {
                     articleId && (

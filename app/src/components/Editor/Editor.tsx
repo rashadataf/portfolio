@@ -31,20 +31,12 @@ interface EditorProp {
   onTextChange: (plainText: string) => void;
   dir: "ltr" | "rtl";
   editable: boolean;
+  editorKey: string;
 }
-export const Editor = ({ initialValue, onChange, onTextChange, dir = "ltr", editable }: EditorProp) => {
-  const [editorKey, setEditorKey] = useSafeState(0);
+export const Editor = ({ initialValue, onChange, onTextChange, dir = "ltr", editable, editorKey }: EditorProp) => {
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
-
-  // Reinitialize the editor whenever the initialValue changes
-  useEffect(
-    () => {
-      setEditorKey((prevKey) => prevKey + 1); // Change the key to force reinitialization
-    },
-    [initialValue]
-  );
 
   return (
     <EditorRoot key={editorKey}>
