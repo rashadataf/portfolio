@@ -38,9 +38,9 @@ ENV NODE_ENV=production
 
 USER appuser
 
-RUN yarn install --frozen-lockfile --prod --ignore-engines
-
 RUN yarn build
+
+RUN yarn install --frozen-lockfile --prod --ignore-engines
 
 # USER root
 
