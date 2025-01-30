@@ -183,7 +183,7 @@ export async function uploadImage(file: File) {
         await fs.writeFile(uploadPath, Buffer.from(buffer));
 
         // New API route for serving images
-        const imageUrl = `/uploads/${imageFileName}`;
+        const imageUrl = `/api/files/${imageFileName}`;
 
         return { url: imageUrl, status: 200 };
     } catch (error) {

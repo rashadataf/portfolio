@@ -29,8 +29,6 @@ server {
         sub_filter 'href="/" ' 'href="/grafana/" ';
         sub_filter 'src="/" ' 'src="/grafana/" ';
     }
-
-    location ^~ /files { alias ~/portfolio/app/public/uploads; }
     
     location / {
         proxy_pass http://production;
