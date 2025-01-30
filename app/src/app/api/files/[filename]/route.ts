@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ filename: string }> }) {
+export async function GET(_: NextRequest, { params }: { params: Promise<{ filename: string }> }) {
     try {
         const { filename } = await params;
         const filePath = path.join(process.cwd(), "public", "uploads", filename);
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ file
                 "Cache-Control": "public, max-age=31536000, immutable",
             },
         });
-    } catch (error) {
+    } catch {
         return new NextResponse("Image not found", { status: 404 });
     }
 }
