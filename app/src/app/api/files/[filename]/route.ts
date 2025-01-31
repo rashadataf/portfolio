@@ -23,6 +23,8 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ filena
             headers: {
                 "Content-Type": mimeType,
                 "Cache-Control": "public, max-age=31536000, immutable",
+                "Content-Length": Buffer.byteLength(imageBuffer).toString(),
+                "Access-Control-Allow-Origin": "*",
             },
         });
     } catch {
