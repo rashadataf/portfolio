@@ -10,8 +10,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - ${POSTGRES_VOLUME}
     networks:
@@ -61,8 +59,6 @@ services:
         - WORKDIR_PATH=${WORKDIR_PATH}
       context: ${APP_CONTEXT}
       target: ${PROD_TARGET}
-    ports:
-      - "${APP_PORT}:${APP_PORT}"
     container_name: ${PROD_CONTAINER_NAME}
     volumes:
       - ${PRODUCTION_VOLUME}
@@ -156,14 +152,6 @@ services:
     command: ["--config=/etc/otel-collector-config.yml", "${OTEL_COLLECTOR_ARGS}"]
     volumes:
       - ${OTEL_COLLECTOR_VOLUME}
-    ports:
-      - "${OTEL_PPROF_PORT}:${OTEL_PPROF_PORT}"
-      - "${OTEL_INTERNAL_METRICS_PORT}:${OTEL_INTERNAL_METRICS_PORT}"
-      - "${OTEL_PROMETHEUS_EXPORTER_PORT}:${OTEL_PROMETHEUS_EXPORTER_PORT}"
-      - "${OTEL_HEALTHCHECK_PORT}:${OTEL_HEALTHCHECK_PORT}"
-      - "${OTEL_GRPC_PORT}:${OTEL_GRPC_PORT}"
-      - "${OTEL_HTTP_PORT}:${OTEL_HTTP_PORT}"
-      - "${OTEL_ZPAGES_PORT}:${OTEL_ZPAGES_PORT}"
     environment:
       - OTEL_PPROF_PORT=${OTEL_PPROF_PORT}
       - OTEL_ZPAGES_PORT=${OTEL_ZPAGES_PORT}
@@ -186,8 +174,6 @@ services:
   grafana:
     image: ${GRAFANA_IMG}
     container_name: ${GRAFANA_CONTAINER_NAME}
-    ports:
-      - "${GRAFANA_PORT}:${GRAFANA_INTERNAL_PORT}"
     volumes:
       - ${GRAFANA_VOLUME}
     environment:
