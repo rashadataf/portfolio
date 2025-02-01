@@ -57,7 +57,7 @@ export async function generateMetadata({
             description,
             url: `https://www.rashadataf.com/articles/${slug}?lang=${lang}`,
             type: 'article',
-            images: article.coverImage ? [{ url: article.coverImage }] : [],
+            images: article.coverImage ? [{ url: `https://www.rashadataf.com${article.coverImage}` }] : [],
             locale: lang === 'ar' ? 'ar_AR' : 'en_US',
             siteName: 'Rashad Ataf Portfolio',
             publishedTime: publicationDate || undefined,
@@ -67,7 +67,7 @@ export async function generateMetadata({
             card: 'summary_large_image',
             title,
             description,
-            images: article.coverImage ? [article.coverImage] : [],
+            images: article.coverImage ? [`https://www.rashadataf.com${article.coverImage}`] : [],
         },
     };
 }

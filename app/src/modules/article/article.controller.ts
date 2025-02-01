@@ -1,5 +1,5 @@
 "use server";
-import { promises as fs } from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { ArticleService } from "@/modules/article/article.service";
 import { CreateArticleDTO, UpdateArticleDTO } from "@/modules/article/article.dto";
@@ -56,7 +56,6 @@ export async function getArchivedArticles() {
 
 export async function getPublishedArticles() {
     try {
-        await isAdmin();
         const articles = await articleService.getPublishedArticles();
         return { articles, status: 200 };
     } catch (error) {
@@ -123,10 +122,19 @@ export async function createArticle(data: CreateArticleDTO, coverImage: File | n
     }
 }
 
-export async function updateArticle(id: string, data: UpdateArticleDTO) {
+export async function updateArticle(id: string, data: UpdateArticleDTO, coverImage: File | null = null) {
     try {
         await isAdmin();
-        const updatedArticle = await articleService.updateArticle(id, data);
+        let coverImageUrl = '';
+
+        if (coverImage) {
+            const uploadResponse = await uploadImage(coverImage);
+            if (uploadResponse.url) {
+                coverImageUrl = uploadResponse.url;
+            }
+        }
+        const articleData = { ...data, coverImage: coverImageUrl };
+        const updatedArticle = await articleService.updateArticle(id, articleData);
         if (!updatedArticle) {
             return { message: 'Article not found', status: 404 };
         }
@@ -162,8 +170,10 @@ export async function uploadImage(file: File) {
         }
 
         const timestamp = Date.now();
-        const fileExtension = file.name.split('.').pop(); // Extract file extension
+        const fileExtension = file.name.split('.').pop();
         const imageFileName = `${timestamp}_IMG.${fileExtension}`;
+
+        // Store in "uploads" (not inside "public")
         const uploadPath = path.join(process.cwd(), "public", "uploads", imageFileName);
 
         await fs.mkdir(path.dirname(uploadPath), { recursive: true });
@@ -171,7 +181,8 @@ export async function uploadImage(file: File) {
         const buffer = await file.arrayBuffer();
         await fs.writeFile(uploadPath, Buffer.from(buffer));
 
-        const imageUrl = `/uploads/${imageFileName}`;
+        // New API route for serving images
+        const imageUrl = `/api/files/${imageFileName}`;
 
         return { url: imageUrl, status: 200 };
     } catch (error) {
@@ -179,3 +190,4 @@ export async function uploadImage(file: File) {
         return { status: 401, message: "Error uploading image", error };
     }
 }
+

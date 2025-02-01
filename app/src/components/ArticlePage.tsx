@@ -5,27 +5,16 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
-
-import { defaultValue } from "@/app/default-value";
 import { Section } from "@/components/Section";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus } from '@/types';
-import { createArticle, getArticleById } from '@/modules/article/article.controller';
+import { createArticle, getArticleById, updateArticle } from '@/modules/article/article.controller';
 import { CreateArticleDTO } from '@/modules/article/article.dto';
 import { Loader } from '@/components//Loader';
 
 interface ArticlePageProps {
-    editable: boolean;
     articleId?: string;
 }
-
-const Editor = dynamic(() =>
-    import('@/components/Editor/Editor').then((mod) => mod.Editor),
-    {
-        ssr: false,
-        loading: () => <Loader />,
-    }
-)
 
 function prepareTextForTSVector(text: string) {
     return text
@@ -37,7 +26,23 @@ function prepareTextForTSVector(text: string) {
         .trim(); // Remove leading and trailing spaces
 }
 
-export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
+// Helper function to sanitize and produce slugs
+const generateSlug = (slug: string) => {
+    return slug
+        .toLowerCase() // Convert to lowercase
+        .replace(/[^a-z0-9-\u0621-\u064A\u0660-\u0669 ]/g, "") // Remove invalid characters (keeps Arabic, numbers, and hyphens)
+        .replace(/\s+/g, "-"); // Replace spaces with hyphens
+};
+
+const Editor = dynamic(() =>
+    import('@/components/Editor/Editor').then((mod) => mod.Editor),
+    {
+        ssr: false,
+        loading: () => <Loader />,
+    }
+)
+
+export const ArticlePage = ({ articleId }: ArticlePageProps) => {
     const router = useRouter();
 
     const [titleEn, setTitleEn] = useSafeState("");
@@ -45,8 +50,8 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
     const [author, setAuthor] = useSafeState("");
     const [keywordsEn, setKeywordsEn] = useSafeState("");
     const [keywordsAr, setKeywordsAr] = useSafeState("");
-    const [contentEn, setContentEn] = useSafeState<JSONContent>(defaultValue);
-    const [contentAr, setContentAr] = useSafeState<JSONContent>(defaultValue);
+    const [contentEn, setContentEn] = useSafeState<JSONContent | undefined>();
+    const [contentAr, setContentAr] = useSafeState<JSONContent | undefined>();
     const [descriptionEn, setDescriptionEn] = useSafeState("");
     const [descriptionAr, setDescriptionAr] = useSafeState("");
     const [textEn, setTextEn] = useSafeState<string>('');
@@ -54,6 +59,8 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
     const [coverImage, setCoverImage] = useSafeState<File | null>(null);
     const [coverImageUrl, setCoverImageUrl] = useSafeState<string>('');
     const [loading, setLoading] = useSafeState(false);
+    const [enEditorKey, setEnEditorKey] = useSafeState('en');
+    const [arEditorKey, setArEditorKey] = useSafeState('ar');
 
     useEffect(
         () => {
@@ -72,6 +79,10 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                         setContentEn(article.contentEn || null);
                         setContentAr(article.contentAr || null);
                         setCoverImageUrl(article.coverImage);
+                        setDescriptionEn(article.descriptionEn || "");
+                        setDescriptionAr(article.descriptionAr || "");
+                        setEnEditorKey(`${articleId}_en`);
+                        setArEditorKey(`${articleId}_ar`);
                     }
                 } catch (error) {
                     console.error("Error fetching article:", error);
@@ -80,7 +91,7 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
 
             fetchArticle();
         },
-        [articleId, setAuthor, setContentAr, setContentEn, setCoverImage, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn]
+        [articleId, setAuthor, setContentAr, setContentEn, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn, setDescriptionEn, setDescriptionAr, setEnEditorKey, setArEditorKey]
     );
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,10 +99,10 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
         setCoverImage(file);
     };
 
-    const handleSubmit = async (publish: boolean) => {
+    const handleSaveOrUpdate = async (publish: boolean) => {
         setLoading(true);
         try {
-            const newArticle: CreateArticleDTO = {
+            const articlePayload: CreateArticleDTO = {
                 titleEn,
                 titleAr,
                 author,
@@ -104,19 +115,26 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                 contentAr: JSON.parse(JSON.stringify(contentAr)),
                 contentSearchEn: prepareTextForTSVector(textEn),
                 contentSearchAr: prepareTextForTSVector(textAr),
-                slugEn: titleEn.toLowerCase().replace(/ /g, "-"),
-                slugAr: titleAr.toLowerCase().replace(/ /g, "-"),
+                slugEn: generateSlug(titleEn),
+                slugAr: generateSlug(titleAr),
             };
 
-            await createArticle(newArticle, coverImage);
+            if (articleId) {
+                // Update existing article
+                await updateArticle(articleId, articlePayload, coverImage);
+            } else {
+                // Create new article
+                await createArticle(articlePayload, coverImage);
+            }
 
             router.push('/admin/articles');
         } catch (error) {
-            console.error("Error saving article:", error);
+            console.error("Error saving/updating article:", error);
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <Section id="new-article" ariaLabelledBy="new-article-header" className="container mx-auto py-10 flex flex-col items-center">
@@ -129,7 +147,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     placeholder="Title (English)"
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -139,7 +156,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     dir='rtl'
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -148,7 +164,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     placeholder="Author"
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -157,7 +172,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     placeholder="Keywords (English, comma-separated)"
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -167,7 +181,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     dir='rtl'
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -176,7 +189,6 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     placeholder="Description (English)"
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     required
-                    readOnly={!editable}
                 />
                 <input
                     type="text"
@@ -186,49 +198,87 @@ export const ArticlePage = ({ editable, articleId }: ArticlePageProps) => {
                     className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                     dir="rtl"
                     required
-                    readOnly={!editable}
                 />
                 {
-                    editable ?
-                        <input
-                            type="file"
-                            onChange={handleFileChange}
-                            className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
-                            accept="image/*"
-                        /> :
-                        coverImageUrl && <Image
-                            src={coverImageUrl}
-                            alt="Cover"
-                            className="max-w-full h-auto rounded"
-                            width={300}
-                            height={300}
-                        />
+                    articleId ? (
+                        <div className="flex flex-col gap-2">
+                            {coverImageUrl && (
+                                <div>
+                                    <Image
+                                        src={coverImageUrl}
+                                        alt="Cover Preview"
+                                        className="max-w-full h-auto rounded"
+                                        width={300}
+                                        height={300}
+                                    />
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                onChange={handleFileChange}
+                                className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
+                                accept="image/*"
+                            />
+                        </div>
+                    ) : (
+                        coverImageUrl && (
+                            <Image
+                                src={coverImageUrl}
+                                alt="Cover Image"
+                                className="max-w-full h-auto rounded"
+                                width={300}
+                                height={300}
+                            />
+                        )
+                    )
                 }
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (English)</h2>
-                    <Editor initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={editable} />
+                    <Editor key={'en'} editorKey={enEditorKey} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} />
                 </div>
                 <div className='border rounded bg-inherit border-secondary-color'>
                     <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (Arabic)</h2>
-                    <Editor initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={editable} />
+                    <Editor key={'ar'} editorKey={arEditorKey} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
                 </div>
                 {
-                    editable && <div className="flex gap-4 mt-4">
-                        <button
-                            onClick={() => handleSubmit(false)}
-                            disabled={loading}
-                            className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                        >
-                            {loading ? "Saving..." : "Save as Draft"}
-                        </button>
-                        <button
-                            onClick={() => handleSubmit(true)}
-                            disabled={loading}
-                            className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        >
-                            {loading ? "Publishing..." : "Publish"}
-                        </button>
-                    </div>
+                    articleId && (
+                        <div className="flex gap-4 mt-4">
+                            <button
+                                onClick={() => handleSaveOrUpdate(false)}
+                                disabled={loading}
+                                className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                            >
+                                {loading ? "Updating..." : "Save as Draft"}
+                            </button>
+                            <button
+                                onClick={() => handleSaveOrUpdate(true)}
+                                disabled={loading}
+                                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                {loading ? "Updating..." : "Publish"}
+                            </button>
+                        </div>
+                    )
+                }
+                {
+                    !articleId && (
+                        <div className="flex gap-4 mt-4">
+                            <button
+                                onClick={() => handleSaveOrUpdate(false)}
+                                disabled={loading}
+                                className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                            >
+                                {loading ? "Saving..." : "Save as Draft"}
+                            </button>
+                            <button
+                                onClick={() => handleSaveOrUpdate(true)}
+                                disabled={loading}
+                                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                {loading ? "Publishing..." : "Publish"}
+                            </button>
+                        </div>
+                    )
                 }
             </div>
         </Section>

@@ -25,21 +25,24 @@ export const ArticlesPage = () => {
     const [initialArticles, setInitialArticles] = useSafeState<Article[]>([]);
     const [searchPerformed, setSearchPerformed] = useSafeState(false);
 
-    useEffect(() => {
-        const fetchArticles = async () => {
-            try {
-                const { articles } = await getPublishedArticles();
-                const fetchedArticles = articles ?? [];
-                setArticles(fetchedArticles);
-                setInitialArticles(fetchedArticles);
-            } catch (error) {
-                console.error("Error fetching articles:", error);
-            }
-        };
+    useEffect(
+        () => {
+            const fetchArticles = async () => {
+                try {
+                    const { articles } = await getPublishedArticles();
+                    const fetchedArticles = articles ?? [];
+                    setArticles(fetchedArticles);
+                    setInitialArticles(fetchedArticles);
+                } catch (error) {
+                    console.error("Error fetching articles:", error);
+                }
+            };
 
-        fetchArticles();
-        trackPageVisit("Articles");
-    }, [setArticles, setInitialArticles]);
+            fetchArticles();
+            trackPageVisit("Articles");
+        },
+        [setArticles, setInitialArticles]
+    );
 
     const handleQueryChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {

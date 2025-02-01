@@ -1,17 +1,17 @@
 import dynamic from 'next/dynamic';
 import { Loader } from '@/components/Loader';
 
-const ArticlePageComponent = dynamic(() =>
+const ArticlePage = dynamic(() =>
     import('@/components/ArticlePage').then((mod) => mod.ArticlePage),
     {
         loading: () => <Loader />,
     }
 )
-export default async function ArticlePage({
+export default async function AdminArticlePage({
     params,
 }: {
     params: Promise<{ id: string }>
 }) {
     const id = (await params).id;
-    return <ArticlePageComponent editable={false} articleId={id} />
+    return <ArticlePage articleId={id} />
 }

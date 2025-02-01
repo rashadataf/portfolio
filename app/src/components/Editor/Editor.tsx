@@ -25,23 +25,24 @@ import { useSafeState } from "@/hooks/useSafeState.hook";
 const extensions = [...defaultExtensions, slashCommand];
 
 interface EditorProp {
-  initialValue: JSONContent;
+  initialValue: JSONContent | undefined;
   onChange: (value: JSONContent) => void;
   onTextChange: (plainText: string) => void;
   dir: "ltr" | "rtl";
   editable: boolean;
+  editorKey: string;
 }
-export const Editor = ({ initialValue, onChange, onTextChange, dir = 'ltr', editable }: EditorProp) => {
+export const Editor = ({ initialValue, onChange, onTextChange, dir = "ltr", editable, editorKey }: EditorProp) => {
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
 
   return (
-    <EditorRoot>
+    <EditorRoot key={editorKey}>
       <EditorContent
         editable={editable}
         editorContainerProps={{
-          dir
+          dir,
         }}
         immediatelyRender={true}
         className="border p-4 rounded-xl"
