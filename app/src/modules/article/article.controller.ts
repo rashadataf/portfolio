@@ -56,7 +56,6 @@ export async function getArchivedArticles() {
 
 export async function getPublishedArticles() {
     try {
-        await isAdmin();
         const articles = await articleService.getPublishedArticles();
         return { articles, status: 200 };
     } catch (error) {
