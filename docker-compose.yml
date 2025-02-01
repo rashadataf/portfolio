@@ -10,10 +10,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - ${POSTGRES_VOLUME}
+    networks:
+      - monitoring
 
   dev:
     profiles: [ dev ]
@@ -49,6 +49,8 @@ services:
       otel-collector:
         condition: service_started
         restart: true
+    networks:
+      - monitoring
 
   production:
     profiles: [ production ]
@@ -57,8 +59,6 @@ services:
         - WORKDIR_PATH=${WORKDIR_PATH}
       context: ${APP_CONTEXT}
       target: ${PROD_TARGET}
-    ports:
-      - "${APP_PORT}:${APP_PORT}"
     container_name: ${PROD_CONTAINER_NAME}
     volumes:
       - ${PRODUCTION_VOLUME}
@@ -82,6 +82,8 @@ services:
       otel-collector:
         condition: service_started
         restart: true
+    networks:
+      - monitoring
 
   nginx_dev:
     profiles: [ dev ]
@@ -110,6 +112,8 @@ services:
     depends_on:
       - dev
       - grafana
+    networks:
+      - monitoring
 
   nginx_production:
     profiles: [ production ]
@@ -138,6 +142,8 @@ services:
     depends_on:
       - production
       - grafana
+    networks:
+      - monitoring
 
   otel-collector:
     image: ${OTEL_COLLECTOR_IMG}
@@ -146,36 +152,28 @@ services:
     command: ["--config=/etc/otel-collector-config.yml", "${OTEL_COLLECTOR_ARGS}"]
     volumes:
       - ${OTEL_COLLECTOR_VOLUME}
-    ports:
-      - "${OTEL_PPROF_PORT}:${OTEL_PPROF_PORT}"
-      - "${OTEL_INTERNAL_METRICS_PORT}:${OTEL_INTERNAL_METRICS_PORT}"
-      - "${OTEL_PROMETHEUS_EXPORTER_PORT}:${OTEL_PROMETHEUS_EXPORTER_PORT}"
-      - "${OTEL_HEALTHCHECK_PORT}:${OTEL_HEALTHCHECK_PORT}"
-      - "${OTEL_GRPC_PORT}:${OTEL_GRPC_PORT}"
-      - "${OTEL_HTTP_PORT}:${OTEL_HTTP_PORT}"
-      - "${OTEL_ZPAGES_PORT}:${OTEL_ZPAGES_PORT}"
     environment:
       - OTEL_PPROF_PORT=${OTEL_PPROF_PORT}
       - OTEL_ZPAGES_PORT=${OTEL_ZPAGES_PORT}
       - OTEL_PROMETHEUS_EXPORTER_ENDPOINT=${OTEL_PROMETHEUS_EXPORTER_ENDPOINT}
       - OTEL_CONST_LABEL=${OTEL_CONST_LABEL}
+    networks:
+      - monitoring
 
   prometheus:
     image: ${PROMETHEUS_IMG}
     container_name: ${PROMETHEUS_CONTAINER_NAME}
-    ports:
-      - "${PROMETHEUS_PORT}:${PROMETHEUS_PORT}"
     volumes:
       - ${PROMETHEUS_CONFIG_VOLUME}
       - ${PROMETHEUS_VOLUME}
     depends_on:
       - otel-collector
+    networks:
+      - monitoring
 
   grafana:
     image: ${GRAFANA_IMG}
     container_name: ${GRAFANA_CONTAINER_NAME}
-    ports:
-      - "${GRAFANA_PORT}:${GRAFANA_INTERNAL_PORT}"
     volumes:
       - ${GRAFANA_VOLUME}
     environment:
@@ -187,8 +185,11 @@ services:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
     depends_on:
       - prometheus
+    networks:
+      - monitoring
 
-
+networks:
+  monitoring:
 
 volumes:
   postgres_data:
