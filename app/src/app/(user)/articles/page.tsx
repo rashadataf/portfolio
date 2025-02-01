@@ -1,6 +1,5 @@
 import { Metadata } from "next";
-import dynamic from "next/dynamic";
-import { Loader } from "@/components/Loader";
+import { ArticlesPage } from "@/components/ArticlesPage";
 
 export const metadata: Metadata = {
     title: "Rashad Ataf's Articles - Insights in Full Stack Development",
@@ -10,13 +9,6 @@ export const metadata: Metadata = {
         canonical: "https://www.rashadataf.com/articles"
     }
 }
-
-const ArticlesPage = dynamic(() =>
-    import('@/components/ArticlesPage').then((mod) => mod.ArticlesPage),
-    {
-        loading: () => <Loader />,
-    }
-)
 
 export default function Articles() {
     return <ArticlesPage />
