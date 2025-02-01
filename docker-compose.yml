@@ -136,9 +136,6 @@ services:
       - CHALLENGE_DIR=${CHALLENGE_DIR}
       - WITH_CERTBOT=${WITH_CERTBOT}
       - RESET_CONFIG=${RESET_CONFIG}
-      - PROMETHEUS_PORT=${PROMETHEUS_PORT}
-      - PROMETHEUS_USER=${PROMETHEUS_USER}
-      - PROMETHEUS_PASSWORD=${PROMETHEUS_PASSWORD}
     volumes:
       - ${NGINX_LOG_VOLUME}
       - ${NGINX_INCLUDES_VOLUME}
@@ -178,8 +175,6 @@ services:
   prometheus:
     image: ${PROMETHEUS_IMG}
     container_name: ${PROMETHEUS_CONTAINER_NAME}
-    ports:
-      - "${PROMETHEUS_PORT}:${PROMETHEUS_PORT}"
     volumes:
       - ${PROMETHEUS_CONFIG_VOLUME}
       - ${PROMETHEUS_VOLUME}
