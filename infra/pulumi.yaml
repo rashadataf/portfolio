@@ -1,0 +1,236 @@
+name: portfolio-infra
+description: Personal portfolio infrastructure (Traefik reverse proxy, apps, Postgres) managed with Pulumi YAML and Docker. TLS per stack; no extra runtimes on the host.
+runtime: yaml
+
+config:
+  {
+    "pulumi:tags": { value: { "pulumi:template": yaml } },
+    "pulumi:autonaming": { value: { pattern: "${name}-${project}-${stack}" } },
+
+    "POSTGRES_USER": { type: "string", secret: true },
+    "POSTGRES_PASSWORD": { type: "string", secret: true },
+    "POSTGRES_DB": { type: "string", secret: true },
+    "POSTGRES_PORT": { type: "string", default: "5432" },
+    "POSTGRES_VOLUME_NAME":
+      { type: "string", default: "portfolio_postgres_data" },
+
+    "HTTP_PORT": { type: "string", default: "80" },
+    "HTTPS_PORT": { type: "string", default: "443" },
+
+    "DOMAIN_NAME": { type: "string", default: "localhost" },
+
+    "ADMIN_EMAIL": { type: "string", secret: true },
+    "ADMIN_PASSWORD": { type: "string", secret: true },
+    "AUTH_SECRET": { type: "string", secret: true },
+    "AUTH_TRUST_HOST": { type: "string", default: "true" },
+    "AUTH_BASE_PATH": { type: "string", secret: true },
+
+    "PORTFOLIO_IMAGE_NAME": { type: "string", default: "portfolio_image" },
+    "PORTFOLIO_HOST": { type: "string", default: "localhost" },
+    "APP_PORT": { type: "string", default: "3000" },
+    "PORTFOLIO_BUILD_CONTEXT": { type: "string", default: "./app" },
+    "PORTFOLIO_WORKDIR_PATH": { type: "string", default: "/portfolio/app" },
+    "PORTFOLIO_IMAGE_BUILD_NAME":
+      { type: "string", default: "portfolio_built_image" },
+    "PORTFOLIO_BUILD_PHASE_TARGET": { type: "string", default: "development" },
+    "ENABLE_TLS": { type: "boolean", default: false },
+    "ROUTER_ENTRYPOINT": { type: "string", default: "web" },
+  }
+
+variables:
+  {
+    POSTGRES_USER: "${POSTGRES_USER}",
+    POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}",
+    POSTGRES_DB: "${POSTGRES_DB}",
+    POSTGRES_PORT: "${POSTGRES_PORT}",
+    POSTGRES_VOLUME_NAME: "${POSTGRES_VOLUME_NAME}",
+    DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}",
+
+    HTTP_PORT: "${HTTP_PORT}",
+    HTTPS_PORT: "${HTTPS_PORT}",
+
+    DOMAIN_NAME: "${DOMAIN_NAME}",
+
+    ADMIN_EMAIL: "${ADMIN_EMAIL}",
+    ADMIN_PASSWORD: "${ADMIN_PASSWORD}",
+    AUTH_SECRET: "${AUTH_SECRET}",
+    AUTH_TRUST_HOST: "${AUTH_TRUST_HOST}",
+    AUTH_BASE_PATH: "${AUTH_BASE_PATH}",
+    AUTH_URL: "https://${DOMAIN_NAME}/auth",
+
+    PORTFOLIO_IMAGE_NAME: "${PORTFOLIO_IMAGE_NAME}",
+    APP_PORT: "${APP_PORT}",
+    PORTFOLIO_HOST: "${PORTFOLIO_HOST}",
+    PORTFOLIO_BUILD_CONTEXT: "${PORTFOLIO_BUILD_CONTEXT}",
+    PORTFOLIO_WORKDIR_PATH: "${PORTFOLIO_WORKDIR_PATH}",
+    PORTFOLIO_BUILD_PHASE_TARGET: "${PORTFOLIO_BUILD_PHASE_TARGET}",
+    ENABLE_TLS: "${ENABLE_TLS}",
+    ROUTER_ENTRYPOINT: "${ROUTER_ENTRYPOINT}",
+    ACME_EMAIL: "${ADMIN_EMAIL}",
+  }
+
+resources: {
+    appNetwork: { type: "docker:Network", properties: { name: "app-network" } },
+
+    traefikData:
+      { type: "docker:Volume", properties: { name: "traefik-data" } },
+    postgresDataVolume:
+      {
+        type: "docker:Volume",
+        properties: { name: "${POSTGRES_VOLUME_NAME}" },
+      },
+    postgresImage:
+      { type: "docker:RemoteImage", properties: { name: "postgres:17.0" } },
+    postgresContainer:
+      {
+        type: "docker:Container",
+        properties:
+          {
+            name: "${pulumi.project}-postgres-container-${pulumi.stack}",
+            image: "${postgresImage.imageId}",
+            ports:
+              [{ internal: "${POSTGRES_PORT}", external: "${POSTGRES_PORT}" }],
+            envs:
+              [
+                "POSTGRES_USER=${POSTGRES_USER}",
+                "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}",
+                "POSTGRES_DB=${POSTGRES_DB}",
+              ],
+            mounts:
+              [
+                {
+                  type: "volume",
+                  source: "${postgresDataVolume.name}",
+                  target: "/var/lib/postgresql/data",
+                },
+              ],
+            networksAdvanced:
+              [{ name: "${appNetwork.name}", aliases: ["postgres"] }],
+            restart: "unless-stopped",
+            healthcheck:
+              {
+                tests: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"],
+                interval: "10s",
+                timeout: "5s",
+                retries: 5,
+              },
+            wait: true,
+          },
+        options: { dependsOn: ["${postgresDataVolume}"] },
+      },
+    traefikImage:
+      { type: "docker:RemoteImage", properties: { name: "traefik:v2.11" } },
+
+    traefik:
+      {
+        type: "docker:Container",
+        properties:
+          {
+            name: "${pulumi.project}-traefik-${pulumi.stack}",
+            image: "${traefikImage.imageId}",
+            restart: "always",
+            ports:
+              [
+                { internal: "${HTTP_PORT}", external: "${HTTP_PORT}" },
+                { internal: "${HTTPS_PORT}", external: "${HTTPS_PORT}" },
+              ],
+            envs: [
+                "TRAEFIK_PROVIDERS_DOCKER=true",
+                "TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false",
+                "TRAEFIK_API_DASHBOARD=false",
+                "TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:${HTTP_PORT}",
+                "TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:${HTTPS_PORT}",
+                # ACME settings (used when ENABLE_TLS=true and routers set tls=true)
+                "TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_EMAIL=${ACME_EMAIL}",
+                "TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_STORAGE=/data/acme.json",
+                "TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_HTTPCHALLENGE=true",
+                "TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
+              ],
+            mounts:
+              [
+                {
+                  type: "bind",
+                  source: "/var/run/docker.sock",
+                  target: "/var/run/docker.sock",
+                  readOnly: true,
+                },
+                {
+                  type: "volume",
+                  source: "${traefikData.name}",
+                  target: "/data",
+                },
+              ],
+            networksAdvanced: [{ name: "${appNetwork.name}" }],
+          },
+      },
+
+    # Example 1: remote image for portfolio (pulls from registry)
+    portfolioImage:
+      {
+        type: "docker:RemoteImage",
+        properties:
+          {
+            name: "${PORTFOLIO_IMAGE_NAME}",
+            build:
+              {
+                context: "${PORTFOLIO_BUILD_CONTEXT}",
+                buildArgs:
+                  { "PORTFOLIO_WORKDIR_PATH": "${PORTFOLIO_WORKDIR_PATH}" },
+                target: "${PORTFOLIO_BUILD_PHASE_TARGET}",
+              },
+          },
+      },
+
+    portfolio:
+      {
+        type: "docker:Container",
+        properties:
+          {
+            name: "${pulumi.project}-portfolio-${pulumi.stack}",
+            image: "${portfolioImage.imageId}",
+            restart: "always",
+            envs: [
+                "NODE_ENV=${NODE_ENV}",
+                "DATABASE_URL=${DATABASE_URL}",
+                "PORT=${APP_PORT}",
+                "ADMIN_EMAIL=${ADMIN_EMAIL}",
+                "ADMIN_PASSWORD=${ADMIN_PASSWORD}",
+                "AUTH_SECRET=${AUTH_SECRET}",
+                "AUTH_TRUST_HOST=${AUTH_TRUST_HOST}",
+                "AUTH_BASE_PATH=${AUTH_BASE_PATH}",
+                "AUTH_URL=${AUTH_URL}",
+                # "OTEL_COLLECTOR_ENDPOINT=${OTEL_COLLECTOR_ENDPOINT}",
+                # "OTEL_COLLECTOR_EXPORT_INTERVAL=${OTEL_COLLECTOR_EXPORT_INTERVAL}",
+                # "OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME}",
+              ],
+            networksAdvanced: [{ name: "${appNetwork.name}" }],
+            labels:
+              [
+                { label: "traefik.enable", value: "true" },
+                {
+                  label: "traefik.http.services.portfolio.loadbalancer.server.port",
+                  value: "${APP_PORT}",
+                },
+                {
+                  label: "traefik.http.routers.portfolio.entrypoints",
+                  value: "${ROUTER_ENTRYPOINT}",
+                },
+                {
+                  label: "traefik.http.routers.portfolio.rule",
+                  value: "Host(`${PORTFOLIO_HOST}`)",
+                },
+                {
+                  label: "traefik.http.routers.portfolio.tls",
+                  value: "${ENABLE_TLS}",
+                },
+                {
+                  label: "traefik.http.routers.portfolio.tls.certresolver",
+                  value: "letsencrypt",
+                },
+              ],
+          },
+        options: { dependsOn: ["${postgresContainer}"] },
+      },
+  }
+
+outputs: { portfolioHost: "${PORTFOLIO_HOST}" }
