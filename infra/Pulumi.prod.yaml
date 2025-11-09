@@ -57,7 +57,7 @@ config:
   portfolio-infra:LOKI_REPLICATION_FACTOR: "1"
   portfolio-infra:LOKI_RULES_DIR: /tmp/loki/rules
   portfolio-infra:LOKI_TENANT_ID: "1"
-  portfolio-infra:NODE_ENV: development
+  portfolio-infra:NODE_ENV: production
   portfolio-infra:NODE_EXPORTER_EXTERNAL_PORT: "9100"
   portfolio-infra:NODE_EXPORTER_INTERNAL_PORT: "9100"
   portfolio-infra:PORTFOLIO_BUILD_CONTEXT: ../app
