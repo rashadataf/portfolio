@@ -92,10 +92,11 @@ config:
     "NGINX_EXPORTER_EXTERNAL_PORT": { type: "string", default: "9113" },
     "NGINX_STUB_STATUS_PORT": { type: "string", default: "8080" },
     "NGINX_NETWORK_ALIAS": { type: "string", default: "nginx" },
-    "TRAEFIK_METRICS_PORT": { type: "string", default: "9101" },
+    "TRAEFIK_METRICS_PORT": { type: "string", default: "4318" },
   }
 
-variables: {
+variables:
+  {
     POSTGRES_USER: "${POSTGRES_USER}",
     POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}",
     POSTGRES_DB: "${POSTGRES_DB}",
@@ -173,10 +174,16 @@ variables: {
     POSTGRES_EXPORTER_INTERNAL_PORT: "${POSTGRES_EXPORTER_INTERNAL_PORT}",
     POSTGRES_EXPORTER_EXTERNAL_PORT: "${POSTGRES_EXPORTER_EXTERNAL_PORT}",
     TRAEFIK_METRICS_PORT: "${TRAEFIK_METRICS_PORT}",
+    FRONTEND_CONTAINER_NAME: "${pulumi.project}-portfolio-${pulumi.stack}",
+    TRAEFIK_ALIAS: "traefik",
   }
 
 resources: {
-    appNetwork: { type: "docker:Network", properties: { name: "${pulumi.project}-network" } },
+    appNetwork:
+      {
+        type: "docker:Network",
+        properties: { name: "${pulumi.project}-network" },
+      },
 
     traefikData:
       { type: "docker:Volume", properties: { name: "traefik-data" } },
@@ -239,10 +246,6 @@ resources: {
               [
                 { internal: "${HTTP_PORT}", external: "${HTTP_PORT}" },
                 { internal: "${HTTPS_PORT}", external: "${HTTPS_PORT}" },
-                {
-                  internal: "${TRAEFIK_METRICS_PORT}",
-                  external: "${TRAEFIK_METRICS_PORT}",
-                },
               ],
             envs: [
                 "TRAEFIK_PROVIDERS_DOCKER=true",
@@ -273,7 +276,8 @@ resources: {
                   target: "/data",
                 },
               ],
-            networksAdvanced: [{ name: "${appNetwork.name}" }],
+            networksAdvanced:
+              [{ name: "${appNetwork.name}", aliases: ["${TRAEFIK_ALIAS}"] }],
           },
       },
 
@@ -299,7 +303,7 @@ resources: {
         type: "docker:Container",
         properties:
           {
-            name: "${pulumi.project}-portfolio-${pulumi.stack}",
+            name: "${FRONTEND_CONTAINER_NAME}",
             image: "${portfolioImage.imageId}",
             restart: "always",
             envs: [
@@ -344,7 +348,11 @@ resources: {
           },
         options: { dependsOn: ["${postgresContainer}"] },
       },
-    observability: { type: observability:Observation, properties: {
+    observability:
+      {
+        type: observability:Observation,
+        properties:
+          {
             projectName: "${pulumi.project}",
             stackName: "${pulumi.stack}",
             prometheusInternalPort: "${PROMETHEUS_INTERNAL_PORT}",
@@ -396,8 +404,12 @@ resources: {
             databaseUrl: "${DATABASE_URL}",
             postgresExporterInternalPort: "${POSTGRES_EXPORTER_INTERNAL_PORT}",
             postgresExporterExternalPort: "${POSTGRES_EXPORTER_EXTERNAL_PORT}",
-            traefikMetricsPort: "${TRAEFIK_METRICS_PORT}",
-          } },
+            traefikRouterEntrypoint: "${ROUTER_ENTRYPOINT}",
+            frontendNetworkAlias: "${FRONTEND_CONTAINER_NAME}",
+            traefikMetricsUrl: "${TRAEFIK_ALIAS}:${TRAEFIK_METRICS_PORT}/v1/metrics",
+            frontendPort: "${APP_PORT}",
+          },
+      },
   }
 packages: { observability: "./observation" }
 outputs: { portfolioHost: "${PORTFOLIO_HOST}" }

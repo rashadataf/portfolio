@@ -66,15 +66,13 @@ components:
             lokiTenantId: { type: "string", default: "1" },
             lokiAuthUsername: { type: "string", secret: true },
             lokiAuthPassword: { type: "string", secret: true },
-            traefikMetricsPort: { type: "integer", default: 9101 },
+            traefikMetricsUrl: { type: "string", default: "traefik:4318/v1/metrics" },
             traefikRouterEntrypoint: { type: "string", default: "web" },
             databaseUrl: { type: "string", default: "" },
             postgresExporterInternalPort: { type: "integer", default: 9187 },
             postgresExporterExternalPort: { type: "integer", default: 9187 },
-            # nginxExporterInternalPort: { type: "integer", default: 9113 },
-            # nginxExporterExternalPort: { type: "integer", default: 9113 },
-            # nginxStubStatusPort: { type: "integer", default: 8080 },
-            # nginxNetworkAlias: { type: "string", default: "nginx" },
+            frontendNetworkAlias: { type: "string", default: "frontend" },
+            frontendPort: { type: "integer", default: 3000 },
           },
         resources: {
             # Create directories for configuration files
@@ -129,8 +127,8 @@ components:
                         PROMETHEUS_TARGET_NODE_EXPORTER_HOST: "${NODE_EXPORTER_NETWORK_ALIAS}:${nodeExporterExternalPort}",
                         PROMETHEUS_TARGET_CADVISOR_HOST: "${CADVISOR_NETWORK_ALIAS}:${cadvisorExternalPort}",
                         PROMETHEUS_TARGET_POSTGRES_EXPORTER_HOST: "${POSTGRES_EXPORTER_NETWORK_ALIAS}:${postgresExporterExternalPort}",
-                        # PROMETHEUS_TARGET_NGINX_EXPORTER_HOST: "${NGINX_EXPORTER_NETWORK_ALIAS}:${nginxExporterExternalPort}",
-                        PROMETHEUS_TARGET_TRAEFIK_HOST: "traefik:${traefikMetricsPort}",
+                        PROMETHEUS_TARGET_TRAEFIK_HOST: "${traefikMetricsUrl}",
+                        PROMETHEUS_TARGET_FRONTEND_HOST: "${frontendNetworkAlias}:${frontendPort}",
                         LOKI_AUTH_ENABLED: "${lokiAuthEnabled} ",
                         LOKI_INTERNAL_PORT: "${lokiInternalPort} ",
                         LOKI_GRPC_PORT: "${lokiGrpcPort} ",
@@ -144,7 +142,7 @@ components:
                         PROMTAIL_HTTP_PORT: "${promtailHttpPort} ",
                         PROMTAIL_GRPC_PORT: "${promtailGrpcPort} ",
                         PROMTAIL_POSITIONS_FILE: "${promtailPositionsFile}",
-                        PRONTAIL_LOKI_CLIENT_URL: "http://${LOKI_NETWORK_ALIAS}:${lokiInternalPort}/loki/api/v1/push",
+                        PROMTAIL_LOKI_CLIENT_URL: "http://${LOKI_NETWORK_ALIAS}:${lokiInternalPort}/loki/api/v1/push",
                         LOKI_TENANT_ID: "${lokiTenantId} ",
                         LOKI_AUTH_USERNAME: "${lokiAuthUsername}",
                         LOKI_AUTH_PASSWORD: "${lokiAuthPassword}",
@@ -453,16 +451,16 @@ components:
                         { label: "traefik.enable", value: "true" },
                         {
                           label: "traefik.http.services.grafana.loadbalancer.server.port",
-                          value: "${grafanaInternalPort}"
+                          value: "${grafanaInternalPort}",
                         },
                         {
                           label: "traefik.http.routers.grafana.rule",
-                          value: "Host(`${domainName}`) && PathPrefix(`/grafana`)"
+                          value: "Host(`${domainName}`) && PathPrefix(`/grafana`)",
                         },
                         {
                           label: "traefik.http.routers.grafana.entrypoints",
-                          value: "${traefikRouterEntrypoint}"
-                        }
+                          value: "${traefikRouterEntrypoint}",
+                        },
                       ],
                   },
                 options:
@@ -622,8 +620,7 @@ components:
             #     options: {},
             #   },
           },
-        variables:
-          {
+        variables: {
             PROMETHEUS_IMAGE_TAG: "prom/prometheus:latest",
             NODE_EXPORTER_IMAGE_TAG: "quay.io/prometheus/node-exporter:latest",
             CADVISOR_IMAGE_TAG: "gcr.io/cadvisor/cadvisor",

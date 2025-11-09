@@ -86,4 +86,4 @@ config:
     secure: AAABAAu0VmwvFdMITvlan8dHzDC54mQCX3xcvXhP+xDlBiiJDc8=
   portfolio-infra:POSTGRES_EXPORTER_INTERNAL_PORT: "9187"
   portfolio-infra:POSTGRES_EXPORTER_EXTERNAL_PORT: "9187"
-  portfolio-infra:TRAEFIK_METRICS_PORT: "9101"
+  portfolio-infra:TRAEFIK_METRICS_PORT: "4318"
