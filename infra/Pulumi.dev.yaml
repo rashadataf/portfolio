@@ -27,7 +27,6 @@ config:
   portfolio-infra:AUTH_BASE_PATH:
     secure: AAABAJI6xZZ3MmQlMxR3iJTHTksqpmKfN9UZOp0UYYGq73IvNQ==
   portfolio-infra:DOMAIN_NAME: localhost
-  portfolio-infra:PORTFOLIO_HOST: localhost
   portfolio-infra:POSTGRES_VOLUME_NAME: portfolio_postgres_data
   portfolio-infra:PROMETHEUS_INTERNAL_PORT: "9090"
   portfolio-infra:PROMETHEUS_EXTERNAL_PORT: "9090"

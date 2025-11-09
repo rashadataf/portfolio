@@ -1,0 +1,88 @@
+config:
+  portfolio-infra:ADMIN_EMAIL:
+    secure: AAABAIqtzZMpAyd1jVar4XX8us9B2o8bqUyhNhaW8tbfFqSXp8g8yVPP2erdFUITYT0kdhw=
+  portfolio-infra:ADMIN_PASSWORD:
+    secure: AAABABC0jMIerXqh6s0rtPc96wKehVvQ0jKX2mwE8sRBdwogKkkpNjOG/aas+rdT1Q==
+  portfolio-infra:ALERTMANAGER_CONFIG_FILE_DIR: observation/alertmanager/alertmanager.yaml
+  portfolio-infra:ALERTMANAGER_EMAIL_FROM:
+    secure: AAABAJb4q3ZHkV26pAJQEeqqXUfU0aJBNGL0SmC1JBQpXk+y0R2pLfBMSgFiGiBHl5NbGdvzxz0=
+  portfolio-infra:ALERTMANAGER_EMAIL_TO:
+    secure: AAABAK8L+otEfFcUuuhmfjF4e6XP2wYG1ZoqMg8BNbov0wLiJHkPYSpXkl3WNSsy2I57BxU=
+  portfolio-infra:ALERTMANAGER_EXTERNAL_PORT: "9093"
+  portfolio-infra:ALERTMANAGER_GROUP_INTERVAL: 5m
+  portfolio-infra:ALERTMANAGER_GROUP_WAIT: 30s
+  portfolio-infra:ALERTMANAGER_INTERNAL_PORT: "9093"
+  portfolio-infra:ALERTMANAGER_REPEAT_INTERVAL: 12h
+  portfolio-infra:ALERTMANAGER_RESOLVE_TIMEOUT: 5m
+  portfolio-infra:ALERTMANAGER_SMTP_HOST:
+    secure: AAABAJIOlh7Bp3gTZQR1Snxeov0ZvHnq64IW6jZqq/WsjwGitAcBvWz/zHcTinS3nA==
+  portfolio-infra:ALERTMANAGER_SMTP_PASSWORD:
+    secure: AAABAHMJuXYQAZAxOgFxJLctO8pgZT+fIpvGobGI1FO3jz5RfPMHfb1M1q1rVo8E1af27i/FVfKeazclPYx3XxUhMLGn+gpWxbzklDpaCCKln0DgVg0EzzIU5SfbBDz2VxiJmvM=
+  portfolio-infra:ALERTMANAGER_SMTP_PORT:
+    secure: AAABAMw48IPLzfcsqkvKRtDJRfWT+83HigsQjx/LPEYOJI4=
+  portfolio-infra:ALERTMANAGER_SMTP_USERNAME:
+    secure: AAABAC6O//YY/tExKDiqix0wQMBoyzgj7Xw6N/KUORMRgCt1AjI=
+  portfolio-infra:APP_PORT: "3000"
+  portfolio-infra:AUTH_BASE_PATH:
+    secure: AAABAFPlCrQmx7BXwC5UFMYZ1DW4CpXtfqLSXDNdI24koJCQEg==
+  portfolio-infra:AUTH_SECRET:
+    secure: AAABADocUpVE+FaGAh1LqHE/j8BOoxj06THOMKlYl393wkSSfRDqK6HLb8pc+JJkW+ri+/pe4791Zfb3uWVLMyGwsoVxI0yEiDx04uNLl1hjUA==
+  portfolio-infra:AUTH_TRUST_HOST: "true"
+  portfolio-infra:CADVISOR_EXTERNAL_PORT: "8080"
+  portfolio-infra:CADVISOR_INTERNAL_PORT: "8080"
+  portfolio-infra:DOMAIN_NAME: rashadataf.com
+  portfolio-infra:ENABLE_TLS: "true"
+  portfolio-infra:GRAFANA_ADMIN_PASSWORD:
+    secure: AAABAGNbf7Pmih8tUYzEGMzjlWFuiAeU/6W8G+QUdKjV0/6UGxn1QEZEaYCRXe2Cq5U=
+  portfolio-infra:GRAFANA_ADMIN_USER:
+    secure: AAABABBfwemzf6LchSMH8E5F+HkV5W+kM7jY9oHT+XH1ULo6jQI=
+  portfolio-infra:GRAFANA_CONFIG_DIR: observation/grafana
+  portfolio-infra:GRAFANA_EXTERNAL_PORT: "3001"
+  portfolio-infra:GRAFANA_INTERNAL_PORT: "3001"
+  portfolio-infra:HTTP_PORT: "80"
+  portfolio-infra:HTTPS_PORT: "443"
+  portfolio-infra:LOKI_AUTH_ENABLED: "false"
+  portfolio-infra:LOKI_AUTH_PASSWORD:
+    secure: AAABACNsnGashy6bT3Od3tBpk+UAd5vvTHS5WnEfyTp4HyiRzuE=
+  portfolio-infra:LOKI_AUTH_USERNAME:
+    secure: AAABAGHw7hOsV35gRtlDZZUoGVFSGoqRsOlBHOUgCGSY+nP6To0=
+  portfolio-infra:LOKI_CHUNKS_DIR: /tmp/loki/chunks
+  portfolio-infra:LOKI_CONFIG_FILE_DIR: observation/loki/loki.yaml
+  portfolio-infra:LOKI_EXTERNAL_PORT: "3100"
+  portfolio-infra:LOKI_GRPC_PORT: "9096"
+  portfolio-infra:LOKI_INSTANCE_ADDRESS: 127.0.0.1
+  portfolio-infra:LOKI_INTERNAL_PORT: "3100"
+  portfolio-infra:LOKI_KVSTORE: inmemory
+  portfolio-infra:LOKI_PATH_PREFIX: /tmp/loki
+  portfolio-infra:LOKI_REPLICATION_FACTOR: "1"
+  portfolio-infra:LOKI_RULES_DIR: /tmp/loki/rules
+  portfolio-infra:LOKI_TENANT_ID: "1"
+  portfolio-infra:NODE_ENV: development
+  portfolio-infra:NODE_EXPORTER_EXTERNAL_PORT: "9100"
+  portfolio-infra:NODE_EXPORTER_INTERNAL_PORT: "9100"
+  portfolio-infra:PORTFOLIO_BUILD_CONTEXT: ../app
+  portfolio-infra:PORTFOLIO_BUILD_PHASE_TARGET: development
+  portfolio-infra:PORTFOLIO_IMAGE_NAME: portfolio_image
+  portfolio-infra:PORTFOLIO_WORKDIR_PATH: /portfolio/app
+  portfolio-infra:POSTGRES_DB:
+    secure: AAABAIFE/EGbo/jxhl8di8YoU7Z+OeFs8+rVOO5JgtPIK7/H5TEigbZylEs=
+  portfolio-infra:POSTGRES_EXPORTER_EXTERNAL_PORT: "9187"
+  portfolio-infra:POSTGRES_EXPORTER_INTERNAL_PORT: "9187"
+  portfolio-infra:POSTGRES_PASSWORD:
+    secure: AAABALskUqfdRzkDYSKS67vp6cpKq8CEqWOjyrnE8plpFd2GoEGgFt6v+cuZO0H8j8kJPa9r
+  portfolio-infra:POSTGRES_PORT:
+    secure: AAABAAseUHYX+CG2I0g6seEKt6l8R6YXgMP9db2l7tpg2zq0
+  portfolio-infra:POSTGRES_USER:
+    secure: AAABAIu4LwWJ/yR+FIA1VxKOcYyCRm6SMlP6sKjOxXA5wQYpO1yG2ak7/F7UhA==
+  portfolio-infra:POSTGRES_VOLUME_NAME: portfolio_postgres_data_prod
+  portfolio-infra:PROMETHEUS_CONFIG_FILE_DIR: observation/prometheus/prometheus.yaml
+  portfolio-infra:PROMETHEUS_EVALUATION_INTERVAL: 15s
+  portfolio-infra:PROMETHEUS_EXTERNAL_PORT: "9090"
+  portfolio-infra:PROMETHEUS_INTERNAL_PORT: "9090"
+  portfolio-infra:PROMETHEUS_SCRAPE_INTERVAL: 15s
+  portfolio-infra:PROMTAIL_CONFIG_FILE_DIR: observation/promtail/promtail.yaml
+  portfolio-infra:PROMTAIL_GRPC_PORT: "0"
+  portfolio-infra:PROMTAIL_HTTP_PORT: "9080"
+  portfolio-infra:PROMTAIL_POSITIONS_FILE: /tmp/positions.yaml
+  portfolio-infra:ROUTER_ENTRYPOINT: websecure
+  portfolio-infra:TRAEFIK_METRICS_PORT: "4318"

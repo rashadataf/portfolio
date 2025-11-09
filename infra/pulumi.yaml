@@ -26,7 +26,6 @@ config:
     "AUTH_BASE_PATH": { type: "string", secret: true },
 
     "PORTFOLIO_IMAGE_NAME": { type: "string", default: "portfolio_image" },
-    "PORTFOLIO_HOST": { type: "string", default: "localhost" },
     "APP_PORT": { type: "string", default: "3000" },
     "PORTFOLIO_BUILD_CONTEXT": { type: "string", default: "./app" },
     "PORTFOLIO_WORKDIR_PATH": { type: "string", default: "/portfolio/app" },
@@ -118,7 +117,7 @@ variables:
 
     PORTFOLIO_IMAGE_NAME: "${PORTFOLIO_IMAGE_NAME}",
     APP_PORT: "${APP_PORT}",
-    PORTFOLIO_HOST: "${PORTFOLIO_HOST}",
+    PORTFOLIO_HOST: "${DOMAIN_NAME}",
     PORTFOLIO_BUILD_CONTEXT: "${PORTFOLIO_BUILD_CONTEXT}",
     PORTFOLIO_WORKDIR_PATH: "${PORTFOLIO_WORKDIR_PATH}",
     PORTFOLIO_BUILD_PHASE_TARGET: "${PORTFOLIO_BUILD_PHASE_TARGET}",
