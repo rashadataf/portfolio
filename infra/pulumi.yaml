@@ -343,6 +343,27 @@ resources: {
                   label: "traefik.http.routers.portfolio.tls.certresolver",
                   value: "letsencrypt",
                 },
+                # HTTP -> HTTPS redirect (keeps ACME httpChallenge working on web entrypoint)
+                {
+                  label: "traefik.http.middlewares.https-redirect.redirectscheme.scheme",
+                  value: "https",
+                },
+                {
+                  label: "traefik.http.middlewares.https-redirect.redirectscheme.permanent",
+                  value: "true",
+                },
+                {
+                  label: "traefik.http.routers.portfolio-http.entrypoints",
+                  value: "web",
+                },
+                {
+                  label: "traefik.http.routers.portfolio-http.rule",
+                  value: "Host(`${PORTFOLIO_HOST}`)",
+                },
+                {
+                  label: "traefik.http.routers.portfolio-http.middlewares",
+                  value: "https-redirect",
+                },
               ],
           },
         options: { dependsOn: ["${postgresContainer}"] },
