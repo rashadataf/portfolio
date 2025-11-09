@@ -29,3 +29,61 @@ config:
   portfolio-infra:DOMAIN_NAME: localhost
   portfolio-infra:PORTFOLIO_HOST: localhost
   portfolio-infra:POSTGRES_VOLUME_NAME: portfolio_postgres_data
+  portfolio-infra:PROMETHEUS_INTERNAL_PORT: "9090"
+  portfolio-infra:PROMETHEUS_EXTERNAL_PORT: "9090"
+  portfolio-infra:PROMETHEUS_CONFIG_FILE_DIR: observation/prometheus/prometheus.yaml
+  portfolio-infra:PROMETHEUS_SCRAPE_INTERVAL: 15s
+  portfolio-infra:PROMETHEUS_EVALUATION_INTERVAL: 15s
+  portfolio-infra:NODE_EXPORTER_INTERNAL_PORT: "9100"
+  portfolio-infra:NODE_EXPORTER_EXTERNAL_PORT: "9100"
+  portfolio-infra:CADVISOR_INTERNAL_PORT: "8080"
+  portfolio-infra:CADVISOR_EXTERNAL_PORT: "8080"
+  portfolio-infra:LOKI_INTERNAL_PORT: "3100"
+  portfolio-infra:LOKI_EXTERNAL_PORT: "3100"
+  portfolio-infra:LOKI_CONFIG_FILE_DIR: observation/loki/loki.yaml
+  portfolio-infra:PROMTAIL_CONFIG_FILE_DIR: observation/promtail/promtail.yaml
+  portfolio-infra:PROMTAIL_HTTP_PORT: "9080"
+  portfolio-infra:PROMTAIL_GRPC_PORT: "0"
+  portfolio-infra:PROMTAIL_POSITIONS_FILE: /tmp/positions.yaml
+  portfolio-infra:GRAFANA_INTERNAL_PORT: "3001"
+  portfolio-infra:GRAFANA_EXTERNAL_PORT: "3001"
+  portfolio-infra:GRAFANA_CONFIG_DIR: observation/grafana
+  portfolio-infra:GRAFANA_ADMIN_USER:
+    secure: AAABAOsSuTkf1iRiYKNVicmgzEBuyKgAHzl3OIFWC/EfiWpLeA==
+  portfolio-infra:GRAFANA_ADMIN_PASSWORD:
+    secure: AAABAMLNHwJd49cyH6ja9L5HI7ItRGHhAilNbvd5iCHGK6nqSA==
+  portfolio-infra:ALERTMANAGER_CONFIG_FILE_DIR: observation/alertmanager/alertmanager.yaml
+  portfolio-infra:ALERTMANAGER_INTERNAL_PORT: "9093"
+  portfolio-infra:ALERTMANAGER_EXTERNAL_PORT: "9093"
+  portfolio-infra:ALERTMANAGER_RESOLVE_TIMEOUT: 5m
+  portfolio-infra:ALERTMANAGER_GROUP_WAIT: 30s
+  portfolio-infra:ALERTMANAGER_GROUP_INTERVAL: 5m
+  portfolio-infra:ALERTMANAGER_REPEAT_INTERVAL: 12h
+  portfolio-infra:ALERTMANAGER_EMAIL_TO:
+    secure: AAABAK7t1bKudee4lHpJDfwxwk8eHRxdTOiLbW5mdShQMghy1XYwGnWTdtMP4v4PgyowKs0=
+  portfolio-infra:ALERTMANAGER_EMAIL_FROM:
+    secure: AAABAInEcQHNyUUmVpBhUvBe8mUSNMpTCuqd9OypEgAqChZEJ+uh+sYV95i/2fI0Fj7IdQPVToI=
+  portfolio-infra:ALERTMANAGER_SMTP_HOST:
+    secure: AAABAG4ids+gMFCPnbg6IBIt9a9qiOBpHuB4ai8PvZcogGojrq4CPclGV5FeRYrX4A==
+  portfolio-infra:ALERTMANAGER_SMTP_PORT:
+    secure: AAABAAwnzk9PZm1dKh7YgeS86bC0/Hf1ZEQdz90CgyivLig=
+  portfolio-infra:ALERTMANAGER_SMTP_USERNAME:
+    secure: AAABACv41KJEBTbq4wko3WdM+51cjp3thmk+j1jU6kKq50YLLFE=
+  portfolio-infra:ALERTMANAGER_SMTP_PASSWORD:
+    secure: AAABALkNNCzU2agJovY+LxoVtT2xuelQhuUCstEeP+UMq/8aZo7SefYEQhvPMXmbVVmDUCoIWNVgTx7ZD/m9gOfml/6Sw/x0fqcKX+eYslEaex/lGttStRsUzetF6uUr4QrTdtc=
+  portfolio-infra:LOKI_AUTH_ENABLED: "false"
+  portfolio-infra:LOKI_GRPC_PORT: "9096"
+  portfolio-infra:LOKI_INSTANCE_ADDRESS: 127.0.0.1
+  portfolio-infra:LOKI_PATH_PREFIX: /tmp/loki
+  portfolio-infra:LOKI_CHUNKS_DIR: /tmp/loki/chunks
+  portfolio-infra:LOKI_RULES_DIR: /tmp/loki/rules
+  portfolio-infra:LOKI_REPLICATION_FACTOR: "1"
+  portfolio-infra:LOKI_KVSTORE: inmemory
+  portfolio-infra:LOKI_TENANT_ID: "1"
+  portfolio-infra:LOKI_AUTH_USERNAME:
+    secure: AAABAGYDrzY1L0cdhBQOeMTKTWjdA98fxZjj/VCJxj/lVaq7K3U=
+  portfolio-infra:LOKI_AUTH_PASSWORD:
+    secure: AAABAAu0VmwvFdMITvlan8dHzDC54mQCX3xcvXhP+xDlBiiJDc8=
+  portfolio-infra:POSTGRES_EXPORTER_INTERNAL_PORT: "9187"
+  portfolio-infra:POSTGRES_EXPORTER_EXTERNAL_PORT: "9187"
+  portfolio-infra:TRAEFIK_METRICS_PORT: "9101"

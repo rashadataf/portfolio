@@ -1,0 +1,72 @@
+groups:
+  - name: backend_alerts
+    rules:
+      - alert: BackendDown
+        expr: absent(up{job="backend"})
+        for: 1m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "Backend service is down"
+          description: "Backend service has been down for more than 1 minute."
+
+      - alert: BackendHighErrorRate
+        expr: sum(rate(http_requests_total{job="backend", status=~"5.."}[5m])) / sum(rate(http_requests_total{job="backend"}[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "High backend error rate"
+          description: "Backend is returning 5xx errors for more than 5% of requests over the last 5 minutes."
+
+      - alert: BackendHighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="backend"}[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High backend latency"
+          description: "Backend 95th percentile latency is above 2 seconds for the last 5 minutes."
+
+      - alert: BackendHighCpuUsage
+        expr: rate(process_cpu_seconds_total{job="backend"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High backend CPU usage"
+          description: "Backend is using more than 80% CPU for the last 5 minutes."
+
+      - alert: BackendHighMemoryUsage
+        expr: process_resident_memory_bytes{job="backend"} / container_spec_memory_limit_bytes{job="backend"} * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High backend memory usage"
+          description: "Backend is using more than 80% of allocated memory for the last 5 minutes."
+
+      - alert: BackendHighDatabaseConnections
+        expr: sum(algotrading_db_connections_active{job="backend"}) > sum(algotrading_db_connections_max{job="backend"}) * 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High number of database connections"
+          description: "Backend is using more than 80% of available database connections for the last 5 minutes."
+
+      - alert: BackendApiEndpointFailure
+        expr: sum(rate(http_requests_total{job="backend", status=~"5..", handler=~"/api/.*"}[5m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "Backend API endpoint failures"
+          description: "Backend API endpoints are failing with 5xx errors for the last 5 minutes."

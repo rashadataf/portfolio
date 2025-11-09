@@ -1,0 +1,72 @@
+groups:
+  - name: frontend_alerts
+    rules:
+      - alert: FrontendDown
+        expr: absent(up{job="frontend"})
+        for: 1m
+        labels:
+          severity: critical
+          service: frontend
+        annotations:
+          summary: "Frontend service is down"
+          description: "Frontend service has been down for more than 1 minute."
+
+      - alert: FrontendHighErrorRate
+        expr: sum(rate(http_requests_total{job="frontend", status=~"5.."}[5m])) / sum(rate(http_requests_total{job="frontend"}[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: frontend
+        annotations:
+          summary: "High frontend error rate"
+          description: "Frontend is returning 5xx errors for more than 5% of requests over the last 5 minutes."
+
+      - alert: FrontendHighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="frontend"}[5m])) by (le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: frontend
+        annotations:
+          summary: "High frontend latency"
+          description: "Frontend 95th percentile latency is above 1 second for the last 5 minutes."
+
+      - alert: FrontendHighCpuUsage
+        expr: rate(process_cpu_seconds_total{job="frontend"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: frontend
+        annotations:
+          summary: "High frontend CPU usage"
+          description: "Frontend is using more than 80% CPU for the last 5 minutes."
+
+      - alert: FrontendHighMemoryUsage
+        expr: process_resident_memory_bytes{job="frontend"} / container_spec_memory_limit_bytes{job="frontend"} * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: frontend
+        annotations:
+          summary: "High frontend memory usage"
+          description: "Frontend is using more than 80% of allocated memory for the last 5 minutes."
+
+      - alert: FrontendJsErrors
+        expr: sum(increase(frontend_js_errors_total[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: frontend
+        annotations:
+          summary: "High number of JavaScript errors"
+          description: "Frontend is experiencing more than 10 JavaScript errors in the last 5 minutes."
+
+      - alert: FrontendApiFailures
+        expr: sum(rate(frontend_api_requests_total{status=~"(4|5).."}[5m])) / sum(rate(frontend_api_requests_total[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: frontend
+        annotations:
+          summary: "Frontend API call failures"
+          description: "Frontend API calls are failing with 4xx or 5xx errors for more than 5% of requests over the last 5 minutes."

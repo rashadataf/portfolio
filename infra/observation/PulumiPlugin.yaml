@@ -1,0 +1,660 @@
+runtime: yaml
+name: observability
+components:
+  {
+    Observation:
+      {
+        inputs:
+          {
+            projectName: { type: "string", default: "observability" },
+            stackName: { type: "string", default: "dev" },
+            prometheusInternalPort: { type: "integer", default: 9090 },
+            prometheusExternalPort: { type: "integer", default: 9090 },
+            prometheusConfigFileDir:
+              {
+                type: "string",
+                default: "observation/prometheus/prometheus.yaml",
+              },
+            prometheusScrapeInterval: { type: "string", default: "15s" },
+            prometheusEvaluationInterval: { type: "string", default: "15s" },
+            nodeExporterInternalPort: { type: "integer", default: 9100 },
+            nodeExporterExternalPort: { type: "integer", default: 9100 },
+            cadvisorInternalPort: { type: "integer", default: 8080 },
+            cadvisorExternalPort: { type: "integer", default: 8080 },
+            lokiInternalPort: { type: "integer", default: 3100 },
+            lokiExternalPort: { type: "integer", default: 3100 },
+            lokiConfigFileDir:
+              { type: "string", default: "observation/loki/loki.yaml" },
+            promtailConfigFileDir:
+              { type: "string", default: "observation/promtail/promtail.yaml" },
+            grafanaInternalPort: { type: "integer", default: 3001 },
+            grafanaExternalPort: { type: "integer", default: 3001 },
+            grafanaConfigDir:
+              { type: "string", default: "observation/grafana" },
+            grafanaAdminUser: { type: "string", secret: true },
+            grafanaAdminPassword: { type: "string", secret: true },
+            domainName: { type: "string", default: "localhost" },
+            envType: { type: "string", default: "dev" },
+            alertmanagerConfigFileDir:
+              {
+                type: "string",
+                default: "observation/alertmanager/alertmanager.yaml",
+              },
+            alertmanagerInternalPort: { type: "integer", default: 9093 },
+            alertmanagerExternalPort: { type: "integer", default: 9093 },
+            alertmanagerResolveTimeout: { type: "string", default: "5m" },
+            alertmanagerGroupWait: { type: "string", default: "30s" },
+            alertmanagerGroupInterval: { type: "string", default: "5m" },
+            alertmanagerRepeatInterval: { type: "string", default: "12h" },
+            alertmanagerEmailTo: { type: "string", secret: true },
+            alertmanagerEmailFrom: { type: "string", secret: true },
+            alertmanagerSmartHost: { type: "string", secret: true },
+            alertmanagerSmtpUsername: { type: "string", secret: true },
+            alertmanagerSmtpPassword: { type: "string", secret: true },
+            lokiAuthEnabled: { type: "boolean", default: false },
+            lokiGrpcPort: { type: "integer", default: 9096 },
+            lokiInstanceAddress: { type: "string", default: "127.0.0.1" },
+            lokiPathPrrefix: { type: "string", default: "/tmp/loki" },
+            lokiChunksDir: { type: "string", default: "/tmp/loki/chunks" },
+            lokiRulesDir: { type: "string", default: "/tmp/loki/rules" },
+            lokiReplicationFactor: { type: "integer", default: 1 },
+            lokiKvStore: { type: "string", default: "inmemory" },
+            promtailHttpPort: { type: "integer", default: 9080 },
+            promtailGrpcPort: { type: "integer", default: 0 },
+            promtailPositionsFile:
+              { type: "string", default: "/tmp/positions.yaml" },
+            lokiTenantId: { type: "string", default: "1" },
+            lokiAuthUsername: { type: "string", secret: true },
+            lokiAuthPassword: { type: "string", secret: true },
+            traefikMetricsPort: { type: "integer", default: 9101 },
+            traefikRouterEntrypoint: { type: "string", default: "web" },
+            databaseUrl: { type: "string", default: "" },
+            postgresExporterInternalPort: { type: "integer", default: 9187 },
+            postgresExporterExternalPort: { type: "integer", default: 9187 },
+            # nginxExporterInternalPort: { type: "integer", default: 9113 },
+            # nginxExporterExternalPort: { type: "integer", default: 9113 },
+            # nginxStubStatusPort: { type: "integer", default: 8080 },
+            # nginxNetworkAlias: { type: "string", default: "nginx" },
+          },
+        resources: {
+            # Create directories for configuration files
+            createObservabilityDirs:
+              {
+                type: command:local:Command,
+                properties:
+                  { create: "mkdir -p ${pulumi.cwd}/observation/prometheus &&
+                      mkdir -p ${pulumi.cwd}/observation/loki &&
+                      mkdir -p ${pulumi.cwd}/observation/promtail &&
+                      mkdir -p ${pulumi.cwd}/observation/alertmanager &&
+                      mkdir -p ${pulumi.cwd}/observation/grafana/provisioning/datasources &&
+                      mkdir -p ${pulumi.cwd}/observation/grafana/provisioning/dashboards" },
+                options: {},
+              },
+            generateConfigFiles:
+              {
+                type: command:local:Command,
+                properties:
+                  {
+                    create: "chmod +x ${pulumi.cwd}/observation/generate_configs.sh && bash ${pulumi.cwd}/observation/generate_configs.sh",
+                    update: "chmod +x ${pulumi.cwd}/observation/generate_configs.sh && bash ${pulumi.cwd}/observation/generate_configs.sh",
+                    delete: "
+                      rm -rf ${pulumi.cwd}/observation/alertmanager/alertmanager.yaml &&
+                      rm -rf ${pulumi.cwd}/observation/prometheus/prometheus.yaml &&
+                      rm -rf ${pulumi.cwd}/observation/loki/loki.yaml &&
+                      rm -rf ${pulumi.cwd}/observation/promtail/promtail.yaml
+                      ",
+                    triggers:
+                      [
+                        "${pulumi.cwd}/observation/generate_configs.sh",
+                        "${pulumi.cwd}/observation/templates/alertmanager.template.yaml",
+                        "${pulumi.cwd}/observation/templates/prometheus.template.yaml",
+                        "${pulumi.cwd}/observation/templates/loki.template.yaml",
+                        "${pulumi.cwd}/observation/templates/promtail.template.yaml",
+                      ],
+                    environment:
+                      {
+                        ALERTMANAGER_RESOLVE_TIMEOUT: "${alertmanagerResolveTimeout}",
+                        ALERTMANAGER_GROUP_WAIT: "${alertmanagerGroupWait}",
+                        ALERTMANAGER_GROUP_INTERVAL: "${alertmanagerGroupInterval}",
+                        ALERTMANAGER_REPEAT_INTERVAL: "${alertmanagerRepeatInterval}",
+                        ALERTMANAGER_EMAIL_TO: "${alertmanagerEmailTo}",
+                        ALERTMANAGER_EMAIL_FROM: "${alertmanagerEmailFrom}",
+                        ALERTMANAGER_SMART_HOST: "${alertmanagerSmartHost}",
+                        ALERTMANAGER_SMTP_USERNAME: "${alertmanagerSmtpUsername}",
+                        ALERTMANAGER_SMTP_PASSWORD: "${alertmanagerSmtpPassword}",
+                        PROMETHEUS_SCRAPE_INTERVAL: "${prometheusScrapeInterval}",
+                        PROMETHEUS_EVALUATION_INTERVAL: "${prometheusEvaluationInterval}",
+                        PROMETHEUS_TARGET_ALERTMANAGER_HOST: "${ALERTMANAGER_NETWORK_ALIAS}:${alertmanagerExternalPort}",
+                        PROMETHEUS_TARGET_HOST: "${PROMETHEUS_NETWORK_ALIAS}:${prometheusExternalPort}",
+                        PROMETHEUS_TARGET_NODE_EXPORTER_HOST: "${NODE_EXPORTER_NETWORK_ALIAS}:${nodeExporterExternalPort}",
+                        PROMETHEUS_TARGET_CADVISOR_HOST: "${CADVISOR_NETWORK_ALIAS}:${cadvisorExternalPort}",
+                        PROMETHEUS_TARGET_POSTGRES_EXPORTER_HOST: "${POSTGRES_EXPORTER_NETWORK_ALIAS}:${postgresExporterExternalPort}",
+                        # PROMETHEUS_TARGET_NGINX_EXPORTER_HOST: "${NGINX_EXPORTER_NETWORK_ALIAS}:${nginxExporterExternalPort}",
+                        PROMETHEUS_TARGET_TRAEFIK_HOST: "traefik:${traefikMetricsPort}",
+                        LOKI_AUTH_ENABLED: "${lokiAuthEnabled} ",
+                        LOKI_INTERNAL_PORT: "${lokiInternalPort} ",
+                        LOKI_GRPC_PORT: "${lokiGrpcPort} ",
+                        LOKI_INSTANCE_ADDRESS: "${lokiInstanceAddress}",
+                        LOKI_PATH_PREFIX: "${lokiPathPrrefix}",
+                        LOKI_CHUNKS_DIR: "${lokiChunksDir}",
+                        LOKI_RULES_DIR: "${lokiRulesDir}",
+                        LOKI_REPLICATION_FACTOR: "${lokiReplicationFactor} ",
+                        LOKI_KVSTORE: "${lokiKvStore}",
+                        LOKI_ALERTMANAGER_URL: "${ALERTMANAGER_NETWORK_ALIAS}:${alertmanagerInternalPort}",
+                        PROMTAIL_HTTP_PORT: "${promtailHttpPort} ",
+                        PROMTAIL_GRPC_PORT: "${promtailGrpcPort} ",
+                        PROMTAIL_POSITIONS_FILE: "${promtailPositionsFile}",
+                        PRONTAIL_LOKI_CLIENT_URL: "http://${LOKI_NETWORK_ALIAS}:${lokiInternalPort}/loki/api/v1/push",
+                        LOKI_TENANT_ID: "${lokiTenantId} ",
+                        LOKI_AUTH_USERNAME: "${lokiAuthUsername}",
+                        LOKI_AUTH_PASSWORD: "${lokiAuthPassword}",
+                        ENV_TYPE: "${envType}",
+                      },
+                  },
+              },
+            prometheusImage:
+              {
+                type: docker:RemoteImage,
+                properties: { name: "${PROMETHEUS_IMAGE_TAG}" },
+                options: {},
+              },
+            prometheusContainer:
+              {
+                type: docker:Container,
+                properties:
+                  {
+                    name: "${projectName}-observability-prometheus-container-${stackName}",
+                    image: "${prometheusImage.imageId}",
+                    mounts:
+                      [
+                        {
+                          type: "bind",
+                          source: "${pulumi.cwd}/${prometheusConfigFileDir}",
+                          target: "/etc/prometheus/prometheus.yaml",
+                        },
+                        {
+                          type: "bind",
+                          source: "${pulumi.cwd}/observation/alertmanager-rules",
+                          target: "/etc/prometheus/rules",
+                        },
+                        {
+                          type: "volume",
+                          source: "${PROMETHEUS_VOLUME_NAME}",
+                          target: "/prometheus",
+                        },
+                      ],
+                    command:
+                      [
+                        "--config.file=/etc/prometheus/prometheus.yaml",
+                        "--storage.tsdb.path=/prometheus",
+                        "--web.console.libraries=/etc/prometheus/console_libraries",
+                        "--web.console.templates=/etc/prometheus/consoles",
+                        "--web.enable-lifecycle",
+                      ],
+                    networksAdvanced:
+                      [
+                        {
+                          name: "${projectName}-network",
+                          aliases: ["${PROMETHEUS_NETWORK_ALIAS}"],
+                        },
+                        {
+                          name: "${monitoringNetwork.name}",
+                          aliases: ["${PROMETHEUS_NETWORK_ALIAS}"],
+                        },
+                      ],
+                    restart: "${CONTAINER_RESTART_POLICY}",
+                  },
+                options:
+                  {
+                    dependsOn:
+                      ["${generateConfigFiles}", "${createObservabilityDirs}"],
+                  },
+              },
+            # Node Exporter
+            nodeExporterImage:
+              {
+                type: docker:RemoteImage,
+                properties: { name: "${NODE_EXPORTER_IMAGE_TAG}" },
+                options: {},
+              },
+            nodeExporterContainer:
+              {
+                type: docker:Container,
+                properties:
+                  {
+                    name: "${projectName}-observability-node-exporter-container-${stackName}",
+                    image: "${nodeExporterImage.imageId}",
+                    mounts:
+                      [
+                        {
+                          type: "bind",
+                          source: "/",
+                          target: "/host",
+                          readOnly: true,
+                        },
+                      ],
+                    command: ["--path.rootfs=/host"],
+                    networksAdvanced:
+                      [
+                        {
+                          name: "${monitoringNetwork.name}",
+                          aliases: ["${NODE_EXPORTER_NETWORK_ALIAS}"],
+                        },
+                      ],
+                    restart: "${CONTAINER_RESTART_POLICY}",
+                  },
+                options: {},
+              },
+            # # cAdvisor
+            cadvisorImage:
+              {
+                type: docker:RemoteImage,
+                properties: { name: "${CADVISOR_IMAGE_TAG}" },
+                options: {},
+              },
+            cadvisorContainer:
+              {
+                type: docker:Container,
+                properties:
+                  {
+                    name: "${projectName}-observability-cadvisor-container-${stackName}",
+                    image: "${cadvisorImage.imageId}",
+                    mounts: [
+                        {
+                          type: "bind",
+                          source: "/",
+                          target: "/rootfs",
+                          readOnly: true,
+                        },
+                        {
+                          type: "bind",
+                          source: "/var/run",
+                          target: "/var/run",
+                          readOnly: true,
+                        },
+                        {
+                          type: "bind",
+                          source: "/sys",
+                          target: "/sys",
+                          readOnly: true,
+                        },
+                        {
+                          type: "bind",
+                          source: "/var/lib/docker/",
+                          target: "/var/lib/docker",
+                          readOnly: true,
+                        },
+                        # {
+                        #   type: "bind",
+                        #   source: '/dev/disk',
+                        #   target: "/dev/disk",
+                        #   readOnly: true,
+                        # },
+                      ],
+                    networksAdvanced:
+                      [
+                        {
+                          name: "${monitoringNetwork.name}",
+                          aliases: ["${CADVISOR_NETWORK_ALIAS}"],
+                        },
+                      ],
+                    restart: "${CONTAINER_RESTART_POLICY}",
+                  },
+                options: {},
+              },
+            # # Loki
+            lokiImage:
+              {
+                type: docker:RemoteImage,
+                properties: { name: "${LOKI_IMAGE_TAG}" },
+                options: {},
+              },
+            lokiContainer:
+              {
+                type: docker:Container,
+                properties:
+                  {
+                    name: "${projectName}-observability-loki-container-${stackName}",
+                    image: "${lokiImage.imageId}",
+                    mounts:
+                      [
+                        {
+                          type: "bind",
+                          source: "${pulumi.cwd}/${lokiConfigFileDir}",
+                          target: "/etc/loki/local-config.yaml",
+                        },
+                      ],
+                    command: ["-config.file=/etc/loki/local-config.yaml"],
+                    networksAdvanced:
+                      [
+                        {
+                          name: "${monitoringNetwork.name}",
+                          aliases: ["${LOKI_NETWORK_ALIAS}"],
+                        },
+                      ],
+                    restart: "${CONTAINER_RESTART_POLICY}",
+                  },
+                options:
+                  {
+                    dependsOn:
+                      ["${generateConfigFiles}", "${createObservabilityDirs}"],
+                  },
+              },
+            # # Promtail
+            promtailImage:
+              {
+                type: docker:RemoteImage,
+                properties: { name: "${PROMTAIL_IMAGE_TAG}" },
+                options: {},
+              },
+            promtailContainer:
+              {
+                type: docker:Container,
+                properties:
+                  {
+                    name: "${projectName}-observability-promtail-container-${stackName}",
+                    image: "${promtailImage.imageId}",
+                    mounts:
+                      [
+                        {
+                          type: "bind",
+                          source: "${pulumi.cwd}/${promtailConfigFileDir}",
+                          target: "/etc/promtail/config.yaml",
+                        },
+                        {
+                          type: "bind",
+                          source: "/var/log",
+                          target: "/var/log",
+                        },
+                        {
+                          type: "bind",
+                          source: "/var/lib/docker/containers",
+                          target: "/var/lib/docker/containers",
+                          readOnly: true,
+                        },
+                        {
+                          type: "bind",
+                          source: "/var/run/docker.sock",
+                          target: "/var/run/docker.sock",
+                          readOnly: true,
+                        },
+                      ],
+                    command: ["-config.file=/etc/promtail/config.yaml"],
+                    networksAdvanced:
+                      [
+                        {
+                          name: "${monitoringNetwork.name}",
+                          aliases: ["${PROMTAIL_NETWORK_ALIAS}"],
+                        },
+                      ],
+                    restart: "${CONTAINER_RESTART_POLICY}",
+                  },
+                options:
+                  {
+                    dependsOn:
+                      [
+                        "${generateConfigFiles}",
+                        "${createObservabilityDirs}",
+                        "${lokiContainer}",
+                      ],
+                  },
+              },
+            # # Grafana
+            grafanaImage:
+              {
+                type: docker:RemoteImage,
+                properties: { name: "${GRAFANA_IMAGE_TAG}" },
+                options: {},
+              },
+            grafanaContainer:
+              {
+                type: docker:Container,
+                properties:
+                  {
+                    name: "${projectName}-observability-grafana-container-${stackName}",
+                    image: "${grafanaImage.imageId}",
+                    mounts:
+                      [
+                        {
+                          type: "volume",
+                          source: "${GRAFANA_VOLUME_NAME}",
+                          target: "/var/lib/grafana",
+                        },
+                        {
+                          type: "bind",
+                          source: "${pulumi.cwd}/${grafanaConfigDir}/provisioning",
+                          target: "/etc/grafana/provisioning",
+                        },
+                      ],
+                    envs:
+                      [
+                        "GF_SECURITY_ADMIN_USER=${grafanaAdminUser}",
+                        "GF_SECURITY_ADMIN_PASSWORD=${grafanaAdminPassword}",
+                        "GF_USERS_ALLOW_SIGN_UP=${GRAFANA_ALLOW_SIGNUP}",
+                        "GF_SERVER_HTTP_PORT=${grafanaInternalPort}",
+                        "GF_SERVER_DOMAIN=${domainName}",
+                        "GF_SERVER_SERVE_FROM_SUB_PATH=true",
+                        "GF_SERVER_ROOT_URL=http://${domainName}/grafana/",
+                      ],
+                    networksAdvanced:
+                      [
+                        {
+                          name: "${projectName}-network",
+                          aliases: ["${GRAFANA_NETWORK_ALIAS}"],
+                        },
+                        {
+                          name: "${monitoringNetwork.name}",
+                          aliases: ["${GRAFANA_NETWORK_ALIAS}"],
+                        },
+                      ],
+                    restart: "${CONTAINER_RESTART_POLICY}",
+                    labels:
+                      [
+                        { label: "traefik.enable", value: "true" },
+                        {
+                          label: "traefik.http.services.grafana.loadbalancer.server.port",
+                          value: "${grafanaInternalPort}"
+                        },
+                        {
+                          label: "traefik.http.routers.grafana.rule",
+                          value: "Host(`${domainName}`) && PathPrefix(`/grafana`)"
+                        },
+                        {
+                          label: "traefik.http.routers.grafana.entrypoints",
+                          value: "${traefikRouterEntrypoint}"
+                        }
+                      ],
+                  },
+                options:
+                  {
+                    dependsOn:
+                      ["${generateConfigFiles}", "${createObservabilityDirs}"],
+                  },
+              },
+            # Alertmanager
+            alertmanagerImage:
+              {
+                type: docker:RemoteImage,
+                properties: { name: "${ALERTMANAGER_IMAGE_TAG}" },
+                options: {},
+              },
+            alertmanagerContainer:
+              {
+                type: docker:Container,
+                properties:
+                  {
+                    name: "${projectName}-observability-alertmanager-container-${stackName}",
+                    image: "${alertmanagerImage.imageId}",
+                    mounts:
+                      [
+                        {
+                          type: "bind",
+                          source: "${pulumi.cwd}/${alertmanagerConfigFileDir}",
+                          target: "/etc/alertmanager/alertmanager.yaml",
+                        },
+                        {
+                          type: "bind",
+                          source: "${pulumi.cwd}/observation/alertmanager-email-templates",
+                          target: "/etc/alertmanager/templates",
+                        },
+                        {
+                          type: "volume",
+                          source: "${ALERTMANAGER_VOLUME_NAME}",
+                          target: "/alertmanager",
+                        },
+                      ],
+                    command:
+                      [
+                        "--config.file=/etc/alertmanager/alertmanager.yaml",
+                        "--storage.path=/alertmanager",
+                      ],
+                    networksAdvanced:
+                      [
+                        {
+                          name: "${monitoringNetwork.name}",
+                          aliases: ["${ALERTMANAGER_NETWORK_ALIAS}"],
+                        },
+                      ],
+                    restart: "${CONTAINER_RESTART_POLICY}",
+                  },
+                options:
+                  {
+                    dependsOn:
+                      ["${generateConfigFiles}", "${createObservabilityDirs}"],
+                  },
+              },
+            # Postgres-Exporter
+            postgresExporterImage:
+              {
+                type: docker:RemoteImage,
+                properties: { name: "${POSTGRES_EXPORTER_IMAGE_TAG}" },
+                options: {},
+              },
+            postgresExporterContainer:
+              {
+                type: docker:Container,
+                properties:
+                  {
+                    name: "${projectName}-observability-postgres-exporter-container-${stackName}",
+                    image: "${postgresExporterImage.imageId}",
+                    envs: ["DATA_SOURCE_NAME=${databaseUrl}?sslmode=disable"],
+                    networksAdvanced:
+                      [
+                        {
+                          name: "${projectName}-network",
+                          aliases: ["${POSTGRES_EXPORTER_NETWORK_ALIAS}"],
+                        },
+                        {
+                          name: "${monitoringNetwork.name}",
+                          aliases: ["${POSTGRES_EXPORTER_NETWORK_ALIAS}"],
+                        },
+                      ],
+                    restart: "${CONTAINER_RESTART_POLICY}",
+                  },
+                options: { dependsOn: ["${prometheusContainer}"] },
+              },
+            # Postgres-Exporter
+            # nginxExporterImage:
+            #   {
+            #     type: docker:RemoteImage,
+            #     properties: { name: "${NGINX_EXPORTER_IMAGE_TAG}" },
+            #     options: {},
+            #   },
+            # nginxExporterContainer:
+            #   {
+            #     type: docker:Container,
+            #     properties:
+            #       {
+            #         name: "${projectName}-observability-nginx-exporter-container-${stackName}",
+            #         image: "${nginxExporterImage.imageId}",
+            #         command:
+            #           [
+            #             "--nginx.scrape-uri=http://${nginxNetworkAlias}:${nginxStubStatusPort}/stub_status",
+            #           ],
+            #         networksAdvanced:
+            #           [
+            #             {
+            #               name: "${projectName}-network",
+            #               aliases: ["${NGINX_EXPORTER_NETWORK_ALIAS}"],
+            #             },
+            #             {
+            #               name: "${monitoringNetwork.name}",
+            #               aliases: ["${NGINX_EXPORTER_NETWORK_ALIAS}"],
+            #             },
+            #           ],
+            #         restart: "${CONTAINER_RESTART_POLICY}",
+            #       },
+            #     options: { dependsOn: ["${prometheusContainer}"] },
+            #   },
+            # # Create monitoring network
+            monitoringNetwork:
+              {
+                type: docker:Network,
+                properties:
+                  {
+                    name: "${projectName}-observability-${MONITORING_NETWORK_NAME}",
+                  },
+                options: {},
+              },
+            # # Create volumes
+            prometheusVolume:
+              {
+                type: docker:Volume,
+                properties: { name: "${PROMETHEUS_VOLUME_NAME}" },
+                options: {},
+              },
+            # lokiVolume:
+            #   {
+            #     type: docker:Volume,
+            #     properties: { name: "${LOKI_VOLUME_NAME}" },
+            #     options: {},
+            #   },
+            # grafanaVolume:
+            #   {
+            #     type: docker:Volume,
+            #     properties: { name: "${GRAFANA_VOLUME_NAME}" },
+            #     options: {},
+            #   },
+            # alertmanagerVolume:
+            #   {
+            #     type: docker:Volume,
+            #     properties: { name: "${ALERTMANAGER_VOLUME_NAME}" },
+            #     options: {},
+            #   },
+          },
+        variables:
+          {
+            PROMETHEUS_IMAGE_TAG: "prom/prometheus:latest",
+            NODE_EXPORTER_IMAGE_TAG: "quay.io/prometheus/node-exporter:latest",
+            CADVISOR_IMAGE_TAG: "gcr.io/cadvisor/cadvisor",
+            LOKI_IMAGE_TAG: "grafana/loki:latest",
+            PROMTAIL_IMAGE_TAG: "grafana/promtail:latest",
+            GRAFANA_IMAGE_TAG: "grafana/grafana:latest",
+            ALERTMANAGER_IMAGE_TAG: "quay.io/prometheus/alertmanager:latest",
+            POSTGRES_EXPORTER_IMAGE_TAG: "quay.io/prometheuscommunity/postgres-exporter:latest",
+            # NGINX_EXPORTER_IMAGE_TAG: "nginx/nginx-prometheus-exporter:latest",
+            PROMETHEUS_CONFIG_DIR: "prometheus",
+            LOKI_CONFIG_DIR: "loki",
+            PROMTAIL_CONFIG_DIR: "promtail",
+            GRAFANA_CONFIG_DIR: "grafana",
+            ALERTMANAGER_CONFIG_DIR: "alertmanager",
+            MONITORING_NETWORK_NAME: "monitoring-network",
+            CONTAINER_RESTART_POLICY: "unless-stopped",
+            GRAFANA_ALLOW_SIGNUP: "false",
+            PROMETHEUS_VOLUME_NAME: "${projectName}-observability-prometheus-volume-${stackName}",
+            LOKI_VOLUME_NAME: "${projectName}-observability-loki-volume-${stackName}",
+            GRAFANA_VOLUME_NAME: "${projectName}-observability-grafana-volume-${stackName}",
+            ALERTMANAGER_VOLUME_NAME: "${projectName}-observability-alertmanager-volume-${stackName}",
+            PROMETHEUS_NETWORK_ALIAS: "prometheus",
+            LOKI_NETWORK_ALIAS: "loki",
+            GRAFANA_NETWORK_ALIAS: "grafana",
+            ALERTMANAGER_NETWORK_ALIAS: "alertmanager",
+            NODE_EXPORTER_NETWORK_ALIAS: "node-exporter",
+            CADVISOR_NETWORK_ALIAS: "cadvisor",
+            PROMTAIL_NETWORK_ALIAS: "promtail",
+            POSTGRES_EXPORTER_NETWORK_ALIAS: "postgres-exporter",
+            # NGINX_EXPORTER_NETWORK_ALIAS: "nginx-exporter",
+          },
+        outputs: { projectName: "${projectName}" },
+      },
+  }

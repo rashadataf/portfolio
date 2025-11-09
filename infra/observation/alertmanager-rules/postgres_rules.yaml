@@ -1,0 +1,72 @@
+groups:
+  - name: postgres_alerts
+    rules:
+      - alert: PostgresqlDown
+        expr: absent(pg_up{job="postgres"})
+        for: 1m
+        labels:
+          severity: critical
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL instance has been down for more than 1 minute."
+
+      - alert: PostgresqlHighConnections
+        expr: sum(pg_stat_activity_count) > pg_settings_max_connections * 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "High PostgreSQL connections"
+          description: "PostgreSQL instance is using more than 80% of available connections for the last 5 minutes."
+
+      - alert: PostgresqlSlowQueries
+        expr: avg(rate(pg_stat_activity_max_tx_duration{datname!~"template.*"}[5m])) > 30
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "Slow PostgreSQL queries"
+          description: "PostgreSQL queries are taking more than 30 seconds on average for the last 5 minutes."
+
+      - alert: PostgresqlHighCpuUsage
+        expr: rate(process_cpu_seconds_total{job="postgres"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "High PostgreSQL CPU usage"
+          description: "PostgreSQL is using more than 80% CPU for the last 5 minutes."
+
+      - alert: PostgresqlHighDiskUsage
+        expr: (1 - (node_filesystem_avail_bytes{mountpoint=~"/var/lib/postgresql/data"} / node_filesystem_size_bytes{mountpoint=~"/var/lib/postgresql/data"})) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "High PostgreSQL disk usage"
+          description: "PostgreSQL disk usage is above 85% for the last 5 minutes."
+
+      - alert: PostgresqlReplicationLag
+        expr: pg_stat_replication_lag_bytes > 10000000
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL replication lag"
+          description: "PostgreSQL replication lag is more than 10MB for the last 5 minutes."
+
+      - alert: PostgresqlTooManyDeadlocks
+        expr: rate(pg_stat_database_deadlocks{datname!~"template.*"}[5m]) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "Too many PostgreSQL deadlocks"
+          description: "PostgreSQL has detected more than 0.2 deadlocks per second for the last 5 minutes."
