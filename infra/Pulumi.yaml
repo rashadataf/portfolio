@@ -331,12 +331,12 @@ resources: {
                   value: "${APP_PORT}",
                 },
                 {
-                  label: "traefik.http.routers.portfolio.entrypoints",
-                  value: "websecure",
-                },
-                {
                   label: "traefik.http.routers.portfolio.rule",
                   value: "Host(`${PORTFOLIO_HOST}`)",
+                },
+                {
+                  label: "traefik.http.routers.portfolio.entrypoints",
+                  value: "web, websecure",
                 },
                 {
                   label: "traefik.http.routers.portfolio.tls",
@@ -346,7 +346,6 @@ resources: {
                   label: "traefik.http.routers.portfolio.tls.certresolver",
                   value: "letsencrypt",
                 },
-                # HTTP -> HTTPS redirect (keeps ACME httpChallenge working on web entrypoint)
                 {
                   label: "traefik.http.middlewares.https-redirect.redirectscheme.scheme",
                   value: "https",
@@ -356,15 +355,7 @@ resources: {
                   value: "true",
                 },
                 {
-                  label: "traefik.http.routers.portfolio-http.entrypoints",
-                  value: "web",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-http.rule",
-                  value: "Host(`${PORTFOLIO_HOST}`)",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-http.middlewares",
+                  label: "traefik.http.routers.portfolio.middlewares",
                   value: "https-redirect",
                 },
               ],
