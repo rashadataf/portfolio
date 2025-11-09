@@ -331,12 +331,12 @@ resources: {
                   value: "${APP_PORT}",
                 },
                 {
-                  label: "traefik.http.routers.portfolio.rule",
-                  value: "Host(`${PORTFOLIO_HOST}`)",
+                  label: "traefik.http.routers.portfolio.entrypoints",
+                  value: "websecure",
                 },
                 {
-                  label: "traefik.http.routers.portfolio.entrypoints",
-                  value: "web, websecure",
+                  label: "traefik.http.routers.portfolio.rule",
+                  value: "Host(`${PORTFOLIO_HOST}`, `www.${PORTFOLIO_HOST}`)",
                 },
                 {
                   label: "traefik.http.routers.portfolio.tls",
@@ -347,16 +347,30 @@ resources: {
                   value: "letsencrypt",
                 },
                 {
-                  label: "traefik.http.middlewares.https-redirect.redirectscheme.scheme",
-                  value: "https",
+                  label: "traefik.http.routers.portfolio.tls.domains[0].main",
+                  value: "${PORTFOLIO_HOST}",
                 },
                 {
-                  label: "traefik.http.middlewares.https-redirect.redirectscheme.permanent",
+                  label: "traefik.http.routers.portfolio.tls.domains[0].sans",
+                  value: "www.${PORTFOLIO_HOST}",
+                },
+                # HTTP -> HTTPS redirect is handled by the entrypoint config
+                # Middleware for www to non-www redirection
+                {
+                  label: "traefik.http.middlewares.www-redirect.redirectregex.regex",
+                  value: "^https://www\\\\.(.*)",
+                },
+                {
+                  label: "traefik.http.middlewares.www-redirect.redirectregex.replacement",
+                  value: "https://$1",
+                },
+                {
+                  label: "traefik.http.middlewares.www-redirect.redirectregex.permanent",
                   value: "true",
                 },
                 {
                   label: "traefik.http.routers.portfolio.middlewares",
-                  value: "https-redirect",
+                  value: "www-redirect",
                 },
               ],
           },
