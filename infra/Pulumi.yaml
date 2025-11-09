@@ -250,21 +250,21 @@ resources: {
                 "TRAEFIK_LOG_LEVEL=INFO",
                 "TRAEFIK_PROVIDERS_DOCKER=true",
                 "TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false",
-                "TRAEFIK_API_DASHBOARD=true", # enable for debugging (set back to false later)
-                "TRAEFIK_API_INSECURE=true", # allows access at :8080 (remove in hardening)
                 "TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:${HTTP_PORT}",
                 "TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:${HTTPS_PORT}",
-                "TRAEFIK_ENTRYPOINTS_METRICS_ADDRESS=:${TRAEFIK_METRICS_PORT}",
-                "TRAEFIK_METRICS_PROMETHEUS=true",
-                "TRAEFIK_METRICS_PROMETHEUS_ENTRYPOINT=metrics",
-                "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ACME_EMAIL}",
-                "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/data/acme.json",
-                # v2 correct HTTP challenge declaration (keep ONLY this)
-                "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
-                # Global HTTP->HTTPS redirect
+
+                # Global HTTP -> HTTPS redirect
                 "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure",
                 "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME=https",
                 "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_PERMANENT=true",
+
+                # ACME resolver (name: letsencrypt) using HTTP-01
+                "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ADMIN_EMAIL}",
+                "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/data/acme.json",
+                "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
+                # Optional dashboard (debug only)
+                # "TRAEFIK_API_DASHBOARD=true",
+                # "TRAEFIK_API_INSECURE=true",
               ],
             mounts:
               [
@@ -332,14 +332,14 @@ resources: {
                   value: "${APP_PORT}",
                 },
 
-                # HTTP router for ACME reachability (non‑TLS)
+                # HTTP router (for ACME reachability)
                 {
                   label: "traefik.http.routers.portfolio.entrypoints",
                   value: "web",
                 },
                 {
                   label: "traefik.http.routers.portfolio.rule",
-                  value: "Host(`${PORTFOLIO_HOST}`) || Host(`www.${PORTFOLIO_HOST}`)",
+                  value: "Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)",
                 },
                 {
                   label: "traefik.http.routers.portfolio.middlewares",
@@ -357,7 +357,7 @@ resources: {
                 },
                 {
                   label: "traefik.http.routers.portfolio-secure.rule",
-                  value: "Host(`${PORTFOLIO_HOST}`) || Host(`www.${PORTFOLIO_HOST}`)",
+                  value: "Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)",
                 },
                 {
                   label: "traefik.http.routers.portfolio-secure.tls",
