@@ -258,8 +258,11 @@ resources: {
                 # ACME settings (used when ENABLE_TLS=true and routers set tls=true)
                 "TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_EMAIL=${ACME_EMAIL}",
                 "TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_STORAGE=/data/acme.json",
-                "TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_HTTPCHALLENGE=true",
+                # HTTP challenge entrypoint (the 'true' flag line was invalid and removed)
                 "TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
+                # Optional: direct entrypoint-level redirect (still keep middleware for clarity)
+                "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure",
+                "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_PERMANENT=true",
               ],
             mounts:
               [
@@ -329,7 +332,7 @@ resources: {
                 },
                 {
                   label: "traefik.http.routers.portfolio.entrypoints",
-                  value: "${ROUTER_ENTRYPOINT}",
+                  value: "websecure",
                 },
                 {
                   label: "traefik.http.routers.portfolio.rule",
