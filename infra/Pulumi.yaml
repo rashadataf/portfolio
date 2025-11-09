@@ -250,19 +250,18 @@ resources: {
                 "TRAEFIK_LOG_LEVEL=INFO",
                 "TRAEFIK_PROVIDERS_DOCKER=true",
                 "TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false",
-                "TRAEFIK_API_DASHBOARD=false",
-                "TRAEFIK_API_INSECURE=true",
+                "TRAEFIK_API_DASHBOARD=true", # enable for debugging (set back to false later)
+                "TRAEFIK_API_INSECURE=true", # allows access at :8080 (remove in hardening)
                 "TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:${HTTP_PORT}",
                 "TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:${HTTPS_PORT}",
                 "TRAEFIK_ENTRYPOINTS_METRICS_ADDRESS=:${TRAEFIK_METRICS_PORT}",
                 "TRAEFIK_METRICS_PROMETHEUS=true",
                 "TRAEFIK_METRICS_PROMETHEUS_ENTRYPOINT=metrics",
-                # Let's Encrypt ACME configuration
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ACME_EMAIL}",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/data/acme.json",
-                "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE=true",
+                # v2 correct HTTP challenge declaration (keep ONLY this)
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
-                # Global HTTP to HTTPS redirect
+                # Global HTTP->HTTPS redirect
                 "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure",
                 "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME=https",
                 "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_PERMANENT=true",
@@ -332,7 +331,26 @@ resources: {
                   label: "traefik.http.services.portfolio.loadbalancer.server.port",
                   value: "${APP_PORT}",
                 },
-                # Router for HTTPS traffic
+
+                # HTTP router for ACME reachability (non‑TLS)
+                {
+                  label: "traefik.http.routers.portfolio.entrypoints",
+                  value: "web",
+                },
+                {
+                  label: "traefik.http.routers.portfolio.rule",
+                  value: "Host(`${PORTFOLIO_HOST}`) || Host(`www.${PORTFOLIO_HOST}`)",
+                },
+                {
+                  label: "traefik.http.routers.portfolio.middlewares",
+                  value: "www-redirect@docker",
+                },
+                {
+                  label: "traefik.http.routers.portfolio.service",
+                  value: "portfolio",
+                },
+
+                # HTTPS router
                 {
                   label: "traefik.http.routers.portfolio-secure.entrypoints",
                   value: "websecure",
@@ -353,15 +371,11 @@ resources: {
                   label: "traefik.http.routers.portfolio-secure.service",
                   value: "portfolio",
                 },
-                # Apply www-redirect middleware to HTTPS router
-                {
-                  label: "traefik.http.routers.portfolio-secure.middlewares",
-                  value: "www-redirect@docker",
-                },
-                # Middleware for www to non-www redirection
+
+                # WWW → apex redirect middleware (works for http/https)
                 {
                   label: "traefik.http.middlewares.www-redirect.redirectregex.regex",
-                  value: "^https://www\\\\.(.+)",
+                  value: "^https?://www\\\\.(.+)",
                 },
                 {
                   label: "traefik.http.middlewares.www-redirect.redirectregex.replacement",
