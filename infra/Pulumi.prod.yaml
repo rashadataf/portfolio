@@ -69,7 +69,7 @@ config:
   portfolio-infra:POSTGRES_EXPORTER_EXTERNAL_PORT: "9187"
   portfolio-infra:POSTGRES_EXPORTER_INTERNAL_PORT: "9187"
   portfolio-infra:POSTGRES_PASSWORD:
-    secure: AAABALskUqfdRzkDYSKS67vp6cpKq8CEqWOjyrnE8plpFd2GoEGgFt6v+cuZO0H8j8kJPa9r
+    secure: AAABAJLqc2Sx1Qj15A5eIP8J7iBpM9CcFJs4zVJ/sPGs7UvMXLgUjuPBOSC2XyhUdA/p6SqloaURTlvlMoV3iw==
   portfolio-infra:POSTGRES_PORT:
     secure: AAABAAseUHYX+CG2I0g6seEKt6l8R6YXgMP9db2l7tpg2zq0
   portfolio-infra:POSTGRES_USER:
