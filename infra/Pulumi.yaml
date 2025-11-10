@@ -271,8 +271,6 @@ resources: {
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ADMIN_EMAIL}",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/data/acme.json",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
-                # FIX: Add the ACME log level to help with debugging certificate issues
-                "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_LOGLEVEL=DEBUG",
                 # Optional dashboard (debug only)
                 # "TRAEFIK_API_DASHBOARD=true",
                 # "TRAEFIK_API_INSECURE=true",
@@ -386,7 +384,7 @@ resources: {
                   label: "traefik.http.middlewares.www-redirect.redirectregex.permanent",
                   value: "true",
                 },
-                
+
                 # FIX: Add a separate router for the www-redirect middleware
                 # This ensures the redirect is applied correctly and allows the main router to handle both domains for certificate issuance.
                 {
@@ -413,7 +411,10 @@ resources: {
                   value: "portfolio",
                 },
                 # FIX: Ensure the redirect router also uses the same TLS settings
-                { label: "traefik.http.routers.www-redirect-router.tls", value: "true" },
+                {
+                  label: "traefik.http.routers.www-redirect-router.tls",
+                  value: "true",
+                },
                 {
                   label: "traefik.http.routers.www-redirect-router.tls.certresolver",
                   value: "letsencrypt",
