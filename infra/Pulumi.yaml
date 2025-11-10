@@ -255,7 +255,7 @@ resources: {
                 { internal: "${HTTP_PORT}", external: "${HTTP_PORT}" },
                 { internal: "${HTTPS_PORT}", external: "${HTTPS_PORT}" },
                 # Add Traefik API port for debugging
-                { internal: "8080", external: "8080" }
+                { internal: 8080, external: 8080 }
               ],
             envs: [
                 "TRAEFIK_LOG_LEVEL=DEBUG", # Changed to DEBUG for troubleshooting
