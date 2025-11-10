@@ -186,6 +186,15 @@ resources: {
 
     traefikData:
       { type: "docker:Volume", properties: { name: "traefik-data" } },
+    createAcmeFile:
+      {
+        type: "command:local:Command",
+        properties:
+          {
+            create: "touch acme.json && chmod 600 acme.json",
+            delete: "rm acme.json",
+          },
+      },
     postgresDataVolume:
       {
         type: "docker:Volume",
@@ -279,6 +288,11 @@ resources: {
                   source: "${traefikData.name}",
                   target: "/data",
                 },
+                {
+                  type: "bind",
+                  source: "${pulumi.cwd}/acme.json",
+                  target: "/data/acme.json",
+                },
               ],
             networksAdvanced:
               [{ name: "${appNetwork.name}", aliases: ["${TRAEFIK_ALIAS}"] }],
@@ -332,44 +346,27 @@ resources: {
                   value: "${APP_PORT}",
                 },
 
-                # HTTP router (for ACME reachability)
+                # Combined router for both apex and www domains
                 {
                   label: "traefik.http.routers.portfolio.entrypoints",
-                  value: "web",
+                  value: "websecure",
                 },
                 {
                   label: "traefik.http.routers.portfolio.rule",
                   value: "Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)",
                 },
                 {
-                  label: "traefik.http.routers.portfolio.middlewares",
-                  value: "www-redirect@docker",
-                },
-                {
                   label: "traefik.http.routers.portfolio.service",
                   value: "portfolio",
                 },
-
-                # HTTPS router
+                { label: "traefik.http.routers.portfolio.tls", value: "true" },
                 {
-                  label: "traefik.http.routers.portfolio-secure.entrypoints",
-                  value: "websecure",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-secure.rule",
-                  value: "Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-secure.tls",
-                  value: "true",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-secure.tls.certresolver",
+                  label: "traefik.http.routers.portfolio.tls.certresolver",
                   value: "letsencrypt",
                 },
                 {
-                  label: "traefik.http.routers.portfolio-secure.service",
-                  value: "portfolio",
+                  label: "traefik.http.routers.portfolio.middlewares",
+                  value: "www-redirect@docker",
                 },
 
                 # WWW → apex redirect middleware (works for http/https)
