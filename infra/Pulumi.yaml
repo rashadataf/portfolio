@@ -271,6 +271,8 @@ resources: {
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ADMIN_EMAIL}",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/data/acme.json",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
+                # FIX: Add the ACME log level to help with debugging certificate issues
+                "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_LOGLEVEL=DEBUG",
                 # Optional dashboard (debug only)
                 # "TRAEFIK_API_DASHBOARD=true",
                 # "TRAEFIK_API_INSECURE=true",
@@ -364,10 +366,12 @@ resources: {
                   label: "traefik.http.routers.portfolio.tls.certresolver",
                   value: "letsencrypt",
                 },
-                {
-                  label: "traefik.http.routers.portfolio.middlewares",
-                  value: "www-redirect@docker",
-                },
+                # FIX: Remove the www-redirect middleware from the main router
+                # The redirect is now handled by a separate router/middleware combination
+                # {
+                #   label: "traefik.http.routers.portfolio.middlewares",
+                #   value: "www-redirect@docker",
+                # },
 
                 # WWW → apex redirect middleware (works for http/https)
                 {
@@ -381,6 +385,38 @@ resources: {
                 {
                   label: "traefik.http.middlewares.www-redirect.redirectregex.permanent",
                   value: "true",
+                },
+                
+                # FIX: Add a separate router for the www-redirect middleware
+                # This ensures the redirect is applied correctly and allows the main router to handle both domains for certificate issuance.
+                {
+                  label: "traefik.http.routers.www-redirect-router.entrypoints",
+                  value: "websecure",
+                },
+                {
+                  label: "traefik.http.routers.www-redirect-router.rule",
+                  value: "Host(`www.${DOMAIN_NAME}`)",
+                },
+                {
+                  label: "traefik.http.routers.www-redirect-router.middlewares",
+                  value: "www-redirect@docker",
+                },
+                # FIX: Set priority to ensure the redirect router is checked before the main router
+                {
+                  label: "traefik.http.routers.www-redirect-router.priority",
+                  value: "100",
+                },
+                # FIX: The redirect router does not need a service, but Traefik requires one.
+                # We can point it to a dummy service or the main service. Let's point it to the main service.
+                {
+                  label: "traefik.http.routers.www-redirect-router.service",
+                  value: "portfolio",
+                },
+                # FIX: Ensure the redirect router also uses the same TLS settings
+                { label: "traefik.http.routers.www-redirect-router.tls", value: "true" },
+                {
+                  label: "traefik.http.routers.www-redirect-router.tls.certresolver",
+                  value: "letsencrypt",
                 },
               ],
           },
