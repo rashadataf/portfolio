@@ -7,6 +7,7 @@ components:
         inputs:
           {
             projectName: { type: "string", default: "observability" },
+            appNetworkName: { type: "string", default: "app-network" },
             stackName: { type: "string", default: "dev" },
             prometheusInternalPort: { type: "integer", default: 9090 },
             prometheusExternalPort: { type: "integer", default: 9090 },
@@ -66,7 +67,8 @@ components:
             lokiTenantId: { type: "string", default: "1" },
             lokiAuthUsername: { type: "string", secret: true },
             lokiAuthPassword: { type: "string", secret: true },
-            traefikMetricsUrl: { type: "string", default: "traefik:4318/v1/metrics" },
+            traefikMetricsUrl:
+              { type: "string", default: "traefik:4318/v1/metrics" },
             traefikRouterEntrypoint: { type: "string", default: "web" },
             databaseUrl: { type: "string", default: "" },
             postgresExporterInternalPort: { type: "integer", default: 9187 },
@@ -192,7 +194,7 @@ components:
                     networksAdvanced:
                       [
                         {
-                          name: "${projectName}-network",
+                          name: "${appNetworkName}",
                           aliases: ["${PROMETHEUS_NETWORK_ALIAS}"],
                         },
                         {
@@ -437,7 +439,7 @@ components:
                     networksAdvanced:
                       [
                         {
-                          name: "${projectName}-network",
+                          name: "${appNetworkName}",
                           aliases: ["${GRAFANA_NETWORK_ALIAS}"],
                         },
                         {
@@ -539,7 +541,7 @@ components:
                     networksAdvanced:
                       [
                         {
-                          name: "${projectName}-network",
+                          name: "${appNetworkName}",
                           aliases: ["${POSTGRES_EXPORTER_NETWORK_ALIAS}"],
                         },
                         {
@@ -572,7 +574,7 @@ components:
             #         networksAdvanced:
             #           [
             #             {
-            #               name: "${projectName}-network",
+            #               name: "${appNetworkName}",
             #               aliases: ["${NGINX_EXPORTER_NETWORK_ALIAS}"],
             #             },
             #             {

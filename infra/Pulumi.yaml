@@ -175,13 +175,14 @@ variables:
     TRAEFIK_METRICS_PORT: "${TRAEFIK_METRICS_PORT}",
     FRONTEND_CONTAINER_NAME: "${pulumi.project}-portfolio-${pulumi.stack}",
     TRAEFIK_ALIAS: "traefik",
+    APP_NETWORK_NAME: "${pulumi.project}-network",
   }
 
 resources: {
     appNetwork:
       {
         type: "docker:Network",
-        properties: { name: "${pulumi.project}-network" },
+        properties: { name: "${APP_NETWORK_NAME}" },
       },
 
     traefikData:
@@ -226,7 +227,7 @@ resources: {
                 },
               ],
             networksAdvanced:
-              [{ name: "${appNetwork.name}", aliases: ["postgres"] }],
+              [{ name: "${APP_NETWORK_NAME}", aliases: ["postgres"] }],
             restart: "unless-stopped",
             healthcheck:
               {
@@ -261,7 +262,7 @@ resources: {
                 "TRAEFIK_LOG_LEVEL=DEBUG", # Changed to DEBUG for troubleshooting
                 "TRAEFIK_PROVIDERS_DOCKER=true",
                 "TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false",
-                "TRAEFIK_PROVIDERS_DOCKER_NETWORK=${appNetwork.name}",
+                "TRAEFIK_PROVIDERS_DOCKER_NETWORK=${APP_NETWORK_NAME}",
                 
                 # Entrypoints
                 "TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:${HTTP_PORT}",
@@ -296,7 +297,7 @@ resources: {
                 },
               ],
             networksAdvanced:
-              [{ name: "${appNetwork.name}", aliases: ["${TRAEFIK_ALIAS}"] }],
+              [{ name: "${APP_NETWORK_NAME}", aliases: ["${TRAEFIK_ALIAS}"] }],
           },
         options: { dependsOn: ["${createAcmeFile}"] },
       },
@@ -336,7 +337,7 @@ resources: {
                 "AUTH_BASE_PATH=${AUTH_BASE_PATH}",
                 "AUTH_URL=${AUTH_URL}",
               ],
-            networksAdvanced: [{ name: "${appNetwork.name}" }],
+            networksAdvanced: [{ name: "${APP_NETWORK_NAME}" }],
             labels: [
                 { label: "traefik.enable", value: "true" },
                 {
@@ -473,8 +474,9 @@ resources: {
             postgresExporterExternalPort: "${POSTGRES_EXPORTER_EXTERNAL_PORT}",
             traefikRouterEntrypoint: "${ROUTER_ENTRYPOINT}",
             frontendNetworkAlias: "${FRONTEND_CONTAINER_NAME}",
-            traefikMetricsUrl: "${TRAEFIK_ALIAS}:${TRAEFIK_METRICS_PORT}/v1/metrics",
+            traefikMetricsUrl: "${TRAEFIK_ALIAS}:${TRAEFIK_METRICS_PORT}",
             frontendPort: "${APP_PORT}",
+            appNetworkName: "${APP_NETWORK_NAME}"
           },
       },
   }
