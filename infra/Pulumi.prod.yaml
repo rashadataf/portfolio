@@ -61,7 +61,7 @@ config:
   portfolio-infra:NODE_EXPORTER_EXTERNAL_PORT: "9100"
   portfolio-infra:NODE_EXPORTER_INTERNAL_PORT: "9100"
   portfolio-infra:PORTFOLIO_BUILD_CONTEXT: ../app
-  portfolio-infra:PORTFOLIO_BUILD_PHASE_TARGET: development
+  portfolio-infra:PORTFOLIO_BUILD_PHASE_TARGET: production
   portfolio-infra:PORTFOLIO_IMAGE_NAME: portfolio_image
   portfolio-infra:PORTFOLIO_WORKDIR_PATH: /portfolio/app
   portfolio-infra:POSTGRES_DB:
@@ -86,3 +86,4 @@ config:
   portfolio-infra:PROMTAIL_POSITIONS_FILE: /tmp/positions.yaml
   portfolio-infra:ROUTER_ENTRYPOINT: websecure
   portfolio-infra:TRAEFIK_METRICS_PORT: "4318"
+  portfolio-infra:ENV_TYPE: production

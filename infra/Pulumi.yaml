@@ -325,7 +325,7 @@ resources: {
             image: "${portfolioImage.imageId}",
             restart: "always",
             envs: [
-                "NODE_ENV=${NODE_ENV}",
+                "NODE_ENV=${ENV_TYPE}",
                 "DATABASE_URL=${DATABASE_URL}",
                 "PORT=${APP_PORT}",
                 "ADMIN_EMAIL=${ADMIN_EMAIL}",
