@@ -268,11 +268,6 @@ resources: {
                 "TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:${HTTP_PORT}",
                 "TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:${HTTPS_PORT}",
 
-                # Global HTTP -> HTTPS redirect
-                "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure",
-                "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME=https",
-                "TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_PERMANENT=true",
-
                 # ACME resolver (Let's Encrypt)
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ADMIN_EMAIL}",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/data/acme.json",
@@ -348,7 +343,7 @@ resources: {
                 # Main router for apex domain
                 {
                   label: "traefik.http.routers.portfolio.entrypoints",
-                  value: "websecure",
+                  value: "${ROUTER_ENTRYPOINT}",
                 },
                 {
                   label: "traefik.http.routers.portfolio.rule",
@@ -360,7 +355,7 @@ resources: {
                 },
                 { 
                   label: "traefik.http.routers.portfolio.tls", 
-                  value: "true" 
+                  value: "${ENABLE_TLS}" 
                 },
                 {
                   label: "traefik.http.routers.portfolio.tls.certresolver",
@@ -370,7 +365,7 @@ resources: {
                 # Router for www subdomain
                 {
                   label: "traefik.http.routers.portfolio-www.entrypoints",
-                  value: "websecure",
+                  value: "${ROUTER_ENTRYPOINT}",
                 },
                 {
                   label: "traefik.http.routers.portfolio-www.rule",
@@ -382,35 +377,11 @@ resources: {
                 },
                 { 
                   label: "traefik.http.routers.portfolio-www.tls", 
-                  value: "true" 
+                  value: "${ENABLE_TLS}" 
                 },
                 {
                   label: "traefik.http.routers.portfolio-www.tls.certresolver",
                   value: "letsencrypt",
-                },
-
-                # Redirect from HTTP to HTTPS for both domains
-                {
-                  label: "traefik.http.routers.portfolio-redirect.entrypoints",
-                  value: "web",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-redirect.rule",
-                  value: "Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-redirect.middlewares",
-                  value: "redirect-to-https",
-                },
-
-                # HTTPS redirect middleware
-                {
-                  label: "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme",
-                  value: "https",
-                },
-                {
-                  label: "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent",
-                  value: "true",
                 },
               ],
           },
