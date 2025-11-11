@@ -444,6 +444,7 @@ resources: {
             postgresExporterInternalPort: "${POSTGRES_EXPORTER_INTERNAL_PORT}",
             postgresExporterExternalPort: "${POSTGRES_EXPORTER_EXTERNAL_PORT}",
             traefikRouterEntrypoint: "${ROUTER_ENTRYPOINT}",
+            enableTls: "${ENABLE_TLS}",
             frontendNetworkAlias: "${FRONTEND_CONTAINER_NAME}",
             traefikMetricsUrl: "${TRAEFIK_ALIAS}:${TRAEFIK_METRICS_PORT}",
             frontendPort: "${APP_PORT}",

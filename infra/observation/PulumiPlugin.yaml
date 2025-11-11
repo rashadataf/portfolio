@@ -70,6 +70,7 @@ components:
             traefikMetricsUrl:
               { type: "string", default: "traefik:4318/v1/metrics" },
             traefikRouterEntrypoint: { type: "string", default: "web" },
+            enableTls: { type: "boolean", default: false },
             databaseUrl: { type: "string", default: "" },
             postgresExporterInternalPort: { type: "integer", default: 9187 },
             postgresExporterExternalPort: { type: "integer", default: 9187 },
@@ -434,7 +435,7 @@ components:
                         "GF_SERVER_HTTP_PORT=${grafanaInternalPort}",
                         "GF_SERVER_DOMAIN=${domainName}",
                         "GF_SERVER_SERVE_FROM_SUB_PATH=true",
-                        "GF_SERVER_ROOT_URL=http://${domainName}/grafana/",
+                        "GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/",
                       ],
                     networksAdvanced:
                       [
@@ -462,6 +463,18 @@ components:
                         {
                           label: "traefik.http.routers.grafana.entrypoints",
                           value: "${traefikRouterEntrypoint}",
+                        },
+                        {
+                          label: "traefik.http.routers.grafana.service",
+                          value: "grafana",
+                        },
+                        {
+                          label: "traefik.http.routers.grafana.priority",
+                          value: "100",
+                        },
+                        {
+                          label: "traefik.http.routers.grafana.tls",
+                          value: "${enableTls}",
                         },
                       ],
                   },
