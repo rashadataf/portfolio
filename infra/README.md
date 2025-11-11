@@ -75,13 +75,13 @@ Certificates and ACME account details are stored by Traefik in a Docker volume (
 # From repo root
 cd infra
 pulumi stack init dev || true
-pulumi config set portfolio-infra:PORTFOLIO_HOST localhost
-pulumi config set portfolio-infra:ENABLE_TLS false
-pulumi config set portfolio-infra:ROUTER_ENTRYPOINT web
+pulumi config set PORTFOLIO_HOST localhost
+pulumi config set ENABLE_TLS false
+pulumi config set ROUTER_ENTRYPOINT web
 # Required DB secrets (sample)
-pulumi config set --secret portfolio-infra:POSTGRES_USER postgres
-pulumi config set --secret portfolio-infra:POSTGRES_PASSWORD example
-pulumi config set --secret portfolio-infra:POSTGRES_DB portfolio
+pulumi config set --secret POSTGRES_USER postgres
+pulumi config set --secret POSTGRES_PASSWORD example
+pulumi config set --secret POSTGRES_DB portfolio
 pulumi up
 ```
 
