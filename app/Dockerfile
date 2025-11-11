@@ -1,14 +1,12 @@
 FROM node:20.18.0 AS base
 
-ARG WORKDIR_PATH
+ARG PORTFOLIO_WORKDIR_PATH
 
-WORKDIR $WORKDIR_PATH
+WORKDIR $PORTFOLIO_WORKDIR_PATH
 
 COPY package.json yarn.lock ./
 
-RUN yarn add sharp --ignore-engines
-
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
 COPY . .
 

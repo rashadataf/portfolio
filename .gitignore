@@ -49,3 +49,18 @@ postgres_data/
 
 # prometheus
 prometheus_data/
+
+# traefik
+traefik-data/
+
+# observation component config files
+alertmanager.yaml
+prometheus.yaml
+loki.yaml
+promtail.yaml
+
+
+# Log files
+*.log
+*.out
+*.err

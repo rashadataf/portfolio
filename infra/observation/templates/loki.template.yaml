@@ -1,0 +1,40 @@
+auth_enabled: ${LOKI_AUTH_ENABLED}
+
+server:
+  http_listen_port: ${LOKI_INTERNAL_PORT}
+  grpc_listen_port: ${LOKI_GRPC_PORT}
+
+common:
+  instance_addr: ${LOKI_INSTANCE_ADDRESS}
+  path_prefix: ${LOKI_PATH_PREFIX}
+  storage:
+    filesystem:
+      chunks_directory: ${LOKI_CHUNKS_DIR}
+      rules_directory: ${LOKI_RULES_DIR}
+  replication_factor: ${LOKI_REPLICATION_FACTOR}
+  ring:
+    kvstore:
+      store: ${LOKI_KVSTORE}
+
+query_range:
+  results_cache:
+    cache:
+      embedded_cache:
+        enabled: true
+        max_size_mb: 100
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+ruler:
+  alertmanager_url: ${LOKI_ALERTMANAGER_URL}
+
+analytics:
+  reporting_enabled: false

@@ -1,0 +1,64 @@
+global:
+  resolve_timeout: ${ALERTMANAGER_RESOLVE_TIMEOUT}
+  smtp_smarthost: "${ALERTMANAGER_SMART_HOST}"
+  smtp_from: "${ALERTMANAGER_EMAIL_FROM}"
+  smtp_auth_username: "${ALERTMANAGER_SMTP_USERNAME}"
+  smtp_auth_password: "${ALERTMANAGER_SMTP_PASSWORD}"
+  smtp_require_tls: true
+
+templates:
+  - "/etc/alertmanager/templates/*.tmpl"
+
+route:
+  group_by: ["alertname", "job", "severity"]
+  group_wait: ${ALERTMANAGER_GROUP_WAIT}
+  group_interval: ${ALERTMANAGER_GROUP_INTERVAL}
+  repeat_interval: ${ALERTMANAGER_REPEAT_INTERVAL}
+  receiver: "email-notifications"
+  routes:
+    - match:
+        severity: critical
+      receiver: "email-critical"
+      group_wait: 10s
+      repeat_interval: 1h
+      continue: true
+    - match:
+        severity: warning
+      receiver: "email-warning"
+      continue: true
+    - match:
+        severity: info
+      receiver: "email-notifications"
+
+receivers:
+  - name: "email-notifications"
+    email_configs:
+      - to: "${ALERTMANAGER_EMAIL_TO}"
+        send_resolved: true
+        headers:
+          subject: "[ALERT] {{ .GroupLabels.alertname }} - {{ .GroupLabels.service }}"
+        html: '{{ template "email.default.html" . }}'
+
+  # Add these missing receivers
+  - name: "email-critical"
+    email_configs:
+      - to: "${ALERTMANAGER_EMAIL_TO}" # Or a different email for critical alerts
+        send_resolved: true
+        headers:
+          subject: "[CRITICAL] {{ .GroupLabels.alertname }} - {{ .GroupLabels.service }}"
+        html: '{{ template "email.critical.html" . }}'
+
+  - name: "email-warning"
+    email_configs:
+      - to: "${ALERTMANAGER_EMAIL_TO}" # Or a different email for warnings
+        send_resolved: true
+        headers:
+          subject: "[WARNING] {{ .GroupLabels.alertname }} - {{ .GroupLabels.service }}"
+        html: '{{ template "email.warning.html" . }}'
+
+inhibit_rules:
+  - source_match:
+      severity: "critical"
+    target_match:
+      severity: "warning"
+    equal: ["alertname", "service"]

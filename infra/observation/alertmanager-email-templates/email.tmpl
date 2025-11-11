@@ -1,0 +1,372 @@
+{{ define "email.default.html" }}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ .GroupLabels.alertname }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .alert-header {
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border-left: 8px solid;
+    }
+    .alert-critical {
+      border-left-color: #cc0000;
+      background-color: #ffebeb;
+    }
+    .alert-warning {
+      border-left-color: #ff9900;
+      background-color: #fff8e6;
+    }
+    .alert-info {
+      border-left-color: #3366cc;
+      background-color: #ebf4ff;
+    }
+    .alert-resolved {
+      border-left-color: #009900;
+      background-color: #e6ffe6;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .alert-details {
+      margin-bottom: 30px;
+    }
+    .footer {
+      font-size: 12px;
+      color: #666;
+      margin-top: 30px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+    .priority {
+      font-weight: bold;
+    }
+    .critical { color: #cc0000; }
+    .warning { color: #ff9900; }
+    .info { color: #3366cc; }
+    .resolved { color: #009900; }
+  </style>
+</head>
+<body>
+  {{ $severity := .CommonLabels.severity }}
+  <div class="alert-header 
+      {{- if eq .Status "firing" -}}
+        {{- if eq $severity "critical"}} alert-critical
+        {{- else if eq $severity "warning"}} alert-warning
+        {{- else if eq $severity "info"}} alert-info
+        {{- else}} alert-warning{{- end -}}
+      {{- else -}} alert-resolved{{- end -}}">
+    
+    <h2>
+      <span class="{{ if eq .Status "firing" }}{{ $severity }}{{ else }}resolved{{ end }}">
+        {{ .Status | toUpper }} 
+        {{ .Alerts.Firing | len }} alert(s) for {{ .GroupLabels.alertname }}
+      </span>
+    </h2>
+    <p>Service: {{ .CommonLabels.service }}</p>
+    <p>Severity: {{ $severity | toUpper }}</p>
+  </div>
+
+  <div class="alert-details">
+    {{ if gt (len .Alerts.Firing) 0 }}
+    <h3>Firing Alerts:</h3>
+    <table>
+      <tr>
+        <th>Alert</th>
+        <th>Summary</th>
+        <th>Started</th>
+      </tr>
+      {{ range .Alerts.Firing }}
+      <tr>
+        <td>{{ .Labels.alertname }}</td>
+        <td>{{ .Annotations.summary }}</td>
+        <td>{{ .StartsAt.Format "2006-01-02 15:04:05" }}</td>
+      </tr>
+      <tr>
+        <td colspan="3">{{ .Annotations.description }}</td>
+      </tr>
+      {{ end }}
+    </table>
+    {{ end }}
+
+    {{ if gt (len .Alerts.Resolved) 0 }}
+    <h3>Resolved Alerts:</h3>
+    <table>
+      <tr>
+        <th>Alert</th>
+        <th>Summary</th>
+        <th>Resolved</th>
+      </tr>
+      {{ range .Alerts.Resolved }}
+      <tr>
+        <td>{{ .Labels.alertname }}</td>
+        <td>{{ .Annotations.summary }}</td>
+        <td>{{ .EndsAt.Format "2006-01-02 15:04:05" }}</td>
+      </tr>
+      {{ end }}
+    </table>
+    {{ end }}
+  </div>
+
+  <div class="footer">
+    <p>This is an automated alert from Alertmanager. Please do not reply to this email.</p>
+    <p>Generated at: {{ (index .Alerts 0).StartsAt.Format "2006-01-02 15:04:05" }}</p>
+  </div>
+</body>
+</html>
+{{ end }}
+
+{{ define "email.critical.html" }}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ .Status | toUpper }} CRITICAL: {{ .GroupLabels.alertname }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .alert-header {
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border-left: 8px solid;
+    }
+    .alert-critical {
+      border-left-color: #cc0000;
+      background-color: #ffebeb;
+    }
+    .alert-warning {
+      border-left-color: #ff9900;
+      background-color: #fff8e6;
+    }
+    .alert-info {
+      border-left-color: #3366cc;
+      background-color: #ebf4ff;
+    }
+    .alert-resolved {
+      border-left-color: #009900;
+      background-color: #e6ffe6;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .alert-details {
+      margin-bottom: 30px;
+    }
+    .footer {
+      font-size: 12px;
+      color: #666;
+      margin-top: 30px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+    .priority {
+      font-weight: bold;
+    }
+    .critical { color: #cc0000; }
+    .warning { color: #ff9900; }
+    .info { color: #3366cc; }
+    .resolved { color: #009900; }
+  </style>
+</head>
+<body>
+  <div class="alert-header {{ if eq .Status "firing" }}alert-critical{{ else }}alert-resolved{{ end }}">
+    <h1 class="priority {{ if eq .Status "firing" }}critical{{ else }}resolved{{ end }}">
+      {{ .Status | toUpper }} CRITICAL: {{ .GroupLabels.alertname }}
+    </h1>
+    <p>Service: {{ .CommonLabels.service }}</p>
+    <p>Priority: URGENT - Immediate action required</p>
+  </div>
+
+  <!-- Same alert details as default template -->
+  {{ template "alert_details" . }}
+  
+  <div class="footer">
+    <p>This is an automated critical alert from Alertmanager.</p>
+    <p>Generated at: {{ (index .Alerts 0).StartsAt.Format "2006-01-02 15:04:05" }}</p>
+  </div>
+</body>
+</html>
+{{ end }}
+
+{{ define "email.warning.html" }}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ .Status | toUpper }} WARNING: {{ .GroupLabels.alertname }}</title>
+  <style>
+    /* Same CSS as default template */
+  </style>
+</head>
+<body>
+  <div class="alert-header {{ if eq .Status "firing" }}alert-warning{{ else }}alert-resolved{{ end }}">
+    <h1 class="priority {{ if eq .Status "firing" }}warning{{ else }}resolved{{ end }}">
+      {{ .Status | toUpper }} WARNING: {{ .GroupLabels.alertname }}
+    </h1>
+    <p>Service: {{ .CommonLabels.service }}</p>
+    <p>Priority: Attention required</p>
+  </div>
+
+  <!-- Same alert details as default template -->
+  {{ template "alert_details" . }}
+  
+  <div class="footer">
+    <p>This is an automated warning from Alertmanager.</p>
+    <p>Generated at: {{ (index .Alerts 0).StartsAt.Format "2006-01-02 15:04:05" }}</p>
+  </div>
+</body>
+</html>
+{{ end }}
+
+{{ define "alert_details" }}
+  <div class="alert-details">
+    {{ if gt (len .Alerts.Firing) 0 }}
+    <h3>{{ if eq .Status "firing" }}Active{{ else }}Previously{{ end }} Firing Alerts:</h3>
+    <table>
+      <tr>
+        <th>Alert</th>
+        <th>Summary</th>
+        <th>Started</th>
+      </tr>
+      {{ range .Alerts.Firing }}
+      <tr>
+        <td>{{ .Labels.alertname }}</td>
+        <td>{{ .Annotations.summary }}</td>
+        <td>{{ .StartsAt.Format "2006-01-02 15:04:05" }}</td>
+      </tr>
+      <tr>
+        <td colspan="3">{{ .Annotations.description }}</td>
+      </tr>
+      {{ end }}
+    </table>
+    {{ end }}
+
+    {{ if gt (len .Alerts.Resolved) 0 }}
+    <h3>Resolved Alerts:</h3>
+    <table>
+      <tr>
+        <th>Alert</th>
+        <th>Summary</th>
+        <th>Resolved</th>
+      </tr>
+      {{ range .Alerts.Resolved }}
+      <tr>
+        <td>{{ .Labels.alertname }}</td>
+        <td>{{ .Annotations.summary }}</td>
+        <td>{{ .EndsAt.Format "2006-01-02 15:04:05" }}</td>
+      </tr>
+      {{ end }}
+    </table>
+    {{ end }}
+  </div>
+{{ end }}
+
+
+
+curl -X POST -H "Content-Type: application/json" -d '[
+  {
+    "labels": {
+      "alertname": "TestCriticalAlert",
+      "severity": "critical",
+      "service": "test-service"
+    },
+    "annotations": {
+      "summary": "TEST: Critical alert triggered",
+      "description": "This is a test alert for verification"
+    },
+    "startsAt": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+  }
+]' http://localhost:9093/api/v2/alerts
+
+
+
+
+
+
+curl -X POST -H "Content-Type: application/json" -d '[
+  {
+    "labels": {
+      "alertname": "TestCriticalAlert",
+      "severity": "warning",
+      "service": "test-service"
+    },
+    "annotations": {
+      "summary": "TEST: Critical alert triggered",
+      "description": "This is a test alert for verification"
+    },
+    "startsAt": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+  }
+]' http://localhost:9093/api/v2/alerts
+
+
+
+
+
+
+curl -X POST -H "Content-Type: application/json" -d '[
+  {
+    "labels": {
+      "alertname": "TestCriticalAlert",
+      "severity": "info",
+      "service": "test-service"
+    },
+    "annotations": {
+      "summary": "TEST: Critical alert triggered",
+      "description": "This is a test alert for verification"
+    },
+    "startsAt": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+  }
+]' http://localhost:9093/api/v2/alerts
+
+
+
+
+
+
+curl -X POST -H "Content-Type: application/json" -d '[
+  {
+    "labels": {
+      "alertname": "TestCriticalAlert",
+      "severity": "resolved",
+      "service": "test-service"
+    },
+    "annotations": {
+      "summary": "TEST: Critical alert triggered",
+      "description": "This is a test alert for verification"
+    },
+    "startsAt": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+  }
+]' http://localhost:9093/api/v2/alerts
