@@ -33,6 +33,7 @@ config:
       { type: "string", default: "portfolio_built_image" },
     "PORTFOLIO_BUILD_PHASE_TARGET": { type: "string", default: "development" },
     "ENABLE_TLS": { type: "boolean", default: false },
+    "PROTOCOL": { type: "string", default: "http" },
     "ROUTER_ENTRYPOINT": { type: "string", default: "web" },
     "PROMETHEUS_INTERNAL_PORT": { type: "string", default: "9090" },
     "PROMETHEUS_EXTERNAL_PORT": { type: "string", default: "9090" },
@@ -113,7 +114,9 @@ variables:
     AUTH_SECRET: "${AUTH_SECRET}",
     AUTH_TRUST_HOST: "${AUTH_TRUST_HOST}",
     AUTH_BASE_PATH: "${AUTH_BASE_PATH}",
-    AUTH_URL: "https://${DOMAIN_NAME}/auth",
+    PROTOCOL: "${PROTOCOL}",
+    ENABLE_TLS: "${ENABLE_TLS}",
+    AUTH_URL: "${PROTOCOL}://${DOMAIN_NAME}/auth",
 
     PORTFOLIO_IMAGE_NAME: "${PORTFOLIO_IMAGE_NAME}",
     APP_PORT: "${APP_PORT}",
@@ -121,7 +124,6 @@ variables:
     PORTFOLIO_BUILD_CONTEXT: "${PORTFOLIO_BUILD_CONTEXT}",
     PORTFOLIO_WORKDIR_PATH: "${PORTFOLIO_WORKDIR_PATH}",
     PORTFOLIO_BUILD_PHASE_TARGET: "${PORTFOLIO_BUILD_PHASE_TARGET}",
-    ENABLE_TLS: "${ENABLE_TLS}",
     ROUTER_ENTRYPOINT: "${ROUTER_ENTRYPOINT}",
     ACME_EMAIL: "${ADMIN_EMAIL}",
     PROMETHEUS_INTERNAL_PORT: "${PROMETHEUS_INTERNAL_PORT}",
@@ -178,12 +180,10 @@ variables:
     APP_NETWORK_NAME: "${pulumi.project}-network",
   }
 
-resources: {
+resources:
+  {
     appNetwork:
-      {
-        type: "docker:Network",
-        properties: { name: "${APP_NETWORK_NAME}" },
-      },
+      { type: "docker:Network", properties: { name: "${APP_NETWORK_NAME}" } },
 
     traefikData:
       { type: "docker:Volume", properties: { name: "traefik-data" } },
@@ -251,19 +251,18 @@ resources: {
             name: "${pulumi.project}-traefik-${pulumi.stack}",
             image: "${traefikImage.imageId}",
             restart: "always",
-            ports:
-              [
+            ports: [
                 { internal: "${HTTP_PORT}", external: "${HTTP_PORT}" },
                 { internal: "${HTTPS_PORT}", external: "${HTTPS_PORT}" },
                 # Add Traefik API port for debugging
-                { internal: 8080, external: 8080 }
+                { internal: 8080, external: 8080 },
               ],
             envs: [
                 "TRAEFIK_LOG_LEVEL=DEBUG", # Changed to DEBUG for troubleshooting
                 "TRAEFIK_PROVIDERS_DOCKER=true",
                 "TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false",
                 "TRAEFIK_PROVIDERS_DOCKER_NETWORK=${APP_NETWORK_NAME}",
-                
+
                 # Entrypoints
                 "TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:${HTTP_PORT}",
                 "TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:${HTTPS_PORT}",
@@ -272,7 +271,7 @@ resources: {
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ADMIN_EMAIL}",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/data/acme.json",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
-                
+
                 # Enable API and Dashboard for debugging
                 "TRAEFIK_API_DASHBOARD=true",
                 "TRAEFIK_API_INSECURE=true",
@@ -321,7 +320,8 @@ resources: {
             name: "${FRONTEND_CONTAINER_NAME}",
             image: "${portfolioImage.imageId}",
             restart: "always",
-            envs: [
+            envs:
+              [
                 "NODE_ENV=${ENV_TYPE}",
                 "DATABASE_URL=${DATABASE_URL}",
                 "PORT=${APP_PORT}",
@@ -353,9 +353,9 @@ resources: {
                   label: "traefik.http.routers.portfolio.service",
                   value: "portfolio",
                 },
-                { 
-                  label: "traefik.http.routers.portfolio.tls", 
-                  value: "${ENABLE_TLS}" 
+                {
+                  label: "traefik.http.routers.portfolio.tls",
+                  value: "${ENABLE_TLS}",
                 },
                 {
                   label: "traefik.http.routers.portfolio.tls.certresolver",
@@ -375,9 +375,9 @@ resources: {
                   label: "traefik.http.routers.portfolio-www.service",
                   value: "portfolio",
                 },
-                { 
-                  label: "traefik.http.routers.portfolio-www.tls", 
-                  value: "${ENABLE_TLS}" 
+                {
+                  label: "traefik.http.routers.portfolio-www.tls",
+                  value: "${ENABLE_TLS}",
                 },
                 {
                   label: "traefik.http.routers.portfolio-www.tls.certresolver",
@@ -448,7 +448,7 @@ resources: {
             frontendNetworkAlias: "${FRONTEND_CONTAINER_NAME}",
             traefikMetricsUrl: "${TRAEFIK_ALIAS}:${TRAEFIK_METRICS_PORT}",
             frontendPort: "${APP_PORT}",
-            appNetworkName: "${APP_NETWORK_NAME}"
+            appNetworkName: "${APP_NETWORK_NAME}",
           },
       },
   }
