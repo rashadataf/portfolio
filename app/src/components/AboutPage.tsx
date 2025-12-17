@@ -10,6 +10,7 @@ import { Loader } from "@/components/Loader";
 import { Skill as SkillType, SkillCategory } from '@/modules/skill/skill.entity';
 import { Experience as ExperienceType } from '@/modules/experience/experience.entity';
 import { Education as EducationType } from '@/modules/education/education.entity';
+import { Profile } from '@/modules/profile/profile.entity';
 
 
 
@@ -25,9 +26,10 @@ interface AboutPageProps {
     skills?: SkillType[];
     experiences?: ExperienceType[];
     educations?: EducationType[];
+    profile?: Profile;
 }
 
-export const AboutPage = ({ skills = [], experiences = [], educations = [] }: AboutPageProps) => {
+export const AboutPage = ({ skills = [], experiences = [], educations = [], profile }: AboutPageProps) => {
     useEffect(
         () => {
             trackPageVisit('About');
@@ -43,18 +45,24 @@ export const AboutPage = ({ skills = [], experiences = [], educations = [] }: Ab
             <Section id='about-me' ariaLabelledBy='about-me-header' className="text-center">
                 <h1 id="about-me-header" className="text-5xl font-bold my-6 sm:my-12">About Me</h1>
                 <div className="container mx-auto px-4 mt-6 text-left">
-                    <p className="text-base sm:text-xl leading-relaxed max-w-prose mx-auto">
-                        Embarking on my programming journey in 2010,
-                        I began with Visual Basic 6 during my high school years.
-                        Since then, my passion for technology has led me to a Bachelor&apos;s degree in Computer Engineering and over five years of professional experience in the tech industry.
-                        Currently, I am part of the <Link className='text-accent-color font-bold' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer">ZIM Connections</Link> team,
-                        where I continue to hone my expertise in various JavaScript technologies,
-                        frameworks, and libraries.
-                        My career has been marked by a rapid adaptation to new challenges and a commitment to innovative problem-solving.
-                        With a keen interest in continuous learning and skill development,
-                        I consistently seek out opportunities to grow and excel in the ever-evolving landscape of software development.
-
-                    </p>
+                    {profile?.aboutEn ? (
+                        <div
+                            className="text-base sm:text-xl leading-relaxed max-w-prose mx-auto"
+                            dangerouslySetInnerHTML={{ __html: profile.aboutEn }}
+                        />
+                    ) : (
+                        <p className="text-base sm:text-xl leading-relaxed max-w-prose mx-auto">
+                            Embarking on my programming journey in 2010,
+                            I began with Visual Basic 6 during my high school years.
+                            Since then, my passion for technology has led me to a Bachelor&apos;s degree in Computer Engineering and over five years of professional experience in the tech industry.
+                            Currently, I am part of the <Link className='text-accent-color font-bold' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer">ZIM Connections</Link> team,
+                            where I continue to hone my expertise in various JavaScript technologies,
+                            frameworks, and libraries.
+                            My career has been marked by a rapid adaptation to new challenges and a commitment to innovative problem-solving.
+                            With a keen interest in continuous learning and skill development,
+                            I consistently seek out opportunities to grow and excel in the ever-evolving landscape of software development.
+                        </p>
+                    )}
                 </div>
                 <div className="container mx-auto px-8 py-10 flex flex-wrap justify-between items-center">
                     {/* <div className="w-full md:w-1/2 flex justify-center">
@@ -73,15 +81,15 @@ export const AboutPage = ({ skills = [], experiences = [], educations = [] }: Ab
                         <dl>
                             <div className="mt-2">
                                 <dt className="text-lg font-medium">Happy Clients:</dt>
-                                <dd className="text-lg text-accent-color font-semibold">100+</dd>
+                                <dd className="text-lg text-accent-color font-semibold">{profile?.happyClients ? `${profile.happyClients}+` : '100+'}</dd>
                             </div>
                             <div>
                                 <dt className="text-lg font-medium">Projects Completed:</dt>
-                                <dd className="text-lg text-accent-color font-semibold">200+</dd>
+                                <dd className="text-lg text-accent-color font-semibold">{profile?.projectsCompleted ? `${profile.projectsCompleted}+` : '200+'}</dd>
                             </div>
                             <div>
                                 <dt className="text-lg font-medium">Years of Experience:</dt>
-                                <dd className="text-lg text-accent-color font-semibold">5</dd>
+                                <dd className="text-lg text-accent-color font-semibold">{profile?.yearsOfExperience || '5'}</dd>
                             </div>
                         </dl>
                     </Section>

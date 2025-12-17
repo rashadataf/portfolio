@@ -3,6 +3,7 @@ import { AboutPage } from '@/components/AboutPage';
 import { getAllSkills } from '@/modules/skill/skill.controller';
 import { getAllExperiences } from '@/modules/experience/experience.controller';
 import { getAllEducations } from '@/modules/education/education.controller';
+import { getProfile } from '@/modules/profile/profile.controller';
 
 export const metadata: Metadata = {
     title: "About Rashad Ataf - Full Stack Developer",
@@ -17,6 +18,7 @@ export default async function About() {
     const { data: skills } = await getAllSkills();
     const { data: experiences } = await getAllExperiences();
     const { data: educations } = await getAllEducations();
-    return <AboutPage skills={skills} experiences={experiences} educations={educations} />
+    const { data: profile } = await getProfile();
+    return <AboutPage skills={skills} experiences={experiences} educations={educations} profile={profile} />
 }
 

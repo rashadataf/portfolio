@@ -8,6 +8,10 @@ interface ProfileRow {
     headline: string;
     bio_en: string;
     bio_ar: string;
+    about_en: string;
+    happy_clients: number;
+    projects_completed: number;
+    years_of_experience: number;
     resume_url: string;
     contact_email: string;
     hero_image_url: string;
@@ -22,6 +26,10 @@ export class ProfileRepository {
             headline: row.headline,
             bioEn: row.bio_en,
             bioAr: row.bio_ar,
+            aboutEn: row.about_en,
+            happyClients: row.happy_clients,
+            projectsCompleted: row.projects_completed,
+            yearsOfExperience: row.years_of_experience,
             resumeUrl: row.resume_url,
             contactEmail: row.contact_email,
             heroImageUrl: row.hero_image_url,
@@ -53,6 +61,22 @@ export class ProfileRepository {
         if (data.bioAr !== undefined) {
             fields.push(`bio_ar = $${paramIndex++}`);
             values.push(data.bioAr);
+        }
+        if (data.aboutEn !== undefined) {
+            fields.push(`about_en = $${paramIndex++}`);
+            values.push(data.aboutEn);
+        }
+        if (data.happyClients !== undefined) {
+            fields.push(`happy_clients = $${paramIndex++}`);
+            values.push(data.happyClients);
+        }
+        if (data.projectsCompleted !== undefined) {
+            fields.push(`projects_completed = $${paramIndex++}`);
+            values.push(data.projectsCompleted);
+        }
+        if (data.yearsOfExperience !== undefined) {
+            fields.push(`years_of_experience = $${paramIndex++}`);
+            values.push(data.yearsOfExperience);
         }
         if (data.resumeUrl !== undefined) {
             fields.push(`resume_url = $${paramIndex++}`);

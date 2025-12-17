@@ -4,6 +4,10 @@ export interface Profile {
     headline: string;
     bioEn: string;
     bioAr: string;
+    aboutEn: string;
+    happyClients: number;
+    projectsCompleted: number;
+    yearsOfExperience: number;
     resumeUrl: string;
     contactEmail: string;
     heroImageUrl: string;
@@ -20,6 +24,10 @@ export class ProfileEntity {
             headline VARCHAR(255),
             bio_en TEXT,
             bio_ar TEXT,
+            about_en TEXT,
+            happy_clients INTEGER DEFAULT 0,
+            projects_completed INTEGER DEFAULT 0,
+            years_of_experience INTEGER DEFAULT 0,
             resume_url VARCHAR(255),
             contact_email VARCHAR(255),
             hero_image_url VARCHAR(255),

@@ -56,6 +56,10 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
                 headline: formData.headline,
                 bioEn: formData.bioEn,
                 bioAr: formData.bioAr,
+                aboutEn: formData.aboutEn,
+                happyClients: Number(formData.happyClients),
+                projectsCompleted: Number(formData.projectsCompleted),
+                yearsOfExperience: Number(formData.yearsOfExperience),
                 resumeUrl: formData.resumeUrl,
                 contactEmail: formData.contactEmail,
                 heroImageUrl: formData.heroImageUrl,
@@ -105,6 +109,63 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
                     placeholder="Your bio in English..."
                 />
+            </div>
+
+            <div className="space-y-2">
+                <label htmlFor="aboutEn" className="block text-sm font-medium text-gray-700">
+                    About Me (English)
+                </label>
+                <textarea
+                    id="aboutEn"
+                    name="aboutEn"
+                    value={formData.aboutEn || ''}
+                    onChange={handleChange}
+                    rows={6}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
+                    placeholder="Detailed about me text..."
+                />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                    <label htmlFor="happyClients" className="block text-sm font-medium text-gray-700">
+                        Happy Clients
+                    </label>
+                    <input
+                        type="number"
+                        id="happyClients"
+                        name="happyClients"
+                        value={formData.happyClients || 0}
+                        onChange={handleChange}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label htmlFor="projectsCompleted" className="block text-sm font-medium text-gray-700">
+                        Projects Completed
+                    </label>
+                    <input
+                        type="number"
+                        id="projectsCompleted"
+                        name="projectsCompleted"
+                        value={formData.projectsCompleted || 0}
+                        onChange={handleChange}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-gray-700">
+                        Years of Experience
+                    </label>
+                    <input
+                        type="number"
+                        id="yearsOfExperience"
+                        name="yearsOfExperience"
+                        value={formData.yearsOfExperience || 0}
+                        onChange={handleChange}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
+                    />
+                </div>
             </div>
 
             <div className="space-y-2">
