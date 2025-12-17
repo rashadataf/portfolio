@@ -87,3 +87,4 @@ config:
   portfolio-infra:ROUTER_ENTRYPOINT: websecure
   portfolio-infra:TRAEFIK_METRICS_PORT: "4318"
   portfolio-infra:ENV_TYPE: production
+  portfolio-infra:PROTOCOL: https
