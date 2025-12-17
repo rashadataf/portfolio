@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { AboutPage } from '@/components/AboutPage';
 import { getAllSkills } from '@/modules/skill/skill.controller';
 import { getAllExperiences } from '@/modules/experience/experience.controller';
+import { getAllEducations } from '@/modules/education/education.controller';
 
 export const metadata: Metadata = {
     title: "About Rashad Ataf - Full Stack Developer",
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 export default async function About() {
     const { data: skills } = await getAllSkills();
     const { data: experiences } = await getAllExperiences();
-    return <AboutPage skills={skills} experiences={experiences} />
+    const { data: educations } = await getAllEducations();
+    return <AboutPage skills={skills} experiences={experiences} educations={educations} />
 }
 

@@ -9,6 +9,7 @@ import { Education } from '@/components/Education';
 import { Loader } from "@/components/Loader";
 import { Skill as SkillType, SkillCategory } from '@/modules/skill/skill.entity';
 import { Experience as ExperienceType } from '@/modules/experience/experience.entity';
+import { Education as EducationType } from '@/modules/education/education.entity';
 
 
 
@@ -23,9 +24,10 @@ const Section = dynamic(() =>
 interface AboutPageProps {
     skills?: SkillType[];
     experiences?: ExperienceType[];
+    educations?: EducationType[];
 }
 
-export const AboutPage = ({ skills = [], experiences = [] }: AboutPageProps) => {
+export const AboutPage = ({ skills = [], experiences = [], educations = [] }: AboutPageProps) => {
     useEffect(
         () => {
             trackPageVisit('About');
@@ -136,9 +138,17 @@ export const AboutPage = ({ skills = [], experiences = [] }: AboutPageProps) => 
                 <div className="container mx-auto px-4 py-6">
                     <h2 id="education-header" className="text-4xl mb-4 sm:text-6xl font-semibold text-center">Education</h2>
                     <div className="relative border-l-2 border-accent-color pl-5 md:pl-20 w-full">
-                        <article>
-                            <Education degree='Bachelor' field='Computer Sceincs' from='SEP 2012' to='SEP 2019' institution='Tishreen University' />
-                        </article>
+                        {educations.map((edu, index) => (
+                            <article key={index}>
+                                <Education
+                                    degree={edu.degree}
+                                    field={edu.field}
+                                    from={edu.startDate}
+                                    to={edu.endDate}
+                                    institution={edu.institution}
+                                />
+                            </article>
+                        ))}
                     </div>
                 </div>
             </Section>
