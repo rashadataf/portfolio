@@ -240,9 +240,12 @@ resources:
           },
         options: { dependsOn: ["${postgresDataVolume}"] },
       },
+    nodeModulesVolume:
+      { type: "docker:Volume", properties: { name: "portfolio_node_modules" } },
+    nextBuildVolume:
+      { type: "docker:Volume", properties: { name: "portfolio_next_build" } },
     traefikImage:
       { type: "docker:RemoteImage", properties: { name: "traefik:v2.11" } },
-
     traefik:
       {
         type: "docker:Container",
@@ -331,6 +334,24 @@ resources:
                 "AUTH_TRUST_HOST=${AUTH_TRUST_HOST}",
                 "AUTH_BASE_PATH=${AUTH_BASE_PATH}",
                 "AUTH_URL=${AUTH_URL}",
+              ],
+            mounts: [
+                # Add volume for persistent uploads
+                {
+                  type: "bind",
+                  source: "${pulumi.cwd}/../app",
+                  target: "${PORTFOLIO_WORKDIR_PATH}",
+                },
+                {
+                  type: "volume",
+                  source: "${nodeModulesVolume.name}",
+                  target: "${PORTFOLIO_WORKDIR_PATH}/node_modules",
+                },
+                {
+                  type: "volume",
+                  source: "${nextBuildVolume.name}",
+                  target: "${PORTFOLIO_WORKDIR_PATH}/.next",
+                },
               ],
             networksAdvanced: [{ name: "${APP_NETWORK_NAME}" }],
             labels: [
