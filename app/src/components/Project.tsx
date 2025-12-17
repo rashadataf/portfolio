@@ -69,7 +69,7 @@ export const Project = ({
             </div>
             <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
                 <h3 className="text-accent-color text-lg font-bold mb-3">{title}</h3>
-                <p className="text-secondary">{description}</p>
+                <p className="text-primary">{description}</p>
             </Modal>
         </div>
     );

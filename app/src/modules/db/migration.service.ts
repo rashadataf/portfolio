@@ -7,6 +7,7 @@ import { ProfileEntity } from '@/modules/profile/profile.entity';
 import { SkillEntity } from '@/modules/skill/skill.entity';
 import { ExperienceEntity } from '@/modules/experience/experience.entity';
 import { EducationEntity } from '@/modules/education/education.entity';
+import { ProjectEntity } from '@/modules/project/project.entity';
 
 export class MigrationService {
 
@@ -18,6 +19,7 @@ export class MigrationService {
       ...SkillEntity.initializeTable(),
       ...ExperienceEntity.initializeTable(),
       ...EducationEntity.initializeTable(),
+      ...ProjectEntity.initializeTable(),
     ];
 
     for (const query of queries) {
