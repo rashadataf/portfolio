@@ -5,6 +5,7 @@ import { UserEntity } from '@/modules/user/user.entity';
 import { ArticleEntity } from '@/modules/article/article.entity';
 import { ProfileEntity } from '@/modules/profile/profile.entity';
 import { SkillEntity } from '@/modules/skill/skill.entity';
+import { ExperienceEntity } from '@/modules/experience/experience.entity';
 
 export class MigrationService {
 
@@ -14,6 +15,7 @@ export class MigrationService {
       ...ArticleEntity.initializeTable(),
       ...ProfileEntity.initializeTable(),
       ...SkillEntity.initializeTable(),
+      ...ExperienceEntity.initializeTable(),
     ];
 
     for (const query of queries) {

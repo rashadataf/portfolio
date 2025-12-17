@@ -8,49 +8,9 @@ import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
 import { Loader } from "@/components/Loader";
 import { Skill as SkillType, SkillCategory } from '@/modules/skill/skill.entity';
+import { Experience as ExperienceType } from '@/modules/experience/experience.entity';
 
-const experiences = [
-    {
-        position: "Full Stack Software Developer",
-        location: "London",
-        company: "ZIM Connections",
-        from: "Dec 2021",
-        to: "Present",
-        responsibilities: [
-            "Spearheaded the development of a full-stack mobile app, optimizing data processing and visualization in JavaScript (React Native, Node.js, MongoDB).",
-            "Implemented 20+ features, reducing load time by 75% and enhancing user experience.",
-            "Resolved 50+ bugs, fortifying security and stability.",
-            "Collaborated with the marketing team to introduce new features, boosting user engagement.",
-            "Conducted research on cutting-edge technologies for application enhancement."
-        ]
-    },
-    {
-        position: "Full Stack Software Developer",
-        location: "Istanbul",
-        company: "Alphatech",
-        from: "Feb 2021",
-        to: "Nov 2021",
-        responsibilities: [
-            "Engineered role-based dashboards, tailoring user permissions and enhancing user experience.",
-            "Conducted in-depth analysis of application requirements, crafting efficient and scalable database designs.",
-            "Explored and implemented best practices in HTTP standards, REST, and web security for optimal application performance and user authentication."
-        ]
-    },
-    {
-        position: "Freelancer, Full Stack Software Developer",
-        location: "Remote",
-        company: "Self Employed",
-        from: "Aug 2017",
-        to: "Feb 2021",
-        responsibilities: [
-            "Executed comprehensive redesigns for websites, enhancing navigation, aesthetics, and search engine rankings.",
-            "Integrated apps with REST APIs for various services.",
-            "Conducted thorough searches for suitable hosting and VPS, deploying projects and configuring servers.",
-            "Engineered RESTful web services to manipulate dynamic datasets.",
-            "Designed and implemented both NoSQL and SQL databases."
-        ]
-    }
-];
+
 
 const Section = dynamic(() =>
     import('@/components/Section').then((mod) => mod.Section),
@@ -62,9 +22,10 @@ const Section = dynamic(() =>
 
 interface AboutPageProps {
     skills?: SkillType[];
+    experiences?: ExperienceType[];
 }
 
-export const AboutPage = ({ skills = [] }: AboutPageProps) => {
+export const AboutPage = ({ skills = [], experiences = [] }: AboutPageProps) => {
     useEffect(
         () => {
             trackPageVisit('About');
@@ -158,8 +119,8 @@ export const AboutPage = ({ skills = [] }: AboutPageProps) => {
                             <li key={index} className="mb-10">
                                 <Experience
                                     company={item.company}
-                                    from={item.from}
-                                    to={item.to}
+                                    from={item.startDate}
+                                    to={item.endDate}
                                     location={item.location}
                                     position={item.position}
                                     responsibilities={item.responsibilities}
