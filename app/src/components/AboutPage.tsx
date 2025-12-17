@@ -7,44 +7,7 @@ import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
 import { Loader } from "@/components/Loader";
-
-const proficientSkills = {
-    "HTML": 90,
-    "CSS": 85,
-    "Tailwind CSS": 80,
-    "JavaScript": 90,
-    "React.js": 85,
-    "React Native": 80,
-    "Redux.js": 75,
-    "Next.js": 80,
-    "Node.js": 85,
-    "Express": 80,
-    "MongoDB": 75,
-    "Nest.js": 70,
-    "RESTful APIs": 80,
-    "Git": 90,
-    "GitHub": 85,
-    "Clouds (AWS, GCP)": 75,
-    "Linux": 70,
-    "Docker": 75,
-};
-
-const familiarSkills = {
-    "Android (Java)": 65,
-    "Objective-C": 50,
-    "SwiftUI": 55,
-    "PHP": 60,
-    "Laravel": 60,
-    "C": 50,
-    "C++": 60,
-    "WordPress": 60,
-    "Photoshop": 40,
-    "Figma": 70,
-    "C#": 55,
-    "Vue.js": 40,
-    "SQL": 60,
-    "MySQL": 60,
-};
+import { Skill as SkillType, SkillCategory } from '@/modules/skill/skill.entity';
 
 const experiences = [
     {
@@ -97,19 +60,21 @@ const Section = dynamic(() =>
     }
 )
 
-export async function getStaticProps() {
-    return {
-        props: {},
-    };
+interface AboutPageProps {
+    skills?: SkillType[];
 }
 
-export const AboutPage = () => {
+export const AboutPage = ({ skills = [] }: AboutPageProps) => {
     useEffect(
         () => {
             trackPageVisit('About');
         },
         []
     )
+
+    const proficientSkills = skills.filter(s => s.category === SkillCategory.Proficient);
+    const familiarSkills = skills.filter(s => s.category === SkillCategory.Familiar);
+
     return (
         <div className="text-main flex flex-col items-center p-8">
             <Section id='about-me' ariaLabelledBy='about-me-header' className="text-center">
@@ -166,8 +131,8 @@ export const AboutPage = () => {
                     <article aria-labelledby="proficient-skills-header" className="my-10 w-full md:w-5/12">
                         <h3 id="proficient-skills-header" className="text-xl font-semibold mb-5 md:mb-10 text-center">Proficient</h3>
                         <ul className="list-none">
-                            {Object.entries(proficientSkills).map(([skill, proficiency]) => (
-                                <li key={skill}><Skill name={skill} percentage={proficiency} /></li>
+                            {proficientSkills.map((skill) => (
+                                <li key={skill.id}><Skill name={skill.name} percentage={skill.percentage} /></li>
                             ))}
                         </ul>
                     </article>
@@ -177,8 +142,8 @@ export const AboutPage = () => {
                     <article aria-labelledby="familiar-skills-header" className="my-10 w-full md:w-5/12">
                         <h3 id="familiar-skills-header" className="text-xl font-semibold mb-5 md:mb-10 text-center">Familiar</h3>
                         <ul className="list-none">
-                            {Object.entries(familiarSkills).map(([skill, proficiency]) => (
-                                <li key={skill}><Skill name={skill} percentage={proficiency} /></li>
+                            {familiarSkills.map((skill) => (
+                                <li key={skill.id}><Skill name={skill.name} percentage={skill.percentage} /></li>
                             ))}
                         </ul>
                     </article>

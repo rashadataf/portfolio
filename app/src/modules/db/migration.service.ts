@@ -4,6 +4,7 @@ import { UserController } from '@/modules/user/user.controller';
 import { UserEntity } from '@/modules/user/user.entity';
 import { ArticleEntity } from '@/modules/article/article.entity';
 import { ProfileEntity } from '@/modules/profile/profile.entity';
+import { SkillEntity } from '@/modules/skill/skill.entity';
 
 export class MigrationService {
 
@@ -12,6 +13,7 @@ export class MigrationService {
       ...UserEntity.initializeTable(),
       ...ArticleEntity.initializeTable(),
       ...ProfileEntity.initializeTable(),
+      ...SkillEntity.initializeTable(),
     ];
 
     for (const query of queries) {

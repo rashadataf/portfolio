@@ -59,6 +59,15 @@ export const AdminSidebar = ({
                     </li>
                     <li>
                         <Link
+                            href="/admin/skills"
+                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/skills') ? 'bg-gray-700' : ''
+                                }`}
+                        >
+                            Skills
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
                             href="/admin/articles/drafts"
                             className={`block p-2 hover:bg-gray-700 ${isActive('/admin/articles/drafts') ? 'bg-gray-700' : ''
                                 }`}
