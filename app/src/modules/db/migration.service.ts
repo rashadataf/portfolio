@@ -3,6 +3,11 @@ import { dbService } from '@/modules/db/db.service';
 import { UserController } from '@/modules/user/user.controller';
 import { UserEntity } from '@/modules/user/user.entity';
 import { ArticleEntity } from '@/modules/article/article.entity';
+import { ProfileEntity } from '@/modules/profile/profile.entity';
+import { SkillEntity } from '@/modules/skill/skill.entity';
+import { ExperienceEntity } from '@/modules/experience/experience.entity';
+import { EducationEntity } from '@/modules/education/education.entity';
+import { ProjectEntity } from '@/modules/project/project.entity';
 
 export class MigrationService {
 
@@ -10,6 +15,11 @@ export class MigrationService {
     const queries = [
       ...UserEntity.initializeTable(),
       ...ArticleEntity.initializeTable(),
+      ...ProfileEntity.initializeTable(),
+      ...SkillEntity.initializeTable(),
+      ...ExperienceEntity.initializeTable(),
+      ...EducationEntity.initializeTable(),
+      ...ProjectEntity.initializeTable(),
     ];
 
     for (const query of queries) {

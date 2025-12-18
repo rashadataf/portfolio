@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { ProjectsPage } from "@/components/ProjectsPage";
+import { getAllProjects } from "@/modules/project/project.controller";
 
 export const metadata: Metadata = {
     title: "Rashad Ataf's Projects - Full Stack Development Portfolio",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
     }
 }
 
-export default function Projects() {
-    return <ProjectsPage />
+export default async function Projects() {
+    const { data: projects } = await getAllProjects();
+    return <ProjectsPage projects={projects || []} />
 }
