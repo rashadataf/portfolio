@@ -518,7 +518,7 @@ resources: {
                   value: "${HELLO_WORLD_REACT_PORT}",
                 },
 
-                # Main router for apex domain
+                # Main router (uses configured entrypoint, likely websecure in prod)
                 {
                   label: "traefik.http.routers.hello-world-react.entrypoints",
                   value: "${ROUTER_ENTRYPOINT}",
@@ -540,26 +540,18 @@ resources: {
                   value: "letsencrypt",
                 },
 
-                # Router for www subdomain
+                # Explicit HTTP router to handle non-secure requests (fixes 404 on HTTP)
                 {
-                  label: "traefik.http.routers.hello-world-react-www.entrypoints",
-                  value: "${ROUTER_ENTRYPOINT}",
+                  label: "traefik.http.routers.hello-world-react-http.entrypoints",
+                  value: "web",
                 },
                 {
-                  label: "traefik.http.routers.hello-world-react-www.rule",
-                  value: "Host(`www.hello-world.${DOMAIN_NAME}`)",
+                  label: "traefik.http.routers.hello-world-react-http.rule",
+                  value: "Host(`hello-world.${DOMAIN_NAME}`)",
                 },
                 {
-                  label: "traefik.http.routers.hello-world-react-www.service",
+                  label: "traefik.http.routers.hello-world-react-http.service",
                   value: "hello-world-react",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react-www.tls",
-                  value: "${ENABLE_TLS}",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react-www.tls.certresolver",
-                  value: "letsencrypt",
                 },
               ],
           },
