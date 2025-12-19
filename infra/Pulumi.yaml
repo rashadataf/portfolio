@@ -547,7 +547,7 @@ resources: {
                 },
                 {
                   label: "traefik.http.routers.hello-world-react-www.rule",
-                  value: "Host(`www.${DOMAIN_NAME}`)",
+                  value: "Host(`www.hello-world.${DOMAIN_NAME}`)",
                 },
                 {
                   label: "traefik.http.routers.hello-world-react-www.service",
