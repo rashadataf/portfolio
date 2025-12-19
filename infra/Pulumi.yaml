@@ -374,10 +374,6 @@ resources: {
                   value: "Host(`${DOMAIN_NAME}`)",
                 },
                 {
-                  label: "traefik.http.routers.portfolio.priority",
-                  value: "100",
-                },
-                {
                   label: "traefik.http.routers.portfolio.service",
                   value: "portfolio",
                 },
@@ -400,10 +396,6 @@ resources: {
                   value: "Host(`www.${DOMAIN_NAME}`)",
                 },
                 {
-                  label: "traefik.http.routers.portfolio-www.priority",
-                  value: "100",
-                },
-                {
                   label: "traefik.http.routers.portfolio-www.service",
                   value: "portfolio",
                 },
@@ -414,38 +406,6 @@ resources: {
                 {
                   label: "traefik.http.routers.portfolio-www.tls.certresolver",
                   value: "letsencrypt",
-                },
-
-                # Middleware to redirect HTTP to HTTPS
-                {
-                  label: "traefik.http.middlewares.portfolio-https-redirect.redirectscheme.scheme",
-                  value: "https",
-                },
-                {
-                  label: "traefik.http.middlewares.portfolio-https-redirect.redirectscheme.permanent",
-                  value: "true",
-                },
-
-                # HTTP Router for redirection (Low priority to avoid conflict in Dev)
-                {
-                  label: "traefik.http.routers.portfolio-http.entrypoints",
-                  value: "web",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-http.rule",
-                  value: "Host(`${DOMAIN_NAME}`) || Host(`www.${DOMAIN_NAME}`)",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-http.priority",
-                  value: "1",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-http.middlewares",
-                  value: "portfolio-https-redirect",
-                },
-                {
-                  label: "traefik.http.routers.portfolio-http.service",
-                  value: "portfolio",
                 },
               ],
           },
