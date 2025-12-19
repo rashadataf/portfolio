@@ -540,6 +540,16 @@ resources: {
                   value: "letsencrypt",
                 },
 
+                # Middleware to redirect HTTP to HTTPS
+                {
+                  label: "traefik.http.middlewares.hello-world-https-redirect.redirectscheme.scheme",
+                  value: "https",
+                },
+                {
+                  label: "traefik.http.middlewares.hello-world-https-redirect.redirectscheme.permanent",
+                  value: "true",
+                },
+
                 # Explicit HTTP router to handle non-secure requests (fixes 404 on HTTP)
                 {
                   label: "traefik.http.routers.hello-world-react-http.entrypoints",
@@ -552,6 +562,10 @@ resources: {
                 {
                   label: "traefik.http.routers.hello-world-react-http.service",
                   value: "hello-world-react",
+                },
+                {
+                  label: "traefik.http.routers.hello-world-react-http.middlewares",
+                  value: "hello-world-https-redirect",
                 },
               ],
           },
