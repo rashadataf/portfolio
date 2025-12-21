@@ -87,4 +87,3 @@ config:
   portfolio-infra:POSTGRES_EXPORTER_EXTERNAL_PORT: "9187"
   portfolio-infra:TRAEFIK_METRICS_PORT: "4318"
   portfolio-infra:PROTOCOL: http
-  portfolio-infra:HELLO_WORLD_REACT_PORT: "3001"

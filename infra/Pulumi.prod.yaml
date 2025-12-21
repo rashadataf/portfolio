@@ -88,4 +88,3 @@ config:
   portfolio-infra:TRAEFIK_METRICS_PORT: "4318"
   portfolio-infra:ENV_TYPE: production
   portfolio-infra:PROTOCOL: https
-  portfolio-infra:HELLO_WORLD_REACT_PORT: "80"

@@ -93,7 +93,6 @@ config:
     "NGINX_STUB_STATUS_PORT": { type: "string", default: "8080" },
     "NGINX_NETWORK_ALIAS": { type: "string", default: "nginx" },
     "TRAEFIK_METRICS_PORT": { type: "string", default: "4318" },
-    "HELLO_WORLD_REACT_PORT": { type: "string", default: "3001" },
   }
 
 variables:
@@ -179,7 +178,6 @@ variables:
     FRONTEND_CONTAINER_NAME: "${pulumi.project}-portfolio-${pulumi.stack}",
     TRAEFIK_ALIAS: "traefik",
     APP_NETWORK_NAME: "${pulumi.project}-network",
-    HELLO_WORLD_REACT_PORT: "${HELLO_WORLD_REACT_PORT}",
   }
 
 resources:
