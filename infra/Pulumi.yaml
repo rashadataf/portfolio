@@ -240,7 +240,7 @@ resources:
           },
         options: { dependsOn: ["${postgresDataVolume}"] },
       },
-    nodeModulesVolume:
+    portfolioNodeModulesVolume:
       { type: "docker:Volume", properties: { name: "portfolio_node_modules" } },
     nextBuildVolume:
       { type: "docker:Volume", properties: { name: "portfolio_next_build" } },
@@ -344,7 +344,7 @@ resources:
                 },
                 {
                   type: "volume",
-                  source: "${nodeModulesVolume.name}",
+                  source: "${portfolioNodeModulesVolume.name}",
                   target: "${PORTFOLIO_WORKDIR_PATH}/node_modules",
                 },
                 {
@@ -474,4 +474,11 @@ resources:
       },
   }
 packages: { observability: "./observation" }
-outputs: { portfolioHost: "${PORTFOLIO_HOST}" }
+outputs:
+  {
+    portfolioHost: "${PORTFOLIO_HOST}",
+    appNetworkName: "${APP_NETWORK_NAME}",
+    domainName: "${DOMAIN_NAME}",
+    routerEntrypoint: "${ROUTER_ENTRYPOINT}",
+    enableTls: "${ENABLE_TLS}",
+  }

@@ -1,0 +1,54 @@
+name: hello-world-standalone
+description: Standalone infra for hello-world-react (no portfolio stack, no Traefik)
+runtime: yaml
+
+config:
+  {
+    "pulumi:tags": { value: { "pulumi:template": yaml } },
+    "APP_PORT": { type: "string", default: "3001" },
+    "HOST_PORT": { type: "string", default: "3001" },
+    "BUILD_PHASE_TARGET": { type: "string", default: "development" }
+  }
+
+variables:
+  {
+    APP_PORT: "${APP_PORT}",
+    HOST_PORT: "${HOST_PORT}",
+    BUILD_PHASE_TARGET: "${BUILD_PHASE_TARGET}"
+  }
+
+resources:
+  helloWorldNodeModulesVolume:
+    type: docker:Volume
+    properties:
+      name: "hello_world_node_modules_standalone"
+
+  helloWorldReactImage:
+    type: docker:Image
+    properties:
+      imageName: "hello-world-react-standalone:latest"
+      build:
+        context: ".."
+        platform: "linux/amd64"
+        target: "${BUILD_PHASE_TARGET}"
+      skipPush: true
+
+  helloWorldReactContainer:
+    type: docker:Container
+    properties:
+      name: "hello-world-react-standalone-${pulumi.stack}"
+      image: "${helloWorldReactImage.imageName}"
+      restart: "always"
+      mounts:
+        - type: "bind"
+          source: "${pulumi.cwd}/.."
+          target: "/app"
+        - type: "volume"
+          source: "${helloWorldNodeModulesVolume.name}"
+          target: "/app/node_modules"
+      ports:
+        - internal: "${APP_PORT}"
+          external: "${HOST_PORT}"
+
+outputs:
+  url: "http://localhost:${HOST_PORT}"

@@ -1,0 +1,4 @@
+config:
+  hello-world:APP_PORT: "3001"
+  hello-world:CORE_STACK_NAME: Rashad/portfolio-infra/dev
+  hello-world:BUILD_PHASE_TARGET: development
