@@ -182,7 +182,8 @@ variables:
     HELLO_WORLD_REACT_PORT: "${HELLO_WORLD_REACT_PORT}",
   }
 
-resources: {
+resources:
+  {
     appNetwork:
       { type: "docker:Network", properties: { name: "${APP_NETWORK_NAME}" } },
 
@@ -243,8 +244,6 @@ resources: {
       },
     portfolioNodeModulesVolume:
       { type: "docker:Volume", properties: { name: "portfolio_node_modules" } },
-    helloWorldNodeModulesVolume:
-      { type: "docker:Volume", properties: { name: "hello_world_node_modules" } },
     nextBuildVolume:
       { type: "docker:Volume", properties: { name: "portfolio_next_build" } },
     traefikImage:
@@ -475,96 +474,13 @@ resources: {
             appNetworkName: "${APP_NETWORK_NAME}",
           },
       },
-    # Hello World React Project
-    helloWorldReactImage:
-      {
-        type: docker:Image,
-        properties:
-          {
-            imageName: "hello-world-react:latest",
-            build:
-              {
-                context: "../projects/hello-world-react",
-                platform: "linux/amd64",
-                target: "${PORTFOLIO_BUILD_PHASE_TARGET}",
-              },
-            skipPush: true,
-          },
-      },
-    helloWorldReactContainer:
-      {
-        type: docker:Container,
-        properties:
-          {
-            image: "${helloWorldReactImage.imageName}",
-            networksAdvanced: [{ name: "${APP_NETWORK_NAME}" }],
-            mounts: [
-                # Add volume for persistent uploads
-                {
-                  type: "bind",
-                  source: "${pulumi.cwd}/../projects/hello-world-react",
-                  target: "/app",
-                },
-                {
-                  type: "volume",
-                  source: "${helloWorldNodeModulesVolume.name}",
-                  target: "/app/node_modules",
-                },
-              ],
-            labels: [
-                { label: "traefik.enable", value: "true" },
-                {
-                  label: "traefik.http.services.hello-world-react.loadbalancer.server.port",
-                  value: "${HELLO_WORLD_REACT_PORT}",
-                },
-
-                # Main router for apex domain
-                {
-                  label: "traefik.http.routers.hello-world-react.entrypoints",
-                  value: "${ROUTER_ENTRYPOINT}",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react.rule",
-                  value: "Host(`hello-world.${DOMAIN_NAME}`)",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react.service",
-                  value: "hello-world-react",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react.tls",
-                  value: "${ENABLE_TLS}",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react.tls.certresolver",
-                  value: "letsencrypt",
-                },
-
-                # Router for www subdomain
-                {
-                  label: "traefik.http.routers.hello-world-react-www.entrypoints",
-                  value: "${ROUTER_ENTRYPOINT}",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react-www.rule",
-                  value: "Host(`www.hello-world.${DOMAIN_NAME}`)",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react-www.service",
-                  value: "hello-world-react",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react-www.tls",
-                  value: "${ENABLE_TLS}",
-                },
-                {
-                  label: "traefik.http.routers.hello-world-react-www.tls.certresolver",
-                  value: "letsencrypt",
-                },
-              ],
-          },
-        options: { dependsOn: ["${traefik}"] },
-      },
   }
 packages: { observability: "./observation" }
-outputs: { portfolioHost: "${PORTFOLIO_HOST}" }
+outputs:
+  {
+    portfolioHost: "${PORTFOLIO_HOST}",
+    appNetworkName: "${APP_NETWORK_NAME}",
+    domainName: "${DOMAIN_NAME}",
+    routerEntrypoint: "${ROUTER_ENTRYPOINT}",
+    enableTls: "${ENABLE_TLS}",
+  }

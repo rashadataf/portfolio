@@ -1,0 +1,121 @@
+name: hello-world
+description: A minimal Pulumi YAML program
+runtime: yaml
+config:
+  { "pulumi:tags": { value: { "pulumi:template": yaml } }, "CORE_STACK_NAME": {
+        type: "string",
+      }, "APP_PORT": { type: "string" }, "BUILD_PHASE_TARGET": { type: "string", value: "development" } } # e.g. portfolio-infra/dev
+
+variables:
+  {
+    APP_NETWORK_NAME: "${coreStack.outputs.appNetworkName}",
+    DOMAIN_NAME: "${coreStack.outputs.domainName}",
+    ROUTER_ENTRYPOINT: "${coreStack.outputs.routerEntrypoint}",
+    ENABLE_TLS: "${coreStack.outputs.enableTls}",
+    APP_PORT: "${APP_PORT}",
+    CORE_STACK_NAME: "${CORE_STACK_NAME}",
+    BUILD_PHASE_TARGET: "${BUILD_PHASE_TARGET}",
+  }
+resources: {
+    coreStack:
+      {
+        type: pulumi:pulumi:StackReference,
+        properties: { name: "${CORE_STACK_NAME}" },
+      },
+    helloWorldNodeModulesVolume:
+      {
+        type: "docker:Volume",
+        properties: { name: "hello_world_node_modules" },
+      },
+    # Hello World React Project
+    helloWorldReactImage:
+      {
+        type: docker:Image,
+        properties:
+          {
+            imageName: "hello-world-react:latest",
+            build:
+              {
+                context: "..",
+                platform: "linux/amd64",
+                target: "${BUILD_PHASE_TARGET}",
+              },
+            skipPush: true,
+          },
+      },
+    helloWorldReactContainer:
+      {
+        type: docker:Container,
+        properties:
+          {
+            image: "${helloWorldReactImage.imageName}",
+            networksAdvanced: [{ name: "${APP_NETWORK_NAME}" }],
+            mounts: [
+                # Add volume for persistent uploads
+                {
+                  type: "bind",
+                  source: "${pulumi.cwd}/..",
+                  target: "/app",
+                },
+                {
+                  type: "volume",
+                  source: "${helloWorldNodeModulesVolume.name}",
+                  target: "/app/node_modules",
+                },
+              ],
+            labels: [
+                { label: "traefik.enable", value: "true" },
+                {
+                  label: "traefik.http.services.hello-world-react.loadbalancer.server.port",
+                  value: "${APP_PORT}",
+                },
+
+                # Main router for apex domain
+                {
+                  label: "traefik.http.routers.hello-world-react.entrypoints",
+                  value: "${ROUTER_ENTRYPOINT}",
+                },
+                {
+                  label: "traefik.http.routers.hello-world-react.rule",
+                  value: "Host(`hello-world.${DOMAIN_NAME}`)",
+                },
+                {
+                  label: "traefik.http.routers.hello-world-react.service",
+                  value: "hello-world-react",
+                },
+                {
+                  label: "traefik.http.routers.hello-world-react.tls",
+                  value: "${ENABLE_TLS}",
+                },
+                {
+                  label: "traefik.http.routers.hello-world-react.tls.certresolver",
+                  value: "letsencrypt",
+                },
+
+                # Router for www subdomain
+                {
+                  label: "traefik.http.routers.hello-world-react-www.entrypoints",
+                  value: "${ROUTER_ENTRYPOINT}",
+                },
+                {
+                  label: "traefik.http.routers.hello-world-react-www.rule",
+                  value: "Host(`www.hello-world.${DOMAIN_NAME}`)",
+                },
+                {
+                  label: "traefik.http.routers.hello-world-react-www.service",
+                  value: "hello-world-react",
+                },
+                {
+                  label: "traefik.http.routers.hello-world-react-www.tls",
+                  value: "${ENABLE_TLS}",
+                },
+                {
+                  label: "traefik.http.routers.hello-world-react-www.tls.certresolver",
+                  value: "letsencrypt",
+                },
+              ],
+          },
+        # options: { dependsOn: ["${traefik}"] },
+      },
+  }
+outputs: {}
