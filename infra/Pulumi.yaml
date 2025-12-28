@@ -481,4 +481,5 @@ outputs:
     domainName: "${DOMAIN_NAME}",
     routerEntrypoint: "${ROUTER_ENTRYPOINT}",
     enableTls: "${ENABLE_TLS}",
+    protocol: "${PROTOCOL}",
   }
