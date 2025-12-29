@@ -200,6 +200,7 @@ resources:
       {
         type: "docker:Volume",
         properties: { name: "${POSTGRES_VOLUME_NAME}" },
+        options: { protect: true },
       },
     postgresImage:
       { type: "docker:RemoteImage", properties: { name: "postgres:17.0" } },
