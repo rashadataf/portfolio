@@ -329,6 +329,8 @@ resources:
                 "NODE_ENV=${ENV_TYPE}",
                 "DATABASE_URL=${DATABASE_URL}",
                 "PORT=${APP_PORT}",
+                "DOMAIN_NAME=${DOMAIN_NAME}",
+                "PROTOCOL=${PROTOCOL}",
                 "ADMIN_EMAIL=${ADMIN_EMAIL}",
                 "ADMIN_PASSWORD=${ADMIN_PASSWORD}",
                 "AUTH_SECRET=${AUTH_SECRET}",
