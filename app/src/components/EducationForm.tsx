@@ -89,8 +89,8 @@ export const EducationForm = ({ initialData, onSuccess, onCancel }: EducationFor
                     fullWidth
                 />
 
-                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '50%', xs: '100%' } }}>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
                         <TextField
                             label="Start Date"
                             name="startDate"
@@ -102,7 +102,7 @@ export const EducationForm = ({ initialData, onSuccess, onCancel }: EducationFor
                         />
                     </Box>
 
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '50%', xs: '100%' } }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
                         <TextField
                             label="End Date"
                             name="endDate"
@@ -113,22 +113,24 @@ export const EducationForm = ({ initialData, onSuccess, onCancel }: EducationFor
                             placeholder="e.g. Sep 2019"
                         />
                     </Box>
+
+                    <Box sx={{ width: { xs: '100%', md: 140 } }}>
+                        <TextField
+                            label="Display Order"
+                            name="displayOrder"
+                            type="number"
+                            value={formData.displayOrder}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
                 </Stack>
 
-                <TextField
-                    label="Display Order"
-                    name="displayOrder"
-                    type="number"
-                    value={formData.displayOrder}
-                    onChange={handleChange}
-                    fullWidth
-                />
-
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                    <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
+                    <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isLoading}>
+                    <Button type="submit" disabled={isLoading} sx={{ minWidth: 160 }}>
                         {isLoading ? 'Saving...' : initialData ? 'Update Education' : 'Create Education'}
                     </Button>
                 </Box>
