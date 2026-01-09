@@ -39,8 +39,8 @@ export const AdminSidebar = ({
     ];
 
     return (
-        <Box sx={{ bgcolor: 'background.paper', color: 'text.primary', display: 'flex', flexDirection: 'column', height: '100vh', transition: 'width .2s', width: isCollapsed ? 72 : 240, borderRight: 1, borderColor: 'divider' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}>
+        <Box sx={{ position: 'sticky', top: 0, alignSelf: 'flex-start', bgcolor: 'background.paper', color: 'text.primary', display: 'flex', flexDirection: 'column', height: '100vh', transition: 'width .2s', width: isCollapsed ? 72 : 240, borderRight: 1, borderColor: 'divider', zIndex: (theme) => theme.zIndex.appBar }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, flexShrink: 0 }}>
                 {!isCollapsed && <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Admin Panel</Typography>}
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)} size="small" aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
                     {isCollapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}

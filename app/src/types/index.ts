@@ -1,5 +1,3 @@
-import type { UrlObject } from 'url';
-
 // ENUMS
 export enum THEME {
     DARK = 'dark',
