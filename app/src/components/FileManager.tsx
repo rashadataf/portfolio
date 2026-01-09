@@ -22,6 +22,20 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Image from 'next/image';
+
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function formatBytes(bytes: number) {
     if (!Number.isFinite(bytes)) return '-';
@@ -43,6 +57,23 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
     const [isUploading, setIsUploading] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [deleting, setDeleting] = useState<Record<string, boolean>>({});
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [previewName, setPreviewName] = useState<string | null>(null);
+
+    const isImage = (url: string) => /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(url);
+
+    const handlePreview = (url: string, name: string) => {
+        setPreviewUrl(url);
+        setPreviewName(name);
+        setPreviewOpen(true);
+    };
+
+    const closePreview = () => {
+        setPreviewOpen(false);
+        setPreviewUrl(null);
+        setPreviewName(null);
+    };
 
     const refresh = async () => {
         setIsRefreshing(true);
@@ -124,13 +155,13 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
                 </Box>
 
                 <Stack direction="row" spacing={1}>
-                    <Button type="button" variant="secondary" onClick={handlePickFile} disabled={isUploading}>
+                    <Button type="button" variant="default" onClick={handlePickFile} disabled={isUploading} startIcon={<UploadFileIcon />}>
                         {isUploading ? 'Uploading...' : 'Upload file'}
                     </Button>
-                    <Button type="button" variant="secondary" onClick={refresh} disabled={isRefreshing}>
+                    <Button type="button" variant="outline" onClick={refresh} disabled={isRefreshing} startIcon={<RefreshIcon />}>
                         {isRefreshing ? 'Refreshing...' : 'Refresh'}
                     </Button>
-                </Stack>
+                </Stack> 
             </Stack>
 
             <TableContainer component={Paper}>
@@ -146,24 +177,40 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
 
                     <TableBody>
                         {files.map((f) => (
-                            <TableRow key={f.filename} hover>
+                            <TableRow key={f.filename} hover sx={{ '&:nth-of-type(odd)': { backgroundColor: 'action.hover' } }}>
                                 <TableCell>
                                     <Box>
-                                        <Typography variant="body1">{f.filename}</Typography>
-                                        <a href={f.url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#1976d2', wordBreak: 'break-all' }}>{f.url}</a>
+                                                        <Typography variant="body1">{f.filename}</Typography>
+                                        <Link href={f.url} target="_blank" rel="noreferrer" underline="hover" sx={{ fontSize: 12, wordBreak: 'break-all' }}>{f.url}</Link>
                                     </Box>
                                 </TableCell>
                                 <TableCell>{formatBytes(f.size)}</TableCell>
                                 <TableCell>{new Date(f.updatedAt).toLocaleString()}</TableCell>
                                 <TableCell align="right">
-                                    <Stack direction="row" spacing={1} justifyContent="flex-end">
-                                        <Button asChild type="button" variant="ghost" size="sm">
-                                            <a href={f.url} target="_blank" rel="noreferrer">Preview</a>
-                                        </Button>
-                                        <Button type="button" variant="ghost" size="sm" onClick={() => handleCopy(f.url)}>Copy URL</Button>
-                                        <Button type="button" variant="destructive" size="sm" onClick={() => handleDelete(f.filename)} disabled={!!deleting[f.filename]}>
-                                            {deleting[f.filename] ? 'Deleting...' : 'Delete'}
-                                        </Button>
+                                    <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                                        <Tooltip title="Preview">
+                                            <span>
+                                                <IconButton aria-label={`preview-${f.filename}`} size="small" onClick={() => handlePreview(f.url, f.filename)}>
+                                                    <VisibilityIcon fontSize="small" />
+                                                </IconButton>
+                                            </span>
+                                        </Tooltip>
+
+                                        <Tooltip title="Copy URL">
+                                            <span>
+                                                <IconButton aria-label={`copy-${f.filename}`} size="small" onClick={() => handleCopy(f.url)}>
+                                                    <ContentCopyIcon fontSize="small" />
+                                                </IconButton>
+                                            </span>
+                                        </Tooltip>
+
+                                        <Tooltip title="Delete">
+                                            <span>
+                                                <IconButton aria-label={`delete-${f.filename}`} size="small" color="error" onClick={() => handleDelete(f.filename)} disabled={!!deleting[f.filename]}>
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                            </span>
+                                        </Tooltip>
                                     </Stack>
                                 </TableCell>
                             </TableRow>
@@ -177,6 +224,27 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            <Dialog open={previewOpen} onClose={closePreview} fullWidth maxWidth="md">
+                <DialogTitle>{previewName}</DialogTitle>
+                <DialogContent>
+                    {previewUrl && isImage(previewUrl) ? (
+                        <Box sx={{ width: '100%', height: { xs: 240, md: 480 }, position: 'relative' }}>
+                            <Image src={previewUrl} alt={previewName || 'preview'} fill style={{ objectFit: 'contain' }} />
+                        </Box>
+                    ) : (
+                        <Box sx={{ width: '100%', height: { xs: 300, md: 600 } }}>
+                            {previewUrl ? <iframe src={previewUrl} title={previewName || 'preview'} style={{ width: '100%', height: '100%', border: 0 }} /> : null}
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="outline" onClick={closePreview}>Close</Button>
+                    <Button asChild variant="secondary">
+                        <a href={previewUrl ?? '#'} target="_blank" rel="noreferrer">Open in new tab</a>
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
