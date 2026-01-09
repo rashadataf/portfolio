@@ -9,6 +9,9 @@ export const metadata: Metadata = {
     manifest: "/manifest.json"
 }
 
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+
 export default function TemplateLayout({
     children,
 }: {
@@ -17,9 +20,11 @@ export default function TemplateLayout({
     return (
         <ThemeProvider>
             <Navbar />
-            <main role="main" className='flex-1'>
-                {children}
-            </main>
+            <Box component="main" sx={{ flex: '1 1 auto', py: 4 }}>
+                <Container maxWidth="lg">
+                    {children}
+                </Container>
+            </Box>
             <Footer />
         </ThemeProvider>
     )
