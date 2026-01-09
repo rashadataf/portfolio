@@ -30,6 +30,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Image from 'next/image';
+import NextLink from 'next/link';
 
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -240,8 +241,8 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
                 </DialogContent>
                 <DialogActions>
                     <Button variant="outline" onClick={closePreview}>Close</Button>
-                    <Button asChild variant="secondary">
-                        <a href={previewUrl ?? '#'} target="_blank" rel="noreferrer">Open in new tab</a>
+                    <Button component={NextLink} variant="secondary" href={previewUrl ?? '#'} target="_blank" rel="noreferrer">
+                        Open in new tab
                     </Button>
                 </DialogActions>
             </Dialog>
