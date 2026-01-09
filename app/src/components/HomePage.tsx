@@ -62,10 +62,10 @@ export const HomePage = ({ profile }: HomePageProps) => {
                     {profile?.bioEn || "I am a Full Stack Developer with a focus on crafting user-centric web and mobile applications. My expertise lies in delivering simple yet effective solutions across diverse platforms, ensuring a seamless user experience."}
                 </Typography>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mt: 4 }}>
-                    <Button asChild variant="default" size="sm">
-                        <a href={profile?.resumeUrl || "/Rashad Ataf.pdf"} target="_blank" rel="noopener noreferrer">Download Resume</a>
+                    <Button component={Link} href={profile?.resumeUrl || "/Rashad Ataf.pdf"} variant="default" size="sm">
+                        Download Resume
                     </Button>
-                    <Button component={Link as any} href={`mailto:${profile?.contactEmail || "rashadattaf@gmail.com"}`} variant="ghost" size="sm">
+                    <Button component={Link} href={`mailto:${profile?.contactEmail || "rashadattaf@gmail.com"}`} variant="ghost" size="sm">
                         Contact Me
                     </Button>
                 </Stack>

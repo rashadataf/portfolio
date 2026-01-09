@@ -14,7 +14,6 @@ import { Profile } from '@/modules/profile/profile.entity';
 import { Users, CheckCircle, Calendar, Briefcase, GraduationCap, Code } from 'lucide-react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 

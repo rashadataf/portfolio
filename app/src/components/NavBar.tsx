@@ -11,7 +11,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import Stack from '@mui/material/Stack';
+import Container from '@mui/material/Container';
 import { ThemeToggler } from '@/components/DarkModeToggle';
 import { useSafeState } from '@/hooks/useSafeState.hook';
 import { MenuIcon } from '@/components/Icons';
@@ -32,27 +32,29 @@ export const Navbar = () => {
     ];
 
     return (
-        <AppBar position="sticky" color="transparent" elevation={0} sx={{ backdropFilter: 'blur(6px)', borderBottom: 1, borderColor: 'divider' }}>
-            <Toolbar>
-                <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-                    <Link href="/" className="no-underline" aria-label="Go to Home Page">
-                        <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>
-                            {`"<Rashad Ataf>"`}
-                        </Typography>
-                    </Link>
-                </Box>
+        <AppBar position="sticky" color="transparent" elevation={0} sx={{ backdropFilter: 'blur(6px)', borderBottom: 1, borderColor: 'divider', backgroundColor: 'transparent' }}>
+            <Container maxWidth="lg">
+                <Toolbar disableGutters sx={{ minHeight: 64, display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+                        <Link href="/" aria-label="Go to Home Page" style={{ textDecoration: 'none' }}>
+                            <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>
+                                {`"<Rashad Ataf>"`}
+                            </Typography>
+                        </Link>
+                    </Box>
 
-                <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
-                    {menuItems.map((m) => (
-                        <NavLink key={m.href} href={m.href} title={m.label} />
-                    ))}
-                    <ThemeToggler />
-                </Box>
+                    <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
+                        {menuItems.map((m) => (
+                            <NavLink key={m.href} href={m.href} title={m.label} />
+                        ))}
+                        <ThemeToggler />
+                    </Box>
 
-                <IconButton edge="end" color="inherit" aria-label="menu" onClick={toggleDrawer} sx={{ display: { md: 'none' } }}>
-                    <MenuIcon className="w-6 h-6" />
-                </IconButton>
-            </Toolbar>
+                    <IconButton edge="end" color="inherit" aria-label="menu" onClick={toggleDrawer} sx={{ display: { md: 'none' } }}>
+                        <MenuIcon />
+                    </IconButton>
+                </Toolbar>
+            </Container>
 
             <Drawer anchor="right" open={open} onClose={toggleDrawer}>
                 <Box sx={{ width: 260 }} role="presentation" onClick={toggleDrawer} onKeyDown={toggleDrawer}>

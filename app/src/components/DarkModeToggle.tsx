@@ -1,13 +1,15 @@
 'use client';
 import { useEffect, type ReactElement } from 'react';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import { useThemeContext } from '@/context/theme.provider';
 import { THEME } from '@/types';
 import { MoonIcon, SunIcon } from '@/components/Icons';
 import { useSafeState } from '@/hooks/useSafeState.hook';
 
 const renderIconConditionally: Record<THEME, ReactElement> = {
-    "dark": <SunIcon className='h-5 w-5' />,
-    "light": <MoonIcon className='h-5 w-5' />,
+    "dark": <SunIcon />,
+    "light": <MoonIcon />,
 }
 
 type Props = {
@@ -26,12 +28,17 @@ export const ThemeToggler = ({ className }: Props) => {
     );
 
     return (
-        <button
-            onClick={toggleTheme}
-            className={`text-secondary-color hover:text-accent-color focus:outline-none focus:border-primary-color ${className}`}
-            aria-label={`The ${theme} Mode Is Active, Press to switch mode`}
-        >
-            {isMounted ? renderIconConditionally[theme] : null}
-        </button>
+        <Tooltip title={isMounted ? `Switch to ${theme === THEME.DARK ? 'light' : 'dark'} mode` : 'Toggle theme'}>
+            <IconButton
+                onClick={toggleTheme}
+                color="inherit"
+                size="medium"
+                aria-label={`The ${theme} Mode Is Active, Press to switch mode`}
+                sx={{ ml: 1, color: 'text.primary', '& svg': { width: 20, height: 20 } }}
+                className={className}
+            >
+                {isMounted ? renderIconConditionally[theme] : null}
+            </IconButton>
+        </Tooltip>
     );
 };

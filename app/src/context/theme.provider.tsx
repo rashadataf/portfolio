@@ -65,8 +65,25 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
             createTheme({
                 palette: {
                     mode: theme === THEME.DARK ? 'dark' : 'light',
-                    primary: { main: '#840400' },
+                    primary: { main: '#6B21A8' },
+                    secondary: { main: '#00BFA6' },
+                    background: {
+                        default: theme === THEME.DARK ? '#0f0f10' : '#ffffff',
+                        paper: theme === THEME.DARK ? '#121212' : '#ffffff'
+                    }
                 },
+                components: {
+                    MuiButton: {
+                        defaultProps: {
+                            disableElevation: true,
+                        },
+                    },
+                    MuiIconButton: {
+                        defaultProps: {
+                            size: 'small',
+                        },
+                    },
+                }
             }),
         [theme]
     );

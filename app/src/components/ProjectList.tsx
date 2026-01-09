@@ -158,7 +158,7 @@ export const ProjectList = ({ projects }: ProjectListProps) => {
 
                 {projects.length === 0 && (
                     <Paper sx={{ p: 6, textAlign: 'center' }}>
-                        <Typography color="text.secondary">No projects found. Click "Add Project" to create one.</Typography>
+                        <Typography color="text.secondary">No projects found. Click &quot;Add Project&quot; to create one.</Typography>
                     </Paper>
                 )}
             </Stack>
