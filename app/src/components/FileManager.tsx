@@ -12,6 +12,18 @@ import {
     type UploadedFileMeta,
 } from '@/modules/file/file.controller';
 
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+
 function formatBytes(bytes: number) {
     if (!Number.isFinite(bytes)) return '-';
     const units = ['B', 'KB', 'MB', 'GB'];
@@ -103,97 +115,69 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Files</h2>
-                    <p className="text-sm text-gray-600">Uploads are stored in <span className="font-mono">public/uploads</span>.</p>
-                </div>
+        <Box>
+            <input ref={fileInputRef} type="file" onChange={handleUpload} style={{ display: 'none' }} />
 
-                <div className="flex gap-2">
-                    <input ref={fileInputRef} type="file" onChange={handleUpload} className="hidden" />
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Box>
+                    <Typography variant="h5">Files</Typography>
+                    <Typography variant="body2" color="text.secondary">Uploads are stored in <Box component="span" sx={{ fontFamily: 'Monospace' }}>public/uploads</Box>.</Typography>
+                </Box>
+
+                <Stack direction="row" spacing={1}>
                     <Button type="button" variant="secondary" onClick={handlePickFile} disabled={isUploading}>
                         {isUploading ? 'Uploading...' : 'Upload file'}
                     </Button>
                     <Button type="button" variant="secondary" onClick={refresh} disabled={isRefreshing}>
                         {isRefreshing ? 'Refreshing...' : 'Refresh'}
                     </Button>
-                </div>
-            </div>
+                </Stack>
+            </Stack>
 
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Filename</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Size</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Updated</th>
-                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
+            <TableContainer component={Paper}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Filename</TableCell>
+                            <TableCell>Size</TableCell>
+                            <TableCell>Updated</TableCell>
+                            <TableCell align="right">Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
 
-                    <tbody className="divide-y divide-gray-200">
+                    <TableBody>
                         {files.map((f) => (
-                            <tr key={f.filename} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 text-gray-900">
-                                    <div className="flex flex-col">
-                                        <span className="font-medium">{f.filename}</span>
-                                        <a
-                                            className="text-xs text-blue-600 hover:underline break-all"
-                                            href={f.url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                        >
-                                            {f.url}
-                                        </a>
-                                    </div>
-                                </td>
-                                <td className="px-4 py-3 text-gray-700 text-sm">{formatBytes(f.size)}</td>
-                                <td className="px-4 py-3 text-gray-700 text-sm">{new Date(f.updatedAt).toLocaleString()}</td>
-                                <td className="px-4 py-3">
-                                    <div className="flex justify-end gap-2">
-                                        <Button
-                                            asChild
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                        >
-                                            <a href={f.url} target="_blank" rel="noreferrer">
-                                                Preview
-                                            </a>
+                            <TableRow key={f.filename} hover>
+                                <TableCell>
+                                    <Box>
+                                        <Typography variant="body1">{f.filename}</Typography>
+                                        <a href={f.url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: '#1976d2', wordBreak: 'break-all' }}>{f.url}</a>
+                                    </Box>
+                                </TableCell>
+                                <TableCell>{formatBytes(f.size)}</TableCell>
+                                <TableCell>{new Date(f.updatedAt).toLocaleString()}</TableCell>
+                                <TableCell align="right">
+                                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                        <Button asChild type="button" variant="ghost" size="sm">
+                                            <a href={f.url} target="_blank" rel="noreferrer">Preview</a>
                                         </Button>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleCopy(f.url)}
-                                        >
-                                            Copy URL
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={() => handleDelete(f.filename)}
-                                            disabled={!!deleting[f.filename]}
-                                        >
+                                        <Button type="button" variant="ghost" size="sm" onClick={() => handleCopy(f.url)}>Copy URL</Button>
+                                        <Button type="button" variant="destructive" size="sm" onClick={() => handleDelete(f.filename)} disabled={!!deleting[f.filename]}>
                                             {deleting[f.filename] ? 'Deleting...' : 'Delete'}
                                         </Button>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </Stack>
+                                </TableCell>
+                            </TableRow>
                         ))}
 
                         {files.length === 0 && (
-                            <tr>
-                                <td colSpan={4} className="px-4 py-10 text-center text-gray-600">
-                                    No files found.
-                                </td>
-                            </tr>
+                            <TableRow>
+                                <TableCell colSpan={4} align="center">No files found.</TableCell>
+                            </TableRow>
                         )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Box>
     );
 };
