@@ -74,7 +74,7 @@ export const SkillForm = ({ initialData, onSuccess, onCancel }: SkillFormProps) 
                     label="Percentage (0-100)"
                     name="percentage"
                     type="number"
-                    inputProps={{ min: 0, max: 100 }}
+                    slotProps={{ htmlInput: { min: 0, max: 100 } }}
                     value={formData.percentage}
                     onChange={handleChange}
                     required

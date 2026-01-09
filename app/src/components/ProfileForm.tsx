@@ -109,7 +109,7 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
                     </Box>
                 </Stack>
 
-                <TextField label="Bio (Arabic)" name="bioAr" value={formData.bioAr || ''} onChange={handleChange} fullWidth multiline rows={4} inputProps={{ dir: 'rtl' }} />
+                <TextField label="Bio (Arabic)" name="bioAr" value={formData.bioAr || ''} onChange={handleChange} fullWidth multiline rows={4} slotProps={{ htmlInput: { dir: 'rtl' } }} />
 
                 <TextField label="Contact Email" name="contactEmail" type="email" value={formData.contactEmail || ''} onChange={handleChange} fullWidth />
 

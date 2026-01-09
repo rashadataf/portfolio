@@ -15,7 +15,7 @@ export type ButtonProps = Omit<MuiButtonProps, "color" | "size" | "variant"> & {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = "default", size = "default", children, sx, asChild = false, ...props }, ref) => {
-    const mapping: Record<Variant, { variant: MuiButtonProps["variant"]; color?: string }> = {
+    const mapping: Record<Variant, { variant: MuiButtonProps["variant"]; color?: MuiButtonProps["color"] }> = {
       default: { variant: "contained", color: "primary" },
       destructive: { variant: "contained", color: "error" },
       outline: { variant: "outlined", color: "primary" },
@@ -36,10 +36,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const extraSx = size === "icon" ? { minWidth: 40, width: 40, height: 40, padding: 0 } : {};
 
+    const rest = props as unknown as MuiButtonProps;
+
     if (asChild) {
       return (
         <Slot>
-          <MuiButton variant={m.variant} color={m.color as any} size={muiSize} sx={{ ...extraSx, ...(sx as any) }} ref={ref as any} {...(props as any)}>
+          <MuiButton variant={m.variant} color={m.color} size={muiSize} sx={{ ...extraSx, ...(sx as MuiButtonProps['sx']) }} ref={ref as React.Ref<HTMLButtonElement>} {...rest}>
             {children}
           </MuiButton>
         </Slot>
@@ -47,7 +49,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      <MuiButton variant={m.variant} color={m.color as any} size={muiSize} sx={{ ...extraSx, ...(sx as any) }} ref={ref as any} {...(props as any)}>
+      <MuiButton variant={m.variant} color={m.color} size={muiSize} sx={{ ...extraSx, ...(sx as MuiButtonProps['sx']) }} ref={ref as React.Ref<HTMLButtonElement>} {...rest}>
         {children}
       </MuiButton>
     );
