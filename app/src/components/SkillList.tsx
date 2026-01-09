@@ -8,6 +8,17 @@ import { Modal } from '@/components/Modal';
 import { SkillForm } from '@/components/SkillForm';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import IconButton from '@mui/material/IconButton';
 
 interface SkillListProps {
     skills: Skill[];
@@ -101,82 +112,70 @@ export const SkillList = ({ skills }: SkillListProps) => {
     };
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Skills List</h2>
-                <div className="space-x-2">
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        accept=".json"
-                        className="hidden"
-                    />
+        <Box>
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".json"
+                style={{ display: 'none' }}
+            />
+
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Typography variant="h5">Skills List</Typography>
+                <Stack direction="row" spacing={1}>
                     <Button onClick={handleImportClick} variant="secondary" disabled={isImporting}>
                         {isImporting ? 'Importing...' : 'Import JSON'}
-                    </Button>                    <Button onClick={handleDeleteAll} variant="destructive">
-                        Delete All
-                    </Button>                    <Button onClick={handleCreate}>Add New Skill</Button>
-                </div>
-            </div>
+                    </Button>
+                    <Button onClick={handleDeleteAll} variant="destructive">Delete All</Button>
+                    <Button onClick={handleCreate}>Add New Skill</Button>
+                </Stack>
+            </Stack>
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+            <TableContainer component={Paper}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Category</TableCell>
+                            <TableCell>Percentage</TableCell>
+                            <TableCell>Order</TableCell>
+                            <TableCell align="right">Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
                         {skills.map((skill) => (
-                            <tr key={skill.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{skill.name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{skill.category}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{skill.percentage}%</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{skill.displayOrder}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button
-                                        onClick={() => handleEdit(skill)}
-                                        className="text-indigo-600 hover:text-indigo-900 mr-4"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(skill.id)}
-                                        className="text-red-600 hover:text-red-900"
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
+                            <TableRow key={skill.id} hover>
+                                <TableCell>{skill.name}</TableCell>
+                                <TableCell>{skill.category}</TableCell>
+                                <TableCell>{skill.percentage}%</TableCell>
+                                <TableCell>{skill.displayOrder}</TableCell>
+                                <TableCell align="right">
+                                    <IconButton size="small" onClick={() => handleEdit(skill)} aria-label="edit">Edit</IconButton>
+                                    <IconButton size="small" onClick={() => handleDelete(skill.id)} aria-label="delete">Delete</IconButton>
+                                </TableCell>
+                            </TableRow>
                         ))}
+
                         {skills.length === 0 && (
-                            <tr>
-                                <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
-                                    No skills found. Add one to get started.
-                                </td>
-                            </tr>
+                            <TableRow>
+                                <TableCell colSpan={5} align="center">No skills found. Add one to get started.</TableCell>
+                            </TableRow>
                         )}
-                    </tbody>
-                </table>
-            </div>
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                <div className="p-4">
-                    <h3 className="text-lg font-medium leading-6 text-primary mb-4">
-                        {selectedSkill ? 'Edit Skill' : 'Add New Skill'}
-                    </h3>
+                <Box sx={{ p: 2 }}>
+                    <Typography variant="h6" sx={{ mb: 1 }}>{selectedSkill ? 'Edit Skill' : 'Add New Skill'}</Typography>
                     <SkillForm
                         initialData={selectedSkill}
                         onSuccess={handleSuccess}
                         onCancel={() => setIsModalOpen(false)}
                     />
-                </div>
+                </Box>
             </Modal>
-        </div>
+        </Box>
     );
 };
