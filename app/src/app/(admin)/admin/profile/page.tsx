@@ -1,5 +1,8 @@
 import { getProfile } from '@/modules/profile/profile.controller';
 import { ProfileForm } from '@/components/ProfileForm';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 
 export default async function ProfileAdminPage() {
     const { data: profile } = await getProfile();
@@ -9,9 +12,11 @@ export default async function ProfileAdminPage() {
     }
 
     return (
-        <div className="container mx-auto py-8">
-            <h1 className="text-3xl font-bold mb-8 text-gray-800">Edit Profile</h1>
-            <ProfileForm initialData={profile} />
-        </div>
+        <Box component="main" sx={{ py: 4 }}>
+            <Container maxWidth="lg">
+                <Typography variant="h4" sx={{ mb: 3 }}>Edit Profile</Typography>
+                <ProfileForm initialData={profile} />
+            </Container>
+        </Box>
     );
-}
+} 
