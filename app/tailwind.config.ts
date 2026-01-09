@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
 import tailwindTypography from '@tailwindcss/typography'
 export default {
-  darkMode: ["class"],
+  darkMode: ["class", '[data-theme="dark"]'],
   content: [
     './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
