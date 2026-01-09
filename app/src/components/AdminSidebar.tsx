@@ -9,6 +9,9 @@ import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 export const AdminSidebar = ({
     signOut,
@@ -36,11 +39,11 @@ export const AdminSidebar = ({
     ];
 
     return (
-        <Box sx={{ bgcolor: 'background.paper', color: 'text.primary', display: 'flex', flexDirection: 'column', height: '100%', transition: 'width .2s', width: isCollapsed ? 72 : 240, borderRight: 1, borderColor: 'divider' }}>
+        <Box sx={{ bgcolor: 'background.paper', color: 'text.primary', display: 'flex', flexDirection: 'column', height: '100vh', transition: 'width .2s', width: isCollapsed ? 72 : 240, borderRight: 1, borderColor: 'divider' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}>
                 {!isCollapsed && <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Admin Panel</Typography>}
-                <IconButton onClick={() => setIsCollapsed(!isCollapsed)} size="small">
-                    {isCollapsed ? '➡️' : '⬅️'}
+                <IconButton onClick={() => setIsCollapsed(!isCollapsed)} size="small" aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+                    {isCollapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
                 </IconButton>
             </Box>
 
@@ -58,9 +61,9 @@ export const AdminSidebar = ({
                 <Box sx={{ p: 2 }}>
                     <form action={signOut}>
                         <Stack>
-                            <button type="submit" className="w-full p-8 text-sm bg-red-600 hover:bg-red-500 rounded" style={{ padding: '8px', backgroundColor: '#d32f2f', color: '#fff', border: 'none', borderRadius: 6 }}>
+                            <Button type="submit" variant="contained" color="error" size="small" fullWidth>
                                 Logout
-                            </button>
+                            </Button>
                         </Stack>
                     </form>
                 </Box>

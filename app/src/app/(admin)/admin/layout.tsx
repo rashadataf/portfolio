@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { auth, signOut } from "@/lib/auth";
 import { ThemeProvider } from '@/context/theme.provider';
 import { AdminSidebar } from '@/components/AdminSidebar';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
 
 export default async function AdminLayout({
     children,
@@ -22,14 +24,17 @@ export default async function AdminLayout({
     }
     return (
         <ThemeProvider>
-            <div className="flex h-screen bg-gray-100">
+            <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
                 <AdminSidebar signOut={adminSignOut} />
-                <div className="flex-1 flex flex-col overflow-hidden">
-                    <main className="flex-1 overflow-y-auto p-6">
-                        {children}
-                    </main>
-                </div>
-            </div>
+
+                <Box component="main" sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <Box component="div" sx={{ flex: 1, overflowY: 'auto', py: { xs: 2, md: 4 } }}>
+                        <Container maxWidth="lg">
+                            {children}
+                        </Container>
+                    </Box>
+                </Box>
+            </Box>
         </ThemeProvider>
     )
 }
