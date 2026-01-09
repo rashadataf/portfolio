@@ -87,8 +87,8 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
     const imageRef = useRef<HTMLInputElement | null>(null);
 
     return (
-        <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 800, bgcolor: 'background.paper', p: 3, borderRadius: 1, boxShadow: 1 }}>
-            <Stack spacing={2}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 900, width: '100%', mx: 'auto', bgcolor: 'background.paper', p: 3, borderRadius: 1, boxShadow: 1 }}>
+            <Stack spacing={3}>
                 <TextField label="Headline" name="headline" value={formData.headline || ''} onChange={handleChange} fullWidth />
 
                 <TextField label="Bio (English)" name="bioEn" value={formData.bioEn || ''} onChange={handleChange} fullWidth multiline rows={4} />
@@ -96,15 +96,15 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
                 <TextField label="About Me (English)" name="aboutEn" value={formData.aboutEn || ''} onChange={handleChange} fullWidth multiline rows={6} />
 
                 <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '33%', xs: '100%' } }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0, maxWidth: { md: '33%', xs: '100%' } }}>
                         <TextField label="Happy Clients" name="happyClients" type="number" value={formData.happyClients || 0} onChange={handleChange} fullWidth />
                     </Box>
 
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '33%', xs: '100%' } }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0, maxWidth: { md: '33%', xs: '100%' } }}>
                         <TextField label="Projects Completed" name="projectsCompleted" type="number" value={formData.projectsCompleted || 0} onChange={handleChange} fullWidth />
                     </Box>
 
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '33%', xs: '100%' } }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0, maxWidth: { md: '33%', xs: '100%' } }}>
                         <TextField label="Years of Experience" name="yearsOfExperience" type="number" value={formData.yearsOfExperience || 0} onChange={handleChange} fullWidth />
                     </Box>
                 </Stack>
@@ -115,23 +115,23 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
 
                 <Box>
                     <Typography variant="subtitle2" sx={{ mb: 1 }}>Resume URL</Typography>
-                    <Stack direction="row" spacing={1}>
+                    <Stack direction="row" spacing={1} alignItems="center">
                         <TextField label="Resume URL" name="resumeUrl" value={formData.resumeUrl || ''} onChange={handleChange} fullWidth />
                         <input type="file" accept=".pdf" ref={resumeRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'resumeUrl')} disabled={isUploadingResume} />
-                        <Button type="button" variant="secondary" onClick={() => resumeRef.current?.click()} disabled={isUploadingResume}>{isUploadingResume ? 'Uploading...' : 'Upload PDF'}</Button>
+                        <Button type="button" variant="default" size="sm" onClick={() => resumeRef.current?.click()} disabled={isUploadingResume} sx={{ minWidth: 110, bgcolor: 'success.main', color: 'success.contrastText', '&:hover': { bgcolor: 'success.dark' } }}>{isUploadingResume ? 'Uploading...' : 'Upload PDF'}</Button>
                     </Stack>
                 </Box>
 
                 <Box>
                     <Typography variant="subtitle2" sx={{ mb: 1 }}>Hero Image URL</Typography>
-                    <Stack direction="row" spacing={1}>
+                    <Stack direction="row" spacing={1} alignItems="center">
                         <TextField label="Hero Image URL" name="heroImageUrl" value={formData.heroImageUrl || ''} onChange={handleChange} fullWidth />
                         <input type="file" accept="image/*" ref={imageRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'heroImageUrl')} disabled={isUploadingImage} />
-                        <Button type="button" variant="secondary" onClick={() => imageRef.current?.click()} disabled={isUploadingImage}>{isUploadingImage ? 'Uploading...' : 'Upload Image'}</Button>
+                        <Button type="button" variant="default" size="sm" onClick={() => imageRef.current?.click()} disabled={isUploadingImage} sx={{ minWidth: 110, bgcolor: 'success.main', color: 'success.contrastText', '&:hover': { bgcolor: 'success.dark' } }}>{isUploadingImage ? 'Uploading...' : 'Upload Image'}</Button>
                     </Stack>
                 </Box>
 
-                <Button type="submit" disabled={isLoading || isUploadingResume || isUploadingImage} sx={{ width: '100%' }}>
+                <Button type="submit" disabled={isLoading || isUploadingResume || isUploadingImage} sx={{ width: '100%', py: 1.5 }}>
                     {isLoading ? 'Saving...' : 'Save Changes'}
                 </Button>
             </Stack>
