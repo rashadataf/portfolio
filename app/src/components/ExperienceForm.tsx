@@ -100,8 +100,8 @@ export const ExperienceForm = ({ initialData, onSuccess, onCancel }: ExperienceF
                     fullWidth
                 />
 
-                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '50%', xs: '100%' } }}>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
                         <TextField
                             label="Start Date"
                             name="startDate"
@@ -113,7 +113,7 @@ export const ExperienceForm = ({ initialData, onSuccess, onCancel }: ExperienceF
                         />
                     </Box>
 
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '50%', xs: '100%' } }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
                         <TextField
                             label="End Date"
                             name="endDate"
@@ -124,6 +124,17 @@ export const ExperienceForm = ({ initialData, onSuccess, onCancel }: ExperienceF
                             placeholder="e.g. Present"
                         />
                     </Box>
+
+                    <Box sx={{ width: { xs: '100%', md: 140 } }}>
+                        <TextField
+                            label="Display Order"
+                            name="displayOrder"
+                            type="number"
+                            value={formData.displayOrder}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
                 </Stack>
 
                 <TextField
@@ -132,24 +143,16 @@ export const ExperienceForm = ({ initialData, onSuccess, onCancel }: ExperienceF
                     value={formData.responsibilities}
                     onChange={handleChange}
                     multiline
-                    rows={5}
+                    rows={6}
                     fullWidth
-                />
-
-                <TextField
-                    label="Display Order"
-                    name="displayOrder"
-                    type="number"
-                    value={formData.displayOrder}
-                    onChange={handleChange}
-                    fullWidth
+                    placeholder={"- Implemented feature X\n- Improved performance by Y%\n- Collaborated with team"}
                 />
 
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                    <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
+                    <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isLoading}>
+                    <Button type="submit" disabled={isLoading} sx={{ minWidth: 160 }}>
                         {isLoading ? 'Saving...' : initialData ? 'Update Experience' : 'Create Experience'}
                     </Button>
                 </Box>
