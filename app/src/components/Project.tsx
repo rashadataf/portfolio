@@ -99,8 +99,24 @@ export const Project = ({
             </CardActions>
 
             <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
-                <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 700, mb: 1 }}>{title}</Typography>
-                <Typography variant="body1">{description}</Typography>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: 1 }}>
+                        <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 700, mb: 1 }}>{title}</Typography>
+                        <Typography variant="body1" sx={{ mb: 2 }}>{description}</Typography>
+
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                            {technologies.map((tech) => (
+                                <Chip key={tech} label={tech} size="small" variant="outlined" sx={{ textTransform: 'none' }} />
+                            ))}
+                        </Box>
+                    </Box>
+
+                    {imageUrl && (
+                        <Box sx={{ width: { xs: '100%', md: 220 }, height: { xs: 160, md: 140 }, position: 'relative', borderRadius: 1, overflow: 'hidden', boxShadow: 1 }}>
+                            <Image src={imageUrl} alt={`Screenshot of ${title}`} fill style={{ objectFit: 'cover' }} />
+                        </Box>
+                    )}
+                </Box>
             </Modal>
         </Card>
     );

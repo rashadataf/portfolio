@@ -11,7 +11,17 @@ interface ModalProps {
 
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
     return (
-        <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="md" aria-labelledby="modal-dialog">
+        <Dialog
+            open={isOpen}
+            onClose={onClose}
+            fullWidth
+            maxWidth="md"
+            aria-labelledby="modal-dialog"
+            slotProps={{
+                backdrop: { sx: { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' } },
+                paper: { sx: { p: { xs: 2, md: 3 }, borderRadius: 2, boxShadow: 24 } },
+            }}
+        >
             <DialogContent>
                 <div style={{ position: "relative" }}>
                     <IconButton
