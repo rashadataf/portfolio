@@ -33,42 +33,46 @@ export const HomePage = ({ profile }: HomePageProps) => {
         []
     )
     return (
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: 'space-around', flexGrow: 1, px: { xl: 8 } }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: { xs: 'center', md: 'space-between' }, gap: { xs: 4, md: 8 }, flexGrow: 1, px: { xs: 3, md: 6, xl: 8 }, py: { xs: 4, md: 8 } }}>
 
-            <Section id="main-image" ariaLabelledBy="main-page-image" className="p-10 md:p-30 md:w-1/2">
-                <Paper elevation={3} sx={{ p: 2, display: 'flex', justifyContent: 'center', borderRadius: 2 }}>
-                    <Image
-                        src={profile?.heroImageUrl || profilePic}
-                        alt="Portrait of Rashad Ataf, Full Stack Developer."
-                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                        loading="eager"
-                        width={450}
-                        height={450}
-                        priority
-                        quality={75}
-                    />
+            <Section id="main-image" ariaLabelledBy="main-page-image" className="p-2 md:w-1/2" sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                <Paper elevation={6} sx={{ p: 2, borderRadius: 2, boxShadow: 6, width: { xs: '100%', md: 560 }, maxWidth: '100%', overflow: 'hidden' }}>
+                    <Box sx={{ position: 'relative', width: '100%', height: { xs: 320, md: 520 } }}>
+                        <Image
+                            src={profile?.heroImageUrl || profilePic}
+                            alt="Portrait of Rashad Ataf, Full Stack Developer."
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            priority
+                            quality={75}
+                        />
+                    </Box>
                 </Paper>
             </Section>
 
-            <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-4 md:w-1/2">
-                <Typography id="main-page-header" variant="h3" component="h1" sx={{ fontWeight: 700, mb: 2 }}>
-                    {profile?.headline ? (
-                        <span>{profile.headline}</span>
-                    ) : (
-                        <>Welcome to My <span style={{ color: 'var(--accent-color)' }}>Portfolio</span></>
-                    )}
-                </Typography>
-                <Typography variant="body1" sx={{ fontSize: '1.125rem' }}>
-                    {profile?.bioEn || "I am a Full Stack Developer with a focus on crafting user-centric web and mobile applications. My expertise lies in delivering simple yet effective solutions across diverse platforms, ensuring a seamless user experience."}
-                </Typography>
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mt: 4 }}>
-                    <Button component={Link} href={profile?.resumeUrl || "/Rashad Ataf.pdf"} variant="default" size="sm">
-                        Download Resume
-                    </Button>
-                    <Button component={Link} href={`mailto:${profile?.contactEmail || "rashadattaf@gmail.com"}`} variant="ghost" size="sm">
-                        Contact Me
-                    </Button>
-                </Stack>
+            <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-2 md:w-1/2" sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ maxWidth: 720 }}>
+                    <Typography id="main-page-header" variant="h1" component="h1" sx={{ fontWeight: 700, mb: 2, fontSize: { xs: '2rem', md: '3.25rem' }, lineHeight: 1.05 }}>
+                        {profile?.headline ? (
+                            <span>{profile.headline}</span>
+                        ) : (
+                            <>Welcome to My <Box component="span" sx={{ color: 'primary.main' }}>Portfolio</Box></>
+                        )}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontSize: { xs: '1rem', md: '1.125rem' }, color: 'text.secondary' }}>
+                        {profile?.bioEn || "I am a Full Stack Developer with a focus on crafting user-centric web and mobile applications. My expertise lies in delivering simple yet effective solutions across diverse platforms, ensuring a seamless user experience."}
+                    </Typography>
+
+                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mt: 4, alignItems: 'center' }}>
+                        <Button component={Link} href={profile?.resumeUrl || "/Rashad Ataf.pdf"} variant="default" size="sm" sx={{ textTransform: 'uppercase', px: 3, py: 1.25 }}>
+                            DOWNLOAD RESUME
+                        </Button>
+
+                        <Button component={Link} href={`mailto:${profile?.contactEmail || "rashadattaf@gmail.com"}`} variant="ghost" size="sm" sx={{ textTransform: 'none' }}>
+                            Contact Me
+                        </Button>
+                    </Stack>
+                </Box>
             </Section>
         </Box>
     )
