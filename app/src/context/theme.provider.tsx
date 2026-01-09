@@ -2,6 +2,7 @@
 import { createContext, useCallback, useMemo, useContext, useEffect, PropsWithChildren } from 'react';
 import { useSafeState } from '@/hooks/useSafeState.hook';
 import { THEME, ThemeContextType } from '@/types';
+import { ThemeProvider as MuiThemeProvider, createTheme, CssBaseline } from '@mui/material';
 
 
 
@@ -59,9 +60,25 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
         [theme, toggleTheme]
     );
 
-    return <ThemeContext.Provider value={value}>
-        {children}
-    </ThemeContext.Provider>;
+    const muiTheme = useMemo(
+        () =>
+            createTheme({
+                palette: {
+                    mode: theme === THEME.DARK ? 'dark' : 'light',
+                    primary: { main: '#840400' },
+                },
+            }),
+        [theme]
+    );
+
+    return (
+        <MuiThemeProvider theme={muiTheme}>
+            <CssBaseline />
+            <ThemeContext.Provider value={value}>
+                {children}
+            </ThemeContext.Provider>
+        </MuiThemeProvider>
+    );
 };
 
 export const useThemeContext = () => {

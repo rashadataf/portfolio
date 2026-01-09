@@ -1,13 +1,11 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, type ReactElement } from 'react';
 import { useThemeContext } from '@/context/theme.provider';
 import { THEME } from '@/types';
 import { MoonIcon, SunIcon } from '@/components/Icons';
 import { useSafeState } from '@/hooks/useSafeState.hook';
 
-const renderIconConditionally: {
-    [key in THEME]: JSX.Element;
-} = {
+const renderIconConditionally: Record<THEME, ReactElement> = {
     "dark": <SunIcon className='h-5 w-5' />,
     "light": <MoonIcon className='h-5 w-5' />,
 }
