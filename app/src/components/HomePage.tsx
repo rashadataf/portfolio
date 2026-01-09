@@ -7,6 +7,11 @@ import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import profilePic from '@public/images/rashad.webp';
 import { Loader } from "@/components/Loader";
 import { Profile } from "@/modules/profile/profile.entity";
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import { Button } from '@/components/UI/Button';
 
 const Section = dynamic(() =>
     import('@/components/Section').then((mod) => mod.Section),
@@ -28,49 +33,43 @@ export const HomePage = ({ profile }: HomePageProps) => {
         []
     )
     return (
-        <div className="flex flex-col md:flex-row items-center justify-around flex-grow xl:px-64">
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: 'space-around', flexGrow: 1, px: { xl: 8 } }}>
 
             <Section id="main-image" ariaLabelledBy="main-page-image" className="p-10 md:p-30 md:w-1/2">
-                <Image
-                    src={profile?.heroImageUrl || profilePic}
-                    alt="Portrait of Rashad Ataf, Full Stack Developer."
-                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                    loading="eager"
-                    width={450}
-                    height={450}
-                    priority
-                    quality={15}
-                />
+                <Paper elevation={3} sx={{ p: 2, display: 'flex', justifyContent: 'center', borderRadius: 2 }}>
+                    <Image
+                        src={profile?.heroImageUrl || profilePic}
+                        alt="Portrait of Rashad Ataf, Full Stack Developer."
+                        sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                        loading="eager"
+                        width={450}
+                        height={450}
+                        priority
+                        quality={75}
+                    />
+                </Paper>
             </Section>
 
             <Section id="main-page" ariaLabelledBy="main-page-header" className="w-full p-4 md:w-1/2">
-                <h1 id="main-page-header" className="text-2xl md:text-4xl font-bold mb-4">
+                <Typography id="main-page-header" variant="h3" component="h1" sx={{ fontWeight: 700, mb: 2 }}>
                     {profile?.headline ? (
                         <span>{profile.headline}</span>
                     ) : (
-                        <>Welcome to My <span className="text-accent-color">Portfolio</span></>
+                        <>Welcome to My <span style={{ color: 'var(--accent-color)' }}>Portfolio</span></>
                     )}
-                </h1>
-                <p className="text-lg">
+                </Typography>
+                <Typography variant="body1" sx={{ fontSize: '1.125rem' }}>
                     {profile?.bioEn || "I am a Full Stack Developer with a focus on crafting user-centric web and mobile applications. My expertise lies in delivering simple yet effective solutions across diverse platforms, ensuring a seamless user experience."}
-                </p>
-                <div className="flex flex-col max-w-[200px] md:max-w-none md:flex-row md:space-x-4 space-y-4 md:space-y-0 mt-8">
-                    <Link
-                        href={profile?.resumeUrl || "/Rashad Ataf.pdf"}
-                        className="bg-[--text-color] text-white hover:scale-110 hover:shadow-md hover:shadow-accent-color font-semibold py-2 px-4 rounded shadow"
-                        aria-label="Download Rashad Ataf’s Resume"
-                        target="_blank"
-                    >
-                        Download Resume
-                    </Link>
-                    <Link
-                        href={`mailto:${profile?.contactEmail || "rashadattaf@gmail.com"}`}
-                        className="bg-accent-color text-white hover:scale-110 hover:shadow-md hover:shadow-[--text-color] font-semibold py-2 px-4 rounded shadow"
-                    >
+                </Typography>
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mt: 4 }}>
+                    <Button asChild variant="default" size="sm">
+                        <a href={profile?.resumeUrl || "/Rashad Ataf.pdf"} target="_blank" rel="noopener noreferrer">Download Resume</a>
+                    </Button>
+                    <Button component={Link as any} href={`mailto:${profile?.contactEmail || "rashadattaf@gmail.com"}`} variant="ghost" size="sm">
                         Contact Me
-                    </Link>
-                </div>
+                    </Button>
+                </Stack>
             </Section>
-        </div>
+        </Box>
     )
 }

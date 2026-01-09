@@ -12,6 +12,11 @@ import { Experience as ExperienceType } from '@/modules/experience/experience.en
 import { Education as EducationType } from '@/modules/education/education.entity';
 import { Profile } from '@/modules/profile/profile.entity';
 import { Users, CheckCircle, Calendar, Briefcase, GraduationCap, Code } from 'lucide-react';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 const Section = dynamic(() =>
     import('@/components/Section').then((mod) => mod.Section),
@@ -40,109 +45,117 @@ export const AboutPage = ({ skills = [], experiences = [], educations = [], prof
     const familiarSkills = skills.filter(s => s.category === SkillCategory.Familiar);
 
     return (
-        <div className="text-main flex flex-col items-center p-4 md:p-8 max-w-7xl mx-auto">
+        <Box component="main" sx={{ color: 'text.primary', display: 'flex', flexDirection: 'column', alignItems: 'center', p: { xs: 2, md: 4 }, maxWidth: '1200px', mx: 'auto' }}>
             {/* About Me Section */}
             <Section id='about-me' ariaLabelledBy='about-me-header' className="text-center w-full mb-16">
-                <h1 id="about-me-header" className="text-5xl font-bold my-6 sm:my-12 bg-clip-text">About Me</h1>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-                    <div className="lg:col-span-2 text-left">
-                        <div className="bg-white/50 dark:bg-gray-900/70 p-8 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-xl backdrop-blur-sm">
+                <Typography id="about-me-header" variant="h3" component="h1" sx={{ fontSize: { xs: '2.25rem', md: '3rem' }, fontWeight: 700, my: 4 }}>About Me</Typography>
+
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 4, alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: '1 1 66%' }}>
+                        <Paper elevation={2} sx={{ p: 3, borderRadius: 3 }}>
                             {profile?.aboutEn ? (
                                 <div
-                                    className="text-base sm:text-lg leading-relaxed text-gray-700 dark:text-gray-300 space-y-4"
                                     dangerouslySetInnerHTML={{ __html: profile.aboutEn }}
                                 />
                             ) : (
-                                <p className="text-base sm:text-lg leading-relaxed text-gray-700 dark:text-gray-300">
+                                <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
                                     Embarking on my programming journey in 2010,
                                     I began with Visual Basic 6 during my high school years.
                                     Since then, my passion for technology has led me to a Bachelor&apos;s degree in Computer Engineering and over five years of professional experience in the tech industry.
                                     Currently, I am part of the <Link className='text-accent-color font-bold hover:underline' href="https://www.zimconnections.com" target="_blank" rel="noopener noreferrer">ZIM Connections</Link> team,
                                     where I continue to hone my expertise in various JavaScript technologies,
                                     frameworks, and libraries.
-                                </p>
+                                </Typography>
                             )}
-                        </div>
-                    </div>
+                        </Paper>
+                    </Box>
 
                     {/* Key Achievements Cards */}
-                    <div className="lg:col-span-1 flex flex-col gap-4">
-                        <div className="bg-white/50 dark:bg-gray-900/70 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-accent-color/50 transition-all duration-300 hover:transform hover:-translate-y-1 shadow-lg group">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div className="p-3 bg-blue-500/10 rounded-lg text-blue-600 dark:text-blue-400 group-hover:text-blue-500 dark:group-hover:text-blue-300 group-hover:bg-blue-500/20 transition-colors">
-                                    <Users className="w-6 h-6" />
-                                </div>
-                                <h3 className="text-lg font-medium text-gray-600 dark:text-gray-200">Happy Clients</h3>
-                            </div>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white ml-16">{profile?.happyClients ? `${profile.happyClients}+` : '100+'}</p>
-                        </div>
+                    <Box sx={{ flex: '1 1 34%' }}>
+                        <Stack spacing={2}>
+                            <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                    <Box sx={{ p: 1.5, borderRadius: 1, bgcolor: 'primary.main', color: 'primary.contrastText', display: 'inline-flex' }}>
+                                        <Users />
+                                    </Box>
+                                    <Box>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Happy Clients</Typography>
+                                        <Typography variant="h5" sx={{ fontWeight: 700 }}>{profile?.happyClients ? `${profile.happyClients}+` : '100+'}</Typography>
+                                    </Box>
+                                </Stack>
+                            </Paper>
 
-                        <div className="bg-white/50 dark:bg-gray-900/70 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-accent-color/50 transition-all duration-300 hover:transform hover:-translate-y-1 shadow-lg group">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div className="p-3 bg-green-500/10 rounded-lg text-green-600 dark:text-green-400 group-hover:text-green-500 dark:group-hover:text-green-300 group-hover:bg-green-500/20 transition-colors">
-                                    <CheckCircle className="w-6 h-6" />
-                                </div>
-                                <h3 className="text-lg font-medium text-gray-600 dark:text-gray-200">Projects Completed</h3>
-                            </div>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white ml-16">{profile?.projectsCompleted ? `${profile.projectsCompleted}+` : '200+'}</p>
-                        </div>
+                            <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                    <Box sx={{ p: 1.5, borderRadius: 1, bgcolor: 'success.main', color: 'success.contrastText', display: 'inline-flex' }}>
+                                        <CheckCircle />
+                                    </Box>
+                                    <Box>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Projects Completed</Typography>
+                                        <Typography variant="h5" sx={{ fontWeight: 700 }}>{profile?.projectsCompleted ? `${profile.projectsCompleted}+` : '200+'}</Typography>
+                                    </Box>
+                                </Stack>
+                            </Paper>
 
-                        <div className="bg-white/50 dark:bg-gray-900/70 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-accent-color/50 transition-all duration-300 hover:transform hover:-translate-y-1 shadow-lg group">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div className="p-3 bg-purple-500/10 rounded-lg text-purple-600 dark:text-purple-400 group-hover:text-purple-500 dark:group-hover:text-purple-300 group-hover:bg-purple-500/20 transition-colors">
-                                    <Calendar className="w-6 h-6" />
-                                </div>
-                                <h3 className="text-lg font-medium text-gray-600 dark:text-gray-200">Years Experience</h3>
-                            </div>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white ml-16">{profile?.yearsOfExperience || '5'}</p>
-                        </div>
-                    </div>
-                </div>
+                            <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                    <Box sx={{ p: 1.5, borderRadius: 1, bgcolor: 'secondary.main', color: 'secondary.contrastText', display: 'inline-flex' }}>
+                                        <Calendar />
+                                    </Box>
+                                    <Box>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Years Experience</Typography>
+                                        <Typography variant="h5" sx={{ fontWeight: 700 }}>{profile?.yearsOfExperience || '5'}</Typography>
+                                    </Box>
+                                </Stack>
+                            </Paper>
+                        </Stack>
+                    </Box>
+                </Box>
             </Section>
 
             {/* Skills Section */}
             <Section id="skills" ariaLabelledBy="skills-header" className="w-full mb-16">
-                <div className="flex items-center justify-center gap-3 mb-10">
-                    <Code className="w-8 h-8 text-accent-color" />
-                    <h2 id="skills-header" className="text-4xl sm:text-5xl font-bold text-center">Skills</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <article className="bg-white/50 dark:bg-gray-900/70 p-8 rounded-2xl border border-gray-200 dark:border-gray-700/50">
-                        <h3 className="text-2xl font-semibold mb-8 text-center text-accent-color dark:text-purple-300 border-b border-gray-200 dark:border-gray-700 pb-4">Proficient</h3>
-                        <ul className="space-y-6">
-                            {proficientSkills.map((skill) => (
-                                <li key={skill.id}><Skill name={skill.name} percentage={skill.percentage} /></li>
-                            ))}
-                        </ul>
-                    </article>
+                <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ mb: 4 }}>
+                    <Code />
+                    <Typography id="skills-header" variant="h4" component="h2">Skills</Typography>
+                </Stack>
 
-                    <article className="bg-white/50 dark:bg-gray-900/70 p-8 rounded-2xl border border-gray-200 dark:border-gray-700/50">
-                        <h3 className="text-2xl font-semibold mb-8 text-center text-accent-color dark:text-purple-300 border-b border-gray-200 dark:border-gray-700 pb-4">Familiar</h3>
-                        <ul className="space-y-6">
-                            {familiarSkills.map((skill) => (
-                                <li key={skill.id}><Skill name={skill.name} percentage={skill.percentage} /></li>
-                            ))}
-                        </ul>
-                    </article>
-                </div>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
+                    <Box sx={{ flex: 1 }}>
+                        <Paper elevation={2} sx={{ p: 3, borderRadius: 3 }}>
+                            <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>Proficient</Typography>
+                            <Stack spacing={2}>
+                                {proficientSkills.map((skill) => (
+                                    <div key={skill.id}><Skill name={skill.name} percentage={skill.percentage} /></div>
+                                ))}
+                            </Stack>
+                        </Paper>
+                    </Box>
+
+                    <Box sx={{ flex: 1 }}>
+                        <Paper elevation={2} sx={{ p: 3, borderRadius: 3 }}>
+                            <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>Familiar</Typography>
+                            <Stack spacing={2}>
+                                {familiarSkills.map((skill) => (
+                                    <div key={skill.id}><Skill name={skill.name} percentage={skill.percentage} /></div>
+                                ))}
+                            </Stack>
+                        </Paper>
+                    </Box>
+                </Box>
             </Section>
 
             {/* Experience Section */}
             <Section id="experience" ariaLabelledBy="experience-header" className="w-full mb-16">
-                <div className="flex items-center justify-center gap-3 mb-12">
-                    <Briefcase className="w-8 h-8 text-accent-color" />
-                    <h2 id="experience-header" className="text-4xl sm:text-5xl font-bold text-center">Experience</h2>
-                </div>
-                
-                <div className="max-w-4xl mx-auto">
-                    <ol className="relative border-l-2 border-gray-200 dark:border-gray-700 pl-8 md:pl-12 space-y-12">
+                <Stack alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                    <Briefcase />
+                    <Typography id="experience-header" variant="h4" component="h2">Experience</Typography>
+                </Stack>
+
+                <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+                    <Stack spacing={4}>
                         {experiences.map((item, index) => (
-                            <li key={index} className="relative">
-                                <span className="absolute -left-[2.4rem] md:-left-[3.4rem] flex items-center justify-center w-6 h-6 bg-accent-color rounded-full ring-4 ring-white dark:ring-gray-900">
-                                    <Briefcase className="w-3 h-3 text-white" />
-                                </span>
+                            <Box key={index} sx={{ position: 'relative', pl: 3 }}>
                                 <Experience
                                     company={item.company}
                                     from={item.startDate}
@@ -151,26 +164,23 @@ export const AboutPage = ({ skills = [], experiences = [], educations = [], prof
                                     position={item.position}
                                     responsibilities={item.responsibilities}
                                 />
-                            </li>
+                            </Box>
                         ))}
-                    </ol>
-                </div>
+                    </Stack>
+                </Box>
             </Section>
 
             {/* Education Section */}
             <Section id="education" ariaLabelledBy="education-header" className="w-full mb-16">
-                <div className="flex items-center justify-center gap-3 mb-12">
-                    <GraduationCap className="w-8 h-8 text-accent-color" />
-                    <h2 id="education-header" className="text-4xl sm:text-5xl font-bold text-center">Education</h2>
-                </div>
-                
-                <div className="max-w-4xl mx-auto">
-                    <div className="relative border-l-2 border-gray-200 dark:border-gray-700 pl-8 md:pl-12 space-y-12">
+                <Stack alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                    <GraduationCap />
+                    <Typography id="education-header" variant="h4" component="h2">Education</Typography>
+                </Stack>
+
+                <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+                    <Stack spacing={4}>
                         {educations.map((edu, index) => (
-                            <article key={index} className="relative">
-                                <span className="absolute -left-[2.4rem] md:-left-[3.4rem] flex items-center justify-center w-6 h-6 bg-accent-color rounded-full ring-4 ring-white dark:ring-gray-900">
-                                    <GraduationCap className="w-3 h-3 text-white" />
-                                </span>
+                            <Box key={index} sx={{ position: 'relative', pl: 3 }}>
                                 <Education
                                     degree={edu.degree}
                                     field={edu.field}
@@ -178,11 +188,11 @@ export const AboutPage = ({ skills = [], experiences = [], educations = [], prof
                                     to={edu.endDate}
                                     institution={edu.institution}
                                 />
-                            </article>
+                            </Box>
                         ))}
-                    </div>
-                </div>
+                    </Stack>
+                </Box>
             </Section>
-        </div>
+        </Box>
     );
 }
