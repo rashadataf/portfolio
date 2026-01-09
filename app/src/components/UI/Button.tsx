@@ -11,7 +11,7 @@ export type ButtonProps = Omit<MuiButtonProps, "color" | "size" | "variant"> & {
   variant?: Variant; // compatible with original prop name
   size?: ButtonSize; // compatible size names used throughout the app
   asChild?: boolean;
-};
+} & React.AnchorHTMLAttributes<HTMLAnchorElement>;
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = "default", size = "default", children, sx, asChild = false, ...props }, ref) => {
@@ -39,7 +39,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     if (asChild) {
       return (
         <Slot>
-          <MuiButton variant={m.variant} color={m.color as any} size={muiSize} sx={{ ...extraSx, ...(sx as any) }} ref={ref as any} {...props}>
+          <MuiButton variant={m.variant} color={m.color as any} size={muiSize} sx={{ ...extraSx, ...(sx as any) }} ref={ref as any} {...(props as any)}>
             {children}
           </MuiButton>
         </Slot>
@@ -47,7 +47,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      <MuiButton variant={m.variant} color={m.color as any} size={muiSize} sx={{ ...extraSx, ...(sx as any) }} ref={ref as any} {...props}>
+      <MuiButton variant={m.variant} color={m.color as any} size={muiSize} sx={{ ...extraSx, ...(sx as any) }} ref={ref as any} {...(props as any)}>
         {children}
       </MuiButton>
     );

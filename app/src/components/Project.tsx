@@ -5,10 +5,12 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
-import CardMedia from '@mui/material/CardMedia';
 import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import AndroidIcon from '@mui/icons-material/Android';
+import AppleIcon from '@mui/icons-material/Apple';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { Modal } from "@/components/Modal";
 import { Button } from '@/components/UI/Button';
@@ -36,39 +38,60 @@ export const Project = ({
 }: ProjectProps) => {
     const [isModalOpen, setModalOpen] = useSafeState(false);
     return (
-        <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <Box sx={{ position: 'relative', width: '100%', height: 220 }}>
+        <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%', transition: 'transform .15s ease, boxShadow .15s ease', '&:hover': { transform: 'translateY(-6px)', boxShadow: 6 } }}>
+            <Box sx={{ position: 'relative', width: '100%', height: 220, overflow: 'hidden', borderTopLeftRadius: 2, borderTopRightRadius: 2 }}>
                 <Image
                     src={imageUrl}
                     alt={`Screenshot of ${title}`}
-                    className="w-full object-cover"
                     sizes="(max-width: 600px) 30vw, 20vw"
-                    placeholder="blur"
-                    blurDataURL={imageUrl}
-                    quality={40}
+                    quality={60}
                     fill
-                    priority
+                    style={{ objectFit: 'cover' }}
                 />
             </Box>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                 <Typography variant="h6" component="h3" gutterBottom>
                     {title}
                 </Typography>
-                <Typography variant="body2" sx={{ flexGrow: 1, overflow: 'hidden', maxHeight: 56 }}>
+                <Typography variant="body2" sx={{ flexGrow: 1, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
                     {description}
                 </Typography>
 
-                <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap' }}>
-                    {technologies.map((tech, index) => (
-                        <Chip key={index} label={tech} size="small" sx={{ mr: 1, mb: 1 }} />
+                <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+                    {technologies.slice(0, 3).map((tech) => (
+                        <Chip key={tech} label={tech} size="small" variant="outlined" sx={{ textTransform: 'none' }} />
                     ))}
-                </Stack>
+                    {technologies.length > 3 && (
+                        <Chip label={`+${technologies.length - 3} more`} size="small" variant="outlined" sx={{ cursor: 'pointer' }} onClick={() => setModalOpen(true)} />
+                    )}
+                </Box>
             </CardContent>
 
-            <CardActions sx={{ mt: 'auto', px: 2, pb: 2, justifyContent: 'space-between' }}>
-                <Box>
-                    {liveUrl && <Button asChild variant="ghost" size="sm"><a href={liveUrl} target="_blank" rel="noreferrer">Live Demo</a></Button>}
-                    {sourceCodeUrl && <Button asChild variant="ghost" size="sm"><a href={sourceCodeUrl} target="_blank" rel="noreferrer">Source Code</a></Button>}
+            <CardActions sx={{ mt: 'auto', px: 2, pb: 2, justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                    {liveUrl && (
+                        <Button component={Link} href={liveUrl} target="_blank" rel="noreferrer" variant="ghost" size="sm" startIcon={<OpenInNewIcon fontSize="small" />} sx={{ color: 'primary.main', textDecoration: 'none', textTransform: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                            Live
+                        </Button>
+                    )}
+
+                    {sourceCodeUrl && (
+                        <Button component={Link} href={sourceCodeUrl} target="_blank" rel="noreferrer" variant="ghost" size="sm" startIcon={<GitHubIcon fontSize="small" />} sx={{ color: 'primary.main', textDecoration: 'none', textTransform: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                            Code
+                        </Button>
+                    )}
+
+                    {playStoreUrl && (
+                        <Button component={Link} href={playStoreUrl} target="_blank" rel="noreferrer" variant="ghost" size="sm" startIcon={<AndroidIcon fontSize="small" />} sx={{ color: 'primary.main', textDecoration: 'none', textTransform: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                            Play
+                        </Button>
+                    )}
+
+                    {appStoreUrl && (
+                        <Button component={Link} href={appStoreUrl} target="_blank" rel="noreferrer" variant="ghost" size="sm" startIcon={<AppleIcon fontSize="small" />} sx={{ color: 'primary.main', textDecoration: 'none', textTransform: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                            App
+                        </Button>
+                    )}
                 </Box>
                 <Box>
                     <Button variant="default" size="sm" onClick={() => setModalOpen(true)}>Read More</Button>
