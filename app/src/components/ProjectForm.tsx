@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Project } from '@/modules/project/project.entity';
 import { createProject, updateProject } from '@/modules/project/project.controller';
+import { uploadFile } from '@/modules/file/file.controller';
 import { Button } from '@/components/UI/Button';
 import { toast } from 'sonner';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
+import Image from 'next/image';
 
 interface ProjectFormProps {
     initialData?: Project;
@@ -28,7 +30,28 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
         displayOrder: initialData?.displayOrder || 0,
     });
     const [isLoading, setIsLoading] = useState(false);
-
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const imageRef = useRef<HTMLInputElement | null>(null);
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setIsUploadingImage(true);
+        try {
+            const result = await uploadFile(file);
+            if (result.success && result.url) {
+                setFormData((prev) => ({ ...prev, imageUrl: result.url }));
+                toast.success('Image uploaded successfully');
+            } else {
+                toast.error('Failed to upload image');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('An error occurred during upload');
+        } finally {
+            setIsUploadingImage(false);
+            if (e.target) e.target.value = '';
+        }
+    }
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -92,17 +115,32 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
                     required
                     fullWidth
                     multiline
-                    rows={4}
+                    rows={6}
+                    placeholder="Short summary of the project and notable features"
                 />
 
-                <TextField
-                    label="Image URL"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleChange}
-                    required
-                    fullWidth
-                />
+                <Box>
+                    <TextField
+                        label="Image URL"
+                        name="imageUrl"
+                        value={formData.imageUrl}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                        <input type="file" accept="image/*" ref={imageRef} style={{ display: 'none' }} onChange={handleFileUpload} disabled={isUploadingImage} />
+                        <Button type="button" variant="default" size="sm" onClick={() => imageRef.current?.click()} disabled={isUploadingImage} sx={{ minWidth: 120 }}>
+                            {isUploadingImage ? 'Uploading...' : 'Upload Image'}
+                        </Button>
+
+                        {formData.imageUrl && (
+                            <Box sx={{ width: 64, height: 40, borderRadius: 1, overflow: 'hidden', border: 1, borderColor: 'divider', position: 'relative' }}>
+                                <Image src={formData.imageUrl} alt="preview" fill style={{ objectFit: 'cover' }} />
+                            </Box>
+                        )}
+                    </Box>
+                </Box>
 
                 <TextField
                     label="Technologies (comma separated)"
@@ -111,10 +149,12 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
                     onChange={handleChange}
                     required
                     fullWidth
+                    helperText="E.g. React, Next.js, PostgreSQL"
+                    placeholder="React, Next.js, PostgreSQL"
                 />
 
                 <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '50%', xs: '100%' } }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
                         <TextField
                             label="Live URL"
                             name="liveUrl"
@@ -124,7 +164,7 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
                         />
                     </Box>
 
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '50%', xs: '100%' } }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
                         <TextField
                             label="Source Code URL"
                             name="sourceCodeUrl"
@@ -133,8 +173,10 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
                             fullWidth
                         />
                     </Box>
+                </Stack>
 
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '50%', xs: '100%' } }}>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
                         <TextField
                             label="Play Store URL"
                             name="playStoreUrl"
@@ -144,11 +186,22 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
                         />
                     </Box>
 
-                    <Box sx={{ flex: '1 1 100%', maxWidth: { md: '50%', xs: '100%' } }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
                         <TextField
                             label="App Store URL"
                             name="appStoreUrl"
                             value={formData.appStoreUrl}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
+
+                    <Box sx={{ width: { xs: '100%', md: 140 } }}>
+                        <TextField
+                            label="Display Order"
+                            name="displayOrder"
+                            type="number"
+                            value={formData.displayOrder}
                             onChange={handleChange}
                             fullWidth
                         />
@@ -168,7 +221,7 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
                     <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isLoading}>
+                    <Button type="submit" disabled={isLoading} sx={{ minWidth: 160 }}>
                         {isLoading ? 'Saving...' : initialData ? 'Update Project' : 'Create Project'}
                     </Button>
                 </Box>
