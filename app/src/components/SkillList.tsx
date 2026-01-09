@@ -19,6 +19,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface SkillListProps {
     skills: Skill[];
@@ -151,8 +154,17 @@ export const SkillList = ({ skills }: SkillListProps) => {
                                 <TableCell>{skill.percentage}%</TableCell>
                                 <TableCell>{skill.displayOrder}</TableCell>
                                 <TableCell align="right">
-                                    <IconButton size="small" onClick={() => handleEdit(skill)} aria-label="edit">Edit</IconButton>
-                                    <IconButton size="small" onClick={() => handleDelete(skill.id)} aria-label="delete">Delete</IconButton>
+                                    <Tooltip title="Edit">
+                                        <IconButton size="small" onClick={() => handleEdit(skill)} color="primary" aria-label="edit" sx={{ ml: 1 }}>
+                                            <EditIcon fontSize="small" />
+                                        </IconButton>
+                                    </Tooltip>
+
+                                    <Tooltip title="Delete">
+                                        <IconButton size="small" onClick={() => handleDelete(skill.id)} color="error" aria-label="delete" sx={{ ml: 1 }}>
+                                            <DeleteIcon fontSize="small" />
+                                        </IconButton>
+                                    </Tooltip>
                                 </TableCell>
                             </TableRow>
                         ))}
