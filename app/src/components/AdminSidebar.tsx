@@ -2,6 +2,16 @@
 import Link from 'next/link';
 import { useSafeState } from '@/hooks/useSafeState.hook';
 import { usePathname } from 'next/navigation';
+import Box from '@mui/material/Box';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 export const AdminSidebar = ({
     signOut,
@@ -13,146 +23,51 @@ export const AdminSidebar = ({
 
     const isActive = (path: string) => pathname === path;
 
-    return (
-        <aside
-            className={`bg-gray-800 text-white flex flex-col h-full transition-all overflow-hidden ${isCollapsed ? 'w-16' : 'w-64'
-                }`}
-        >
-            <div className="flex justify-between items-center p-4">
-                {!isCollapsed && <span>Admin Panel</span>}
-                <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="text-gray-300 hover:text-white focus:outline-none"
-                >
-                    {isCollapsed ? '➡️' : '⬅️'}
-                </button>
-            </div>
+    const items = [
+        { href: '/admin', label: 'Home' },
+        { href: '/admin/articles', label: 'All Articles' },
+        { href: '/admin/profile', label: 'Profile' },
+        { href: '/admin/skills', label: 'Skills' },
+        { href: '/admin/experience', label: 'Experience' },
+        { href: '/admin/education', label: 'Education' },
+        { href: '/admin/projects', label: 'Projects' },
+        { href: '/admin/files', label: 'Files' },
+        { href: '/admin/articles/drafts', label: 'Drafts' },
+        { href: '/admin/articles/published', label: 'Published' },
+        { href: '/admin/articles/archived', label: 'Archived' },
+        { href: '/admin/settings', label: 'Settings' },
+    ];
 
-            <nav className={`flex-1 p-2 ${isCollapsed ? 'hidden' : 'block'}`}>
-                <ul>
-                    <li>
-                        <Link
-                            href="/admin"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Home
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/articles"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/articles') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            All Articles
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/profile"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/profile') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Profile
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/skills"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/skills') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Skills
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/experience"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/experience') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Experience
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/education"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/education') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Education
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/projects"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/projects') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Projects
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/files"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/files') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Files
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/articles/drafts"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/articles/drafts') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Drafts
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/articles/published"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/articles/published') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Published
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/articles/archived"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/articles/archived') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Archived
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/admin/settings"
-                            className={`block p-2 hover:bg-gray-700 ${isActive('/admin/settings') ? 'bg-gray-700' : ''
-                                }`}
-                        >
-                            Settings
-                        </Link>
-                    </li>
-                </ul>
-            </nav>
+    return (
+        <Box sx={{ position: 'sticky', top: 0, alignSelf: 'flex-start', bgcolor: 'background.paper', color: 'text.primary', display: 'flex', flexDirection: 'column', height: '100vh', transition: 'width .2s', width: isCollapsed ? 72 : 240, borderRight: 1, borderColor: 'divider', zIndex: (theme) => theme.zIndex.appBar }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, flexShrink: 0 }}>
+                {!isCollapsed && <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Admin Panel</Typography>}
+                <IconButton onClick={() => setIsCollapsed(!isCollapsed)} size="small" aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+                    {isCollapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
+                </IconButton>
+            </Box>
+
+            <Box sx={{ flex: '1 1 auto', p: 1 }}>
+                <List>
+                    {items.map((it) => (
+                        <ListItemButton key={it.href} component={Link} href={it.href} selected={isActive(it.href)} sx={{ borderRadius: 1, mb: 0.5 }}>
+                            <ListItemText primary={it.label} />
+                        </ListItemButton>
+                    ))}
+                </List>
+            </Box>
 
             {!isCollapsed && (
-                <div className="p-4">
+                <Box sx={{ p: 2 }}>
                     <form action={signOut}>
-                        <button
-                            type="submit"
-                            className="w-full p-2 text-sm bg-red-600 hover:bg-red-500 rounded"
-                        >
-                            Logout
-                        </button>
+                        <Stack>
+                            <Button type="submit" variant="contained" color="error" size="small" fullWidth>
+                                Logout
+                            </Button>
+                        </Stack>
                     </form>
-                </div>
+                </Box>
             )}
-        </aside>
+        </Box>
     );
 };

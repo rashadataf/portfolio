@@ -1,10 +1,13 @@
 'use client';
-
-import { useState } from 'react';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
+import { useSafeState } from '@/hooks/useSafeState.hook';
 import { Education } from '@/modules/education/education.entity';
 import { createEducation, updateEducation } from '@/modules/education/education.controller';
 import { Button } from '@/components/UI/Button';
-import { toast } from 'sonner';
 
 interface EducationFormProps {
     initialData?: Education;
@@ -13,7 +16,7 @@ interface EducationFormProps {
 }
 
 export const EducationForm = ({ initialData, onSuccess, onCancel }: EducationFormProps) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useSafeState({
         institution: initialData?.institution || '',
         degree: initialData?.degree || '',
         field: initialData?.field || '',
@@ -21,144 +24,123 @@ export const EducationForm = ({ initialData, onSuccess, onCancel }: EducationFor
         endDate: initialData?.endDate || '',
         displayOrder: initialData?.displayOrder || 0,
     });
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useSafeState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === 'displayOrder' ? Number(value) : value,
-        }));
-    };
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { name, value } = e.target;
+            setFormData((prev) => ({
+                ...prev,
+                [name]: name === 'displayOrder' ? Number(value) : value,
+            }));
+        },
+        [setFormData]
+    );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            let result;
-            if (initialData) {
-                result = await updateEducation(initialData.id, formData);
-            } else {
-                result = await createEducation(formData);
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+                let result;
+                if (initialData) {
+                    result = await updateEducation(initialData.id, formData);
+                } else {
+                    result = await createEducation(formData);
+                }
+
+                if (result.success) {
+                    toast.success(`Education ${initialData ? 'updated' : 'created'} successfully`);
+                    onSuccess();
+                } else {
+                    toast.error(`Failed to ${initialData ? 'update' : 'create'} education`);
+                }
+            } catch (error) {
+                toast.error('An error occurred');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-
-            if (result.success) {
-                toast.success(`Education ${initialData ? 'updated' : 'created'} successfully`);
-                onSuccess();
-            } else {
-                toast.error(`Failed to ${initialData ? 'update' : 'create'} education`);
-            }
-        } catch (error) {
-            toast.error('An error occurred');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [formData, initialData, onSuccess, setIsLoading]
+    );
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label htmlFor="institution" className="block text-sm font-medium text-gray-300">
-                    Institution
-                </label>
-                <input
-                    type="text"
-                    id="institution"
+        <form onSubmit={handleSubmit}>
+            <Stack spacing={2}>
+                <TextField
+                    label="Institution"
                     name="institution"
                     value={formData.institution}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div>
-                <label htmlFor="degree" className="block text-sm font-medium text-gray-300">
-                    Degree
-                </label>
-                <input
-                    type="text"
-                    id="degree"
+                <TextField
+                    label="Degree"
                     name="degree"
                     value={formData.degree}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div>
-                <label htmlFor="field" className="block text-sm font-medium text-gray-300">
-                    Field of Study
-                </label>
-                <input
-                    type="text"
-                    id="field"
+                <TextField
+                    label="Field of Study"
                     name="field"
                     value={formData.field}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-300">
-                        Start Date
-                    </label>
-                    <input
-                        type="text"
-                        id="startDate"
-                        name="startDate"
-                        value={formData.startDate}
-                        onChange={handleChange}
-                        required
-                        placeholder="e.g. Sep 2012"
-                        className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                    />
-                </div>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                        <TextField
+                            label="Start Date"
+                            name="startDate"
+                            value={formData.startDate}
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                            placeholder="e.g. Sep 2012"
+                        />
+                    </Box>
 
-                <div>
-                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-300">
-                        End Date
-                    </label>
-                    <input
-                        type="text"
-                        id="endDate"
-                        name="endDate"
-                        value={formData.endDate}
-                        onChange={handleChange}
-                        required
-                        placeholder="e.g. Sep 2019"
-                        className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                    />
-                </div>
-            </div>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                        <TextField
+                            label="End Date"
+                            name="endDate"
+                            value={formData.endDate}
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                            placeholder="e.g. Sep 2019"
+                        />
+                    </Box>
 
-            <div>
-                <label htmlFor="displayOrder" className="block text-sm font-medium text-gray-300">
-                    Display Order
-                </label>
-                <input
-                    type="number"
-                    id="displayOrder"
-                    name="displayOrder"
-                    value={formData.displayOrder}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                />
-            </div>
+                    <Box sx={{ width: { xs: '100%', md: 140 } }}>
+                        <TextField
+                            label="Display Order"
+                            name="displayOrder"
+                            type="number"
+                            value={formData.displayOrder}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
+                </Stack>
 
-            <div className="flex justify-end space-x-3 pt-4">
-                <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
-                    Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Saving...' : initialData ? 'Update Education' : 'Create Education'}
-                </Button>
-            </div>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                    <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={isLoading} sx={{ minWidth: 160 }}>
+                        {isLoading ? 'Saving...' : initialData ? 'Update Education' : 'Create Education'}
+                    </Button>
+                </Box>
+            </Stack>
         </form>
     );
 };

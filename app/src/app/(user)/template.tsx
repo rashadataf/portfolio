@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@/context/theme.provider'
 import { Navbar } from '@/components/NavBar'
 import { Footer } from '@/components/Footer'
@@ -17,9 +20,13 @@ export default function TemplateLayout({
     return (
         <ThemeProvider>
             <Navbar />
-            <main role="main" className='flex-1'>
-                {children}
-            </main>
+            <Box component="main" sx={{ flex: '1 1 auto', py: 4 }}>
+                <Container maxWidth="lg">
+                    <AppRouterCacheProvider>
+                        {children}
+                    </AppRouterCacheProvider>
+                </Container>
+            </Box>
             <Footer />
         </ThemeProvider>
     )

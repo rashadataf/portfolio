@@ -1,10 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
+import MenuItem from '@mui/material/MenuItem';
+import { useSafeState } from '@/hooks/useSafeState.hook';
 import { Skill, SkillCategory } from '@/modules/skill/skill.entity';
 import { createSkill, updateSkill } from '@/modules/skill/skill.controller';
 import { Button } from '@/components/UI/Button';
-import { toast } from 'sonner';
 
 interface SkillFormProps {
     initialData?: Skill;
@@ -13,122 +18,107 @@ interface SkillFormProps {
 }
 
 export const SkillForm = ({ initialData, onSuccess, onCancel }: SkillFormProps) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useSafeState({
         name: initialData?.name || '',
         percentage: initialData?.percentage || 50,
         category: initialData?.category || SkillCategory.Proficient,
         displayOrder: initialData?.displayOrder || 0,
     });
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useSafeState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === 'percentage' || name === 'displayOrder' ? Number(value) : value,
-        }));
-    };
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            const { name, value } = e.target as HTMLInputElement;
+            setFormData((prev) => ({
+                ...prev,
+                [name]: name === 'percentage' || name === 'displayOrder' ? Number(value) : value,
+            }));
+        },
+        [setFormData]
+    );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            let result;
-            if (initialData) {
-                result = await updateSkill(initialData.id, formData);
-            } else {
-                result = await createSkill(formData);
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+                let result;
+                if (initialData) {
+                    result = await updateSkill(initialData.id, formData);
+                } else {
+                    result = await createSkill(formData);
+                }
+
+                if (result.success) {
+                    toast.success(`Skill ${initialData ? 'updated' : 'created'} successfully`);
+                    onSuccess();
+                } else {
+                    toast.error(`Failed to ${initialData ? 'update' : 'create'} skill`);
+                }
+            } catch (error) {
+                toast.error('An error occurred');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-
-            if (result.success) {
-                toast.success(`Skill ${initialData ? 'updated' : 'created'} successfully`);
-                onSuccess();
-            } else {
-                toast.error(`Failed to ${initialData ? 'update' : 'create'} skill`);
-            }
-        } catch (error) {
-            toast.error('An error occurred');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [formData, initialData, onSuccess, setIsLoading]
+    );
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                    Skill Name
-                </label>
-                <input
-                    type="text"
-                    id="name"
+        <form onSubmit={handleSubmit}>
+            <Stack spacing={2}>
+                <TextField
+                    label="Skill Name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div>
-                <label htmlFor="percentage" className="block text-sm font-medium text-gray-300">
-                    Percentage (0-100)
-                </label>
-                <input
-                    type="number"
-                    id="percentage"
+                <TextField
+                    label="Percentage (0-100)"
                     name="percentage"
-                    min="0"
-                    max="100"
+                    type="number"
+                    slotProps={{ htmlInput: { min: 0, max: 100 } }}
                     value={formData.percentage}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-300">
-                    Category
-                </label>
-                <select
-                    id="category"
+                <TextField
+                    label="Category"
                     name="category"
+                    select
                     value={formData.category}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 >
                     {Object.values(SkillCategory).map((category) => (
-                        <option key={category} value={category}>
-                            {category}
-                        </option>
+                        <MenuItem key={category} value={category}>{category}</MenuItem>
                     ))}
-                </select>
-            </div>
+                </TextField>
 
-            <div>
-                <label htmlFor="displayOrder" className="block text-sm font-medium text-gray-300">
-                    Display Order
-                </label>
-                <input
-                    type="number"
-                    id="displayOrder"
+                <TextField
+                    label="Display Order"
                     name="displayOrder"
+                    type="number"
                     value={formData.displayOrder}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
-                    Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Saving...' : 'Save'}
-                </Button>
-            </div>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                    <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={isLoading}>
+                        {isLoading ? 'Saving...' : 'Save'}
+                    </Button>
+                </Box>
+            </Stack>
         </form>
     );
 };

@@ -31,6 +31,7 @@ config:
     "PORTFOLIO_WORKDIR_PATH": { type: "string", default: "/portfolio/app" },
     "PORTFOLIO_IMAGE_BUILD_NAME":
       { type: "string", default: "portfolio_built_image" },
+    "PORTFOLIO_IMAGE_TAG": { type: "string", default: "latest" },
     "PORTFOLIO_BUILD_PHASE_TARGET": { type: "string", default: "development" },
     "ENABLE_TLS": { type: "boolean", default: false },
     "PROTOCOL": { type: "string", default: "http" },
@@ -124,6 +125,7 @@ variables:
     PORTFOLIO_BUILD_CONTEXT: "${PORTFOLIO_BUILD_CONTEXT}",
     PORTFOLIO_WORKDIR_PATH: "${PORTFOLIO_WORKDIR_PATH}",
     PORTFOLIO_BUILD_PHASE_TARGET: "${PORTFOLIO_BUILD_PHASE_TARGET}",
+    PORTFOLIO_IMAGE_TAG: "${PORTFOLIO_IMAGE_TAG}",
     ROUTER_ENTRYPOINT: "${ROUTER_ENTRYPOINT}",
     ACME_EMAIL: "${ADMIN_EMAIL}",
     PROMETHEUS_INTERNAL_PORT: "${PROMETHEUS_INTERNAL_PORT}",
@@ -305,7 +307,7 @@ resources:
         type: "docker:RemoteImage",
         properties:
           {
-            name: "${PORTFOLIO_IMAGE_NAME}",
+            name: "${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}",
             build:
               {
                 context: "${PORTFOLIO_BUILD_CONTEXT}",

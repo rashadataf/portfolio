@@ -2,6 +2,7 @@
 import { createContext, useCallback, useMemo, useContext, useEffect, PropsWithChildren } from 'react';
 import { useSafeState } from '@/hooks/useSafeState.hook';
 import { THEME, ThemeContextType } from '@/types';
+import { ThemeProvider as MuiThemeProvider, createTheme, CssBaseline } from '@mui/material';
 
 
 
@@ -20,21 +21,26 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
     useEffect(
         () => {
-            const html = document.querySelector("html");
-            if (html) {
-                html.classList.remove(THEME.DARK);
-                html.classList.remove(THEME.LIGHT);
-                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    html.classList.add(THEME.DARK);
-                    setTheme(THEME.DARK);
-                } else {
-                    html.classList.add(THEME.LIGHT);
-                    setTheme(THEME.LIGHT);
-                }
+            const html = document.querySelector('html')
+            if (!html) return
+
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+            const stored = localStorage.getItem('theme')
+            const desired = stored === 'dark' || (stored === null && prefersDark) ? THEME.DARK : THEME.LIGHT
+
+            // Only update if different to avoid mutating DOM/state during hydration
+            if (desired !== theme) {
+                html.classList.remove(THEME.DARK, THEME.LIGHT)
+                html.classList.add(desired)
+                setTheme(desired)
+            } else {
+                // ensure the html has the class (server might not have set it)
+                html.classList.add(desired)
             }
+            // run only once on mount
         },
         [setTheme, theme]
-    );
+    )
 
     const toggleTheme = useCallback(
         () => {
@@ -59,9 +65,42 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
         [theme, toggleTheme]
     );
 
-    return <ThemeContext.Provider value={value}>
-        {children}
-    </ThemeContext.Provider>;
+    const muiTheme = useMemo(
+        () =>
+            createTheme({
+                palette: {
+                    mode: theme === THEME.DARK ? 'dark' : 'light',
+                    primary: { main: '#6B21A8' },
+                    secondary: { main: '#00BFA6' },
+                    background: {
+                        default: theme === THEME.DARK ? '#0f0f10' : '#ffffff',
+                        paper: theme === THEME.DARK ? '#121212' : '#ffffff'
+                    }
+                },
+                components: {
+                    MuiButton: {
+                        defaultProps: {
+                            disableElevation: true,
+                        },
+                    },
+                    MuiIconButton: {
+                        defaultProps: {
+                            size: 'small',
+                        },
+                    },
+                }
+            }),
+        [theme]
+    );
+
+    return (
+        <MuiThemeProvider theme={muiTheme}>
+            <CssBaseline />
+            <ThemeContext.Provider value={value}>
+                {children}
+            </ThemeContext.Provider>
+        </MuiThemeProvider>
+    );
 };
 
 export const useThemeContext = () => {

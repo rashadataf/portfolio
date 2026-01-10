@@ -1,195 +1,216 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { Pencil, Trash2, Plus, Upload, Trash } from 'lucide-react';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import { toast } from 'sonner';
+import { useSafeState } from '@/hooks/useSafeState.hook';
 import { Experience } from '@/modules/experience/experience.entity';
 import { deleteExperience, importExperiencesJson, deleteAllExperiences } from '@/modules/experience/experience.controller';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/Modal';
 import { ExperienceForm } from '@/components/ExperienceForm';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, Plus, Upload, Trash } from 'lucide-react';
 
 interface ExperienceListProps {
     experiences: Experience[];
 }
 
 export const ExperienceList = ({ experiences }: ExperienceListProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedExperience, setSelectedExperience] = useState<Experience | undefined>(undefined);
-    const [isImporting, setIsImporting] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useSafeState(false);
+    const [selectedExperience, setSelectedExperience] = useSafeState<Experience | undefined>(undefined);
+    const [isImporting, setIsImporting] = useSafeState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
 
-    const handleEdit = (experience: Experience) => {
-        setSelectedExperience(experience);
-        setIsModalOpen(true);
-    };
+    const handleEdit = useCallback(
+        (experience: Experience) => {
+            setSelectedExperience(experience);
+            setIsModalOpen(true);
+        },
+        [setIsModalOpen, setSelectedExperience]
+    );
 
-    const handleCreate = () => {
-        setSelectedExperience(undefined);
-        setIsModalOpen(true);
-    };
+    const handleCreate = useCallback(
+        () => {
+            setSelectedExperience(undefined);
+            setIsModalOpen(true);
+        },
+        [setIsModalOpen, setSelectedExperience]
+    );
 
-    const handleImportClick = () => {
-        fileInputRef.current?.click();
-    };
+    const handleImportClick = useCallback(
+        () => {
+            fileInputRef.current?.click();
+        },
+        []
+    );
 
-    const handleDeleteAll = async () => {
-        if (confirm('Are you sure you want to delete ALL experiences? This action cannot be undone.')) {
+    const handleDeleteAll = useCallback(
+        async () => {
+            if (
+                confirm('Are you sure you want to delete ALL experiences? This action cannot be undone.')
+            ) {
+                try {
+                    const result = await deleteAllExperiences();
+                    if (result.success) {
+                        toast.success('All experiences deleted successfully');
+                        router.refresh();
+                    } else {
+                        toast.error('Failed to delete experiences');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    toast.error('An error occurred');
+                }
+            }
+        },
+        [router]
+    );
+
+    const handleFileChange = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            setIsImporting(true);
+            const formData = new FormData();
+            formData.append('file', file);
+
             try {
-                const result = await deleteAllExperiences();
+                const result = await importExperiencesJson(formData);
                 if (result.success) {
-                    toast.success('All experiences deleted successfully');
+                    toast.success('Experiences imported successfully');
                     router.refresh();
                 } else {
-                    toast.error('Failed to delete experiences');
+                    toast.error(result.error || 'Failed to import experiences');
                 }
             } catch (error) {
                 console.error(error);
-                toast.error('An error occurred');
-            }
-        }
-    };
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setIsImporting(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const result = await importExperiencesJson(formData);
-            if (result.success) {
-                toast.success('Experiences imported successfully');
-                router.refresh();
-            } else {
-                toast.error(result.error || 'Failed to import experiences');
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error('An error occurred during import');
-        } finally {
-            setIsImporting(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        }
-    };
-
-    const handleDelete = async (id: number) => {
-        if (confirm('Are you sure you want to delete this experience?')) {
-            try {
-                const result = await deleteExperience(id);
-                if (result.success) {
-                    toast.success('Experience deleted successfully');
-                    router.refresh();
-                } else {
-                    toast.error('Failed to delete experience');
+                toast.error('An error occurred during import');
+            } finally {
+                setIsImporting(false);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
                 }
-            } catch (error) {
-                console.error(error);
-                toast.error('An error occurred');
             }
-        }
-    };
+        },
+        [router, setIsImporting]
+    );
 
-    const handleSuccess = () => {
-        setIsModalOpen(false);
-        router.refresh();
-    };
+    const handleDelete = useCallback(
+        async (id: number) => {
+            if (confirm('Are you sure you want to delete this experience?')) {
+                try {
+                    const result = await deleteExperience(id);
+                    if (result.success) {
+                        toast.success('Experience deleted successfully');
+                        router.refresh();
+                    } else {
+                        toast.error('Failed to delete experience');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    toast.error('An error occurred');
+                }
+            }
+        },
+        [router]
+    );
+
+    const handleSuccess = useCallback(
+        () => {
+            setIsModalOpen(false);
+            router.refresh();
+        },
+        [router, setIsModalOpen]
+    );
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-100">Experience</h2>
-                <div className="flex space-x-2">
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        accept=".json"
-                        className="hidden"
-                    />
+        <Box>
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".json"
+                style={{ display: 'none' }}
+            />
+
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Typography variant="h5">Experience</Typography>
+                <Stack direction="row" spacing={1}>
                     <Button onClick={handleImportClick} variant="secondary" disabled={isImporting}>
-                        <Upload className="w-4 h-4 mr-2" />
+                        <Upload />
                         {isImporting ? 'Importing...' : 'Import JSON'}
                     </Button>
                     <Button onClick={handleDeleteAll} variant="destructive">
-                        <Trash className="w-4 h-4 mr-2" />
+                        <Trash />
                         Delete All
                     </Button>
-                    <Button onClick={handleCreate}>
-                        <Plus className="w-4 h-4 mr-2" />
+                    <Button onClick={handleCreate} variant="default">
+                        <Plus />
                         Add Experience
                     </Button>
-                </div>
-            </div>
+                </Stack>
+            </Stack>
 
-            <div className="grid gap-4">
+            <Stack spacing={2}>
                 {experiences.map((experience) => (
-                    <div
-                        key={experience.id}
-                        className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 flex justify-between items-start"
-                    >
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-100">{experience.position}</h3>
-                            <p className="text-accent-color">{experience.company} - {experience.location}</p>
-                            <p className="text-sm text-gray-400 mb-2">{experience.startDate} - {experience.endDate}</p>
-                            <ul className="list-disc list-inside text-sm text-gray-300 space-y-1">
+                    <Paper key={experience.id} sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Box sx={{ mr: 2, flex: 1 }}>
+                            <Typography variant="h6">{experience.position}</Typography>
+                            <Typography color="text.secondary">{experience.company} - {experience.location}</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{experience.startDate} - {experience.endDate}</Typography>
+
+                            <Box component="ul" sx={{ pl: 2, m: 0 }}>
                                 {experience.responsibilities.slice(0, 2).map((resp, idx) => (
-                                    <li key={idx} className="truncate max-w-md">{resp}</li>
+                                    <li key={idx}>
+                                        <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '36rem' }}>{resp}</Typography>
+                                    </li>
                                 ))}
                                 {experience.responsibilities.length > 2 && (
-                                    <li className="text-gray-500 italic">+{experience.responsibilities.length - 2} more...</li>
+                                    <li>
+                                        <Typography variant="caption" color="text.secondary">+{experience.responsibilities.length - 2} more...</Typography>
+                                    </li>
                                 )}
-                            </ul>
-                        </div>
-                        <div className="flex space-x-2">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEdit(experience)}
-                                className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
-                            >
-                                <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDelete(experience.id)}
-                                className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
-                        </div>
-                    </div>
+                            </Box>
+                        </Box>
+
+                        <Stack direction="row" spacing={1}>
+                            <IconButton onClick={() => handleEdit(experience)} aria-label="edit">
+                                <Pencil />
+                            </IconButton>
+                            <IconButton onClick={() => handleDelete(experience.id)} aria-label="delete">
+                                <Trash2 />
+                            </IconButton>
+                        </Stack>
+                    </Paper>
                 ))}
 
                 {experiences.length === 0 && (
-                    <div className="text-center py-8 text-gray-400 bg-gray-800/30 rounded-lg border border-gray-700 border-dashed">
-                        No experience entries found. Add one to get started.
-                    </div>
+                    <Paper sx={{ p: 6, textAlign: 'center' }}>
+                        <Typography color="text.secondary">No experience entries found. Add one to get started.</Typography>
+                    </Paper>
                 )}
-            </div>
+            </Stack>
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
             >
-                <div className="p-4">
-                    <h3 className="text-lg font-medium leading-6 text-gray-100 mb-4">
-                        {selectedExperience ? 'Edit Experience' : 'Add Experience'}
-                    </h3>
+                <Box sx={{ p: 2 }}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>{selectedExperience ? 'Edit Experience' : 'Add Experience'}</Typography>
                     <ExperienceForm
                         initialData={selectedExperience}
                         onSuccess={handleSuccess}
                         onCancel={() => setIsModalOpen(false)}
                     />
-                </div>
+                </Box>
             </Modal>
-        </div>
+        </Box>
     );
 };

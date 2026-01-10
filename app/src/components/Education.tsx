@@ -1,3 +1,6 @@
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
 type EducationProps = {
     institution: string;
     degree: string;
@@ -8,10 +11,10 @@ type EducationProps = {
 
 export const Education = ({ institution, degree, field, from, to }: EducationProps) => {
     return (
-        <div className="mb-10 ml-4">
-            <h4 className="text-lg font-bold">{institution}</h4>
-            <p className="font-semibold">{degree} in {field}</p>
-            <p className="my-2 text-accent-color font-semibold">{from} - {to}</p>
-        </div>
+        <Box sx={{ mb: 4 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{institution}</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>{degree}{field ? ` in ${field}` : ''}</Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>{from} - {to}</Typography>
+        </Box>
     );
 }

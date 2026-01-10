@@ -9,7 +9,7 @@ export function useSafeState(initialState?: unknown) {
 
     const setCurrentState = useCallback(
         (currentState: unknown) => {
-            if (unmountedRef) return;
+            if (unmountedRef.current) return;
 
             setState(currentState);
         },
@@ -33,5 +33,5 @@ export const useComponentIsUnmounted = () => {
         []
     );
 
-    return ref.current;
+    return ref;
 };

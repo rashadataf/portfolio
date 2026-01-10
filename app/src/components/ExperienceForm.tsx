@@ -1,10 +1,13 @@
 'use client';
-
-import { useState } from 'react';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
+import { useSafeState } from '@/hooks/useSafeState.hook';
 import { Experience } from '@/modules/experience/experience.entity';
 import { createExperience, updateExperience } from '@/modules/experience/experience.controller';
 import { Button } from '@/components/UI/Button';
-import { toast } from 'sonner';
 
 interface ExperienceFormProps {
     initialData?: Experience;
@@ -13,7 +16,7 @@ interface ExperienceFormProps {
 }
 
 export const ExperienceForm = ({ initialData, onSuccess, onCancel }: ExperienceFormProps) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useSafeState({
         company: initialData?.company || '',
         position: initialData?.position || '',
         location: initialData?.location || '',
@@ -22,168 +25,144 @@ export const ExperienceForm = ({ initialData, onSuccess, onCancel }: ExperienceF
         responsibilities: initialData?.responsibilities?.join('\n') || '',
         displayOrder: initialData?.displayOrder || 0,
     });
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useSafeState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === 'displayOrder' ? Number(value) : value,
-        }));
-    };
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            const { name, value } = e.target;
+            setFormData((prev) => ({
+                ...prev,
+                [name]: name === 'displayOrder' ? Number(value) : value,
+            }));
+        },
+        [setFormData]
+    );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            const responsibilitiesArray = formData.responsibilities
-                .split('\n')
-                .map((line) => line.trim())
-                .filter((line) => line.length > 0);
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+                const responsibilitiesArray = formData.responsibilities
+                    .split('\n')
+                    .map((line) => line.trim())
+                    .filter((line) => line.length > 0);
 
-            const dataToSubmit = {
-                ...formData,
-                responsibilities: responsibilitiesArray,
-            };
+                const dataToSubmit = {
+                    ...formData,
+                    responsibilities: responsibilitiesArray,
+                };
 
-            let result;
-            if (initialData) {
-                result = await updateExperience(initialData.id, dataToSubmit);
-            } else {
-                result = await createExperience(dataToSubmit);
+                let result;
+                if (initialData) {
+                    result = await updateExperience(initialData.id, dataToSubmit);
+                } else {
+                    result = await createExperience(dataToSubmit);
+                }
+
+                if (result.success) {
+                    toast.success(`Experience ${initialData ? 'updated' : 'created'} successfully`);
+                    onSuccess();
+                } else {
+                    toast.error(`Failed to ${initialData ? 'update' : 'create'} experience`);
+                }
+            } catch (error) {
+                toast.error('An error occurred');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-
-            if (result.success) {
-                toast.success(`Experience ${initialData ? 'updated' : 'created'} successfully`);
-                onSuccess();
-            } else {
-                toast.error(`Failed to ${initialData ? 'update' : 'create'} experience`);
-            }
-        } catch (error) {
-            toast.error('An error occurred');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [formData, initialData, onSuccess, setIsLoading]
+    );
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label htmlFor="company" className="block text-sm font-medium text-gray-300">
-                    Company
-                </label>
-                <input
-                    type="text"
-                    id="company"
+        <form onSubmit={handleSubmit}>
+            <Stack spacing={2}>
+                <TextField
+                    label="Company"
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div>
-                <label htmlFor="position" className="block text-sm font-medium text-gray-300">
-                    Position
-                </label>
-                <input
-                    type="text"
-                    id="position"
+                <TextField
+                    label="Position"
                     name="position"
                     value={formData.position}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-300">
-                    Location
-                </label>
-                <input
-                    type="text"
-                    id="location"
+                <TextField
+                    label="Location"
                     name="location"
                     value={formData.location}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-300">
-                        Start Date
-                    </label>
-                    <input
-                        type="text"
-                        id="startDate"
-                        name="startDate"
-                        value={formData.startDate}
-                        onChange={handleChange}
-                        required
-                        placeholder="e.g. Dec 2021"
-                        className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                    />
-                </div>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                        <TextField
+                            label="Start Date"
+                            name="startDate"
+                            value={formData.startDate}
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                            placeholder="e.g. Dec 2021"
+                        />
+                    </Box>
 
-                <div>
-                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-300">
-                        End Date
-                    </label>
-                    <input
-                        type="text"
-                        id="endDate"
-                        name="endDate"
-                        value={formData.endDate}
-                        onChange={handleChange}
-                        required
-                        placeholder="e.g. Present"
-                        className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                    />
-                </div>
-            </div>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                        <TextField
+                            label="End Date"
+                            name="endDate"
+                            value={formData.endDate}
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                            placeholder="e.g. Present"
+                        />
+                    </Box>
 
-            <div>
-                <label htmlFor="responsibilities" className="block text-sm font-medium text-gray-300">
-                    Responsibilities (one per line)
-                </label>
-                <textarea
-                    id="responsibilities"
+                    <Box sx={{ width: { xs: '100%', md: 140 } }}>
+                        <TextField
+                            label="Display Order"
+                            name="displayOrder"
+                            type="number"
+                            value={formData.displayOrder}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
+                </Stack>
+
+                <TextField
+                    label="Responsibilities (one per line)"
                     name="responsibilities"
                     value={formData.responsibilities}
                     onChange={handleChange}
-                    rows={5}
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    multiline
+                    rows={6}
+                    fullWidth
+                    placeholder={"- Implemented feature X\n- Improved performance by Y%\n- Collaborated with team"}
                 />
-            </div>
 
-            <div>
-                <label htmlFor="displayOrder" className="block text-sm font-medium text-gray-300">
-                    Display Order
-                </label>
-                <input
-                    type="number"
-                    id="displayOrder"
-                    name="displayOrder"
-                    value={formData.displayOrder}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                />
-            </div>
-
-            <div className="flex justify-end space-x-3 pt-4">
-                <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
-                    Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Saving...' : initialData ? 'Update Experience' : 'Create Experience'}
-                </Button>
-            </div>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                    <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={isLoading} sx={{ minWidth: 160 }}>
+                        {isLoading ? 'Saving...' : initialData ? 'Update Experience' : 'Create Experience'}
+                    </Button>
+                </Box>
+            </Stack>
         </form>
     );
 };

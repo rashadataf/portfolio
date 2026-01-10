@@ -48,9 +48,9 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body className={`${montserrat.className} flex flex-col min-h-screen bg-main text-main`}>
+            <body className={montserrat.className} style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
                 {children}
             </body>
         </html>
     )
-}
+} 

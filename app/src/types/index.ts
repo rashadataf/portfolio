@@ -1,5 +1,3 @@
-import type { UrlObject } from 'url';
-
 // ENUMS
 export enum THEME {
     DARK = 'dark',
@@ -17,16 +15,13 @@ export enum ArticleStatus {
     ARCHIVED = 'archived',
 }
 
-// Types
-type Url = string | UrlObject;
-
 export type ThemeContextType = {
     theme: THEME,
     toggleTheme: () => void;
 }
 
 export type NavLinkProp = {
-    href: Url;
+    href: string;
     title: string;
     className?: string;
 }

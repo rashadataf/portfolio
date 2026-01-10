@@ -1,267 +1,150 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { useSafeState } from '@/hooks/useSafeState.hook';
 import { Profile } from '@/modules/profile/profile.entity';
 import { updateProfile } from '@/modules/profile/profile.controller';
 import { uploadFile } from '@/modules/file/file.controller';
 import { Button } from '@/components/UI/Button';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 interface ProfileFormProps {
     initialData: Profile;
 }
 
 export const ProfileForm = ({ initialData }: ProfileFormProps) => {
-    const [formData, setFormData] = useState(initialData);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isUploadingResume, setIsUploadingResume] = useState(false);
-    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [formData, setFormData] = useSafeState(initialData);
+    const [isLoading, setIsLoading] = useSafeState(false);
+    const [isUploadingResume, setIsUploadingResume] = useSafeState(false);
+    const [isUploadingImage, setIsUploadingImage] = useSafeState(false);
     const router = useRouter();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            const { name, value } = e.target;
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        },
+        [setFormData]
+    );
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'resumeUrl' | 'heroImageUrl') => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleFileUpload = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>, field: 'resumeUrl' | 'heroImageUrl') => {
+            const file = e.target.files?.[0];
+            if (!file) return;
 
-        const isResume = field === 'resumeUrl';
-        const setUploading = isResume ? setIsUploadingResume : setIsUploadingImage;
+            const isResume = field === 'resumeUrl';
+            const setUploading = isResume ? setIsUploadingResume : setIsUploadingImage;
 
-        setUploading(true);
-        try {
-            const result = await uploadFile(file);
-            if (result.success && result.url) {
-                setFormData((prev) => ({ ...prev, [field]: result.url }));
-                toast.success(`${isResume ? 'Resume' : 'Image'} uploaded successfully`);
-            } else {
-                toast.error(`Failed to upload ${isResume ? 'resume' : 'image'}`);
+            setUploading(true);
+            try {
+                const result = await uploadFile(file);
+                if (result.success && result.url) {
+                    setFormData((prev) => ({ ...prev, [field]: result.url }));
+                    toast.success(`${isResume ? 'Resume' : 'Image'} uploaded successfully`);
+                } else {
+                    toast.error(`Failed to upload ${isResume ? 'resume' : 'image'}`);
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('An error occurred during upload');
+            } finally {
+                setUploading(false);
             }
-        } catch (error) {
-            console.error(error);
-            toast.error('An error occurred during upload');
-        } finally {
-            setUploading(false);
-        }
-    };
+        },
+        [setFormData, setIsUploadingImage, setIsUploadingResume]
+    );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            const result = await updateProfile(initialData.slug, {
-                headline: formData.headline,
-                bioEn: formData.bioEn,
-                bioAr: formData.bioAr,
-                aboutEn: formData.aboutEn,
-                happyClients: Number(formData.happyClients),
-                projectsCompleted: Number(formData.projectsCompleted),
-                yearsOfExperience: Number(formData.yearsOfExperience),
-                resumeUrl: formData.resumeUrl,
-                contactEmail: formData.contactEmail,
-                heroImageUrl: formData.heroImageUrl,
-            });
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+                const result = await updateProfile(initialData.slug, {
+                    headline: formData.headline,
+                    bioEn: formData.bioEn,
+                    bioAr: formData.bioAr,
+                    aboutEn: formData.aboutEn,
+                    happyClients: Number(formData.happyClients),
+                    projectsCompleted: Number(formData.projectsCompleted),
+                    yearsOfExperience: Number(formData.yearsOfExperience),
+                    resumeUrl: formData.resumeUrl,
+                    contactEmail: formData.contactEmail,
+                    heroImageUrl: formData.heroImageUrl,
+                });
 
-            if (result.success) {
-                toast.success('Profile updated successfully');
-                router.refresh();
-            } else {
-                toast.error('Failed to update profile');
+                if (result.success) {
+                    toast.success('Profile updated successfully');
+                    router.refresh();
+                } else {
+                    toast.error('Failed to update profile');
+                }
+            } catch (error) {
+                toast.error('An error occurred');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            toast.error('An error occurred');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [formData.aboutEn, formData.bioAr, formData.bioEn, formData.contactEmail, formData.happyClients, formData.headline, formData.heroImageUrl, formData.projectsCompleted, formData.resumeUrl, formData.yearsOfExperience, initialData.slug, router, setIsLoading]
+    );
+
+    const resumeRef = useRef<HTMLInputElement | null>(null);
+    const imageRef = useRef<HTMLInputElement | null>(null);
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl bg-white p-6 rounded-lg shadow-md">
-            <div className="space-y-2">
-                <label htmlFor="headline" className="block text-sm font-medium text-gray-700">
-                    Headline
-                </label>
-                <input
-                    type="text"
-                    id="headline"
-                    name="headline"
-                    value={formData.headline || ''}
-                    onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
-                    placeholder="e.g. Software Engineer"
-                />
-            </div>
+        <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 900, width: '100%', mx: 'auto', bgcolor: 'background.paper', p: 3, borderRadius: 1, boxShadow: 1 }}>
+            <Stack spacing={3}>
+                <TextField label="Headline" name="headline" value={formData.headline || ''} onChange={handleChange} fullWidth />
 
-            <div className="space-y-2">
-                <label htmlFor="bioEn" className="block text-sm font-medium text-gray-700">
-                    Bio (English)
-                </label>
-                <textarea
-                    id="bioEn"
-                    name="bioEn"
-                    value={formData.bioEn || ''}
-                    onChange={handleChange}
-                    rows={4}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
-                    placeholder="Your bio in English..."
-                />
-            </div>
+                <TextField label="Bio (English)" name="bioEn" value={formData.bioEn || ''} onChange={handleChange} fullWidth multiline rows={4} />
 
-            <div className="space-y-2">
-                <label htmlFor="aboutEn" className="block text-sm font-medium text-gray-700">
-                    About Me (English)
-                </label>
-                <textarea
-                    id="aboutEn"
-                    name="aboutEn"
-                    value={formData.aboutEn || ''}
-                    onChange={handleChange}
-                    rows={6}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
-                    placeholder="Detailed about me text..."
-                />
-            </div>
+                <TextField label="About Me (English)" name="aboutEn" value={formData.aboutEn || ''} onChange={handleChange} fullWidth multiline rows={6} />
 
-            <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                    <label htmlFor="happyClients" className="block text-sm font-medium text-gray-700">
-                        Happy Clients
-                    </label>
-                    <input
-                        type="number"
-                        id="happyClients"
-                        name="happyClients"
-                        value={formData.happyClients || 0}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <label htmlFor="projectsCompleted" className="block text-sm font-medium text-gray-700">
-                        Projects Completed
-                    </label>
-                    <input
-                        type="number"
-                        id="projectsCompleted"
-                        name="projectsCompleted"
-                        value={formData.projectsCompleted || 0}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-gray-700">
-                        Years of Experience
-                    </label>
-                    <input
-                        type="number"
-                        id="yearsOfExperience"
-                        name="yearsOfExperience"
-                        value={formData.yearsOfExperience || 0}
-                        onChange={handleChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
-                    />
-                </div>
-            </div>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0, maxWidth: { md: '33%', xs: '100%' } }}>
+                        <TextField label="Happy Clients" name="happyClients" type="number" value={formData.happyClients || 0} onChange={handleChange} fullWidth />
+                    </Box>
 
-            <div className="space-y-2">
-                <label htmlFor="bioAr" className="block text-sm font-medium text-gray-700">
-                    Bio (Arabic)
-                </label>
-                <textarea
-                    id="bioAr"
-                    name="bioAr"
-                    value={formData.bioAr || ''}
-                    onChange={handleChange}
-                    rows={4}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color text-right"
-                    placeholder="نبذة عنك بالعربية..."
-                    dir="rtl"
-                />
-            </div>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0, maxWidth: { md: '33%', xs: '100%' } }}>
+                        <TextField label="Projects Completed" name="projectsCompleted" type="number" value={formData.projectsCompleted || 0} onChange={handleChange} fullWidth />
+                    </Box>
 
-            <div className="space-y-2">
-                <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">
-                    Contact Email
-                </label>
-                <input
-                    type="email"
-                    id="contactEmail"
-                    name="contactEmail"
-                    value={formData.contactEmail || ''}
-                    onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
-                    placeholder="email@example.com"
-                />
-            </div>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0, maxWidth: { md: '33%', xs: '100%' } }}>
+                        <TextField label="Years of Experience" name="yearsOfExperience" type="number" value={formData.yearsOfExperience || 0} onChange={handleChange} fullWidth />
+                    </Box>
+                </Stack>
 
-            <div className="space-y-2">
-                <label htmlFor="resumeUrl" className="block text-sm font-medium text-gray-700">
-                    Resume URL
-                </label>
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        id="resumeUrl"
-                        name="resumeUrl"
-                        value={formData.resumeUrl || ''}
-                        onChange={handleChange}
-                        className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
-                        placeholder="/resume.pdf or https://..."
-                    />
-                    <div className="relative">
-                        <input
-                            type="file"
-                            id="resumeUpload"
-                            accept=".pdf"
-                            onChange={(e) => handleFileUpload(e, 'resumeUrl')}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            disabled={isUploadingResume}
-                        />
-                        <Button type="button" variant="secondary" disabled={isUploadingResume}>
-                            {isUploadingResume ? 'Uploading...' : 'Upload PDF'}
-                        </Button>
-                    </div>
-                </div>
-            </div>
+                <TextField label="Bio (Arabic)" name="bioAr" value={formData.bioAr || ''} onChange={handleChange} fullWidth multiline rows={4} slotProps={{ htmlInput: { dir: 'rtl' } }} />
 
-            <div className="space-y-2">
-                <label htmlFor="heroImageUrl" className="block text-sm font-medium text-gray-700">
-                    Hero Image URL
-                </label>
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        id="heroImageUrl"
-                        name="heroImageUrl"
-                        value={formData.heroImageUrl || ''}
-                        onChange={handleChange}
-                        className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-accent-color focus:border-accent-color"
-                        placeholder="/images/profile.jpg or https://..."
-                    />
-                    <div className="relative">
-                        <input
-                            type="file"
-                            id="imageUpload"
-                            accept="image/*"
-                            onChange={(e) => handleFileUpload(e, 'heroImageUrl')}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            disabled={isUploadingImage}
-                        />
-                        <Button type="button" variant="secondary" disabled={isUploadingImage}>
-                            {isUploadingImage ? 'Uploading...' : 'Upload Image'}
-                        </Button>
-                    </div>
-                </div>
-            </div>
+                <TextField label="Contact Email" name="contactEmail" type="email" value={formData.contactEmail || ''} onChange={handleChange} fullWidth />
 
-            <Button type="submit" disabled={isLoading || isUploadingResume || isUploadingImage} className="w-full">
-                {isLoading ? 'Saving...' : 'Save Changes'}
-            </Button>
-        </form>
+                <Box>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Resume URL</Typography>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        <TextField label="Resume URL" name="resumeUrl" value={formData.resumeUrl || ''} onChange={handleChange} fullWidth />
+                        <input type="file" accept=".pdf" ref={resumeRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'resumeUrl')} disabled={isUploadingResume} />
+                        <Button type="button" variant="default" size="sm" onClick={() => resumeRef.current?.click()} disabled={isUploadingResume} sx={{ minWidth: 110, bgcolor: 'success.main', color: 'success.contrastText', '&:hover': { bgcolor: 'success.dark' } }}>{isUploadingResume ? 'Uploading...' : 'Upload PDF'}</Button>
+                    </Stack>
+                </Box>
+
+                <Box>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Hero Image URL</Typography>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                        <TextField label="Hero Image URL" name="heroImageUrl" value={formData.heroImageUrl || ''} onChange={handleChange} fullWidth />
+                        <input type="file" accept="image/*" ref={imageRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'heroImageUrl')} disabled={isUploadingImage} />
+                        <Button type="button" variant="default" size="sm" onClick={() => imageRef.current?.click()} disabled={isUploadingImage} sx={{ minWidth: 110, bgcolor: 'success.main', color: 'success.contrastText', '&:hover': { bgcolor: 'success.dark' } }}>{isUploadingImage ? 'Uploading...' : 'Upload Image'}</Button>
+                    </Stack>
+                </Box>
+
+                <Button type="submit" disabled={isLoading || isUploadingResume || isUploadingImage} sx={{ width: '100%', py: 1.5 }}>
+                    {isLoading ? 'Saving...' : 'Save Changes'}
+                </Button>
+            </Stack>
+        </Box>
     );
 };

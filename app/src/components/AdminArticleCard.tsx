@@ -5,6 +5,12 @@ import { Article } from "@/modules/article/article.entity";
 import { deleteArticle, updateArticle } from "@/modules/article/article.controller";
 import { ArticleStatus } from "@/types";
 import { useCallback } from "react";
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import { Button } from '@/components/UI/Button';
 
 type ArticleCardProps = {
     article: Article;
@@ -89,73 +95,38 @@ export const AdminArticleCard = ({ article, onActionComplete }: ArticleCardProps
     );
 
     return (
-        <div className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all bg-white">
-            <Link href={`/admin/articles/${article.id}`}>
-                <h2 className="text-xl font-semibold text-gray-800">{article.titleEn}</h2>
-            </Link>
-            <p className="text-gray-600">By {article.author}</p>
-            <div className="mt-4 flex space-x-4">
-                {
-                    article.status === ArticleStatus.DRAFT && (
+        <Card sx={{ p: 2 }}>
+            <CardContent sx={{ '&:last-child': { pb: 1 } }}>
+                <Link href={`/admin/articles/${article.id}`}>
+                    <Typography variant="h6" component="div" sx={{ textDecoration: 'none' }}>{article.titleEn}</Typography>
+                </Link>
+                <Typography variant="body2" color="text.secondary">By {article.author}</Typography>
+            </CardContent>
+
+            <CardActions sx={{ pt: 0 }}>
+                <Stack direction="row" spacing={1}>
+                    {article.status === ArticleStatus.DRAFT && (
                         <>
-                            <button
-                                onClick={handlePublish}
-                                className="px-4 py-2 bg-green-500 text-white rounded"
-                                disabled={loading}
-                            >
-                                Publish
-                            </button>
-                            <button
-                                onClick={handleArchive}
-                                className="px-4 py-2 bg-yellow-500 text-white rounded"
-                                disabled={loading}
-                            >
-                                Archive
-                            </button>
+                            <Button onClick={handlePublish} variant="default" size="sm" disabled={loading}>Publish</Button>
+                            <Button onClick={handleArchive} variant="secondary" size="sm" disabled={loading}>Archive</Button>
                         </>
-                    )
-                }
-                {
-                    article.status === ArticleStatus.ARCHIVED && (
+                    )}
+
+                    {article.status === ArticleStatus.ARCHIVED && (
                         <>
-                            <button
-                                onClick={handlePublish}
-                                className="px-4 py-2 bg-green-500 text-white rounded"
-                                disabled={loading}
-                            >
-                                Restore/Publish
-                            </button>
-                            <button
-                                onClick={handleDelete}
-                                className="px-4 py-2 bg-red-500 text-white rounded"
-                                disabled={loading}
-                            >
-                                Delete
-                            </button>
+                            <Button onClick={handlePublish} variant="default" size="sm" disabled={loading}>Restore/Publish</Button>
+                            <Button onClick={handleDelete} variant="destructive" size="sm" disabled={loading}>Delete</Button>
                         </>
-                    )
-                }
-                {
-                    article.status === ArticleStatus.PUBLISHED && (
+                    )}
+
+                    {article.status === ArticleStatus.PUBLISHED && (
                         <>
-                            <button
-                                onClick={handleArchive}
-                                className="px-4 py-2 bg-yellow-500 text-white rounded"
-                                disabled={loading}
-                            >
-                                Archive
-                            </button>
-                            <button
-                                onClick={handleDelete}
-                                className="px-4 py-2 bg-red-500 text-white rounded"
-                                disabled={loading}
-                            >
-                                Delete
-                            </button>
+                            <Button onClick={handleArchive} variant="secondary" size="sm" disabled={loading}>Archive</Button>
+                            <Button onClick={handleDelete} variant="destructive" size="sm" disabled={loading}>Delete</Button>
                         </>
-                    )
-                }
-            </div>
-        </div>
+                    )}
+                </Stack>
+            </CardActions>
+        </Card>
     );
 };

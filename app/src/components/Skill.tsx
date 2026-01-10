@@ -1,7 +1,9 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import LinearProgress from '@mui/material/LinearProgress';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-
 
 interface SkillProps {
     name: string;
@@ -9,39 +11,29 @@ interface SkillProps {
 }
 
 export const Skill = ({ name, percentage }: SkillProps) => {
-    const [width, setWidth] = useSafeState<string>('0%');
-    const ref = useRef<HTMLDivElement>(null);
+    const [value, setValue] = useSafeState<number>(0);
 
     useEffect(() => {
+        const el = document.getElementById(`skill-${name}`);
         const observer = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting) {
-                setWidth(`${percentage}%`);
+                setValue(percentage);
             } else {
-                setWidth('0%');
+                setValue(0);
             }
         }, { threshold: 0.6 });
 
-        const currentDiv = ref.current;
-
-        if (currentDiv) {
-            observer.observe(currentDiv);
-        }
-
-        return () => {
-            if (currentDiv) {
-                observer.unobserve(currentDiv);
-            }
-        };
-    }, [percentage, setWidth]);
+        if (el) observer.observe(el);
+        return () => { if (el) observer.disconnect(); };
+    }, [name, percentage, setValue]);
 
     return (
-        <div ref={ref} className="flex items-center space-x-3 py-3">
-            <span className="text-gray-700 dark:text-gray-200 font-medium w-2/5">{name}</span>
-            <div className="border-gray-300 dark:border-gray-500 border-[1px] w-3/5 rounded-full" role="progressbar" aria-valuenow={percentage} aria-valuemin={0} aria-valuemax={100}>
-                <div className="bg-gray-900 dark:bg-white h-[6px] rounded-full transition-all duration-1000" style={{ width: width }}>
-                    <span className="sr-only">{percentage}% proficient</span>
-                </div>
-            </div>
-        </div>
+        <Box id={`skill-${name}`} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1 }}>
+            <Typography sx={{ width: '40%', fontWeight: 600 }}>{name}</Typography>
+            <Box sx={{ width: '60%' }}>
+                <LinearProgress variant="determinate" value={value} sx={{ height: 8, borderRadius: 2 }} aria-valuenow={value} aria-valuemin={0} aria-valuemax={100} />
+                <Typography variant="caption" sx={{ mt: 0.5, color: 'text.secondary' }}>{percentage}% proficient</Typography>
+            </Box>
+        </Box>
     );
 }

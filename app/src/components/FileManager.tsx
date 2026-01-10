@@ -1,9 +1,33 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { toast } from 'sonner';
+import { useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-
+import Image from 'next/image';
+import NextLink from 'next/link';
+import { toast } from 'sonner';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useSafeState } from '@/hooks/useSafeState.hook';
 import { Button } from '@/components/UI/Button';
 import {
     deleteUploadedFile,
@@ -11,6 +35,8 @@ import {
     uploadFile,
     type UploadedFileMeta,
 } from '@/modules/file/file.controller';
+
+
 
 function formatBytes(bytes: number) {
     if (!Number.isFinite(bytes)) return '-';
@@ -28,172 +54,222 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [files, setFiles] = useState<UploadedFileMeta[]>(initialFiles);
-    const [isUploading, setIsUploading] = useState(false);
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const [deleting, setDeleting] = useState<Record<string, boolean>>({});
+    const [files, setFiles] = useSafeState<UploadedFileMeta[]>(initialFiles);
+    const [isUploading, setIsUploading] = useSafeState(false);
+    const [isRefreshing, setIsRefreshing] = useSafeState(false);
+    const [deleting, setDeleting] = useSafeState<Record<string, boolean>>({});
+    const [previewOpen, setPreviewOpen] = useSafeState(false);
+    const [previewUrl, setPreviewUrl] = useSafeState<string | null>(null);
+    const [previewName, setPreviewName] = useSafeState<string | null>(null);
 
-    const refresh = async () => {
-        setIsRefreshing(true);
-        try {
-            const res = await getUploadedFiles();
-            if (res.success) {
-                setFiles(res.data);
-            } else {
-                toast.error(res.error);
+    const isImage = useCallback(
+        (url: string) => /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(url),
+        []
+    );
+
+    const handlePreview = useCallback(
+        (url: string, name: string) => {
+            setPreviewUrl(url);
+            setPreviewName(name);
+            setPreviewOpen(true);
+        },
+        [setPreviewName, setPreviewOpen, setPreviewUrl]
+    );
+
+    const closePreview = useCallback(
+        () => {
+            setPreviewOpen(false);
+            setPreviewUrl(null);
+            setPreviewName(null);
+        },
+        [setPreviewName, setPreviewOpen, setPreviewUrl]
+    );
+
+    const refresh = useCallback(
+        async () => {
+            setIsRefreshing(true);
+            try {
+                const res = await getUploadedFiles();
+                if (res.success) {
+                    setFiles(res.data);
+                } else {
+                    toast.error(res.error);
+                }
+            } finally {
+                setIsRefreshing(false);
             }
-        } finally {
-            setIsRefreshing(false);
-        }
-    };
+        },
+        [setFiles, setIsRefreshing]
+    );
 
-    const handlePickFile = () => fileInputRef.current?.click();
+    const handlePickFile = useCallback(
+        () => fileInputRef.current?.click(),
+        []
+    );
 
-    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleUpload = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
 
-        setIsUploading(true);
-        try {
-            const res = await uploadFile(file);
-            if (res.success && res.url) {
-                await navigator.clipboard.writeText(res.url);
-                toast.success('Uploaded. URL copied to clipboard.');
-                await refresh();
-                router.refresh();
-            } else {
-                toast.error(res.error || 'Upload failed');
+            setIsUploading(true);
+            try {
+                const res = await uploadFile(file);
+                if (res.success && res.url) {
+                    await navigator.clipboard.writeText(res.url);
+                    toast.success('Uploaded. URL copied to clipboard.');
+                    await refresh();
+                    router.refresh();
+                } else {
+                    toast.error(res.error || 'Upload failed');
+                }
+            } catch (err) {
+                console.error(err);
+                toast.error('Upload failed');
+            } finally {
+                setIsUploading(false);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
             }
-        } catch (err) {
-            console.error(err);
-            toast.error('Upload failed');
-        } finally {
-            setIsUploading(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
+        },
+        [refresh, router, setIsUploading]
+    );
+
+    const handleCopy = useCallback(
+        async (url: string) => {
+            await navigator.clipboard.writeText(url);
+            toast.success('URL copied');
+        },
+        []
+    );
+
+    const handleDelete = useCallback(
+        async (filename: string) => {
+            const ok = confirm(`Delete "${filename}"? This cannot be undone.`);
+            if (!ok) return;
+
+            setDeleting((m) => ({ ...m, [filename]: true }));
+            try {
+                const res = await deleteUploadedFile(filename);
+                if (res.success) {
+                    toast.success('File deleted');
+                    await refresh();
+                    router.refresh();
+                } else {
+                    toast.error(res.error || 'Delete failed');
+                }
+            } catch (err) {
+                console.error(err);
+                toast.error('Delete failed');
+            } finally {
+                setDeleting((m) => ({ ...m, [filename]: false }));
             }
-        }
-    };
-
-    const handleCopy = async (url: string) => {
-        await navigator.clipboard.writeText(url);
-        toast.success('URL copied');
-    };
-
-    const handleDelete = async (filename: string) => {
-        const ok = confirm(`Delete "${filename}"? This cannot be undone.`);
-        if (!ok) return;
-
-        setDeleting((m) => ({ ...m, [filename]: true }));
-        try {
-            const res = await deleteUploadedFile(filename);
-            if (res.success) {
-                toast.success('File deleted');
-                await refresh();
-                router.refresh();
-            } else {
-                toast.error(res.error || 'Delete failed');
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error('Delete failed');
-        } finally {
-            setDeleting((m) => ({ ...m, [filename]: false }));
-        }
-    };
+        },
+        [refresh, router, setDeleting]
+    );
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Files</h2>
-                    <p className="text-sm text-gray-600">Uploads are stored in <span className="font-mono">public/uploads</span>.</p>
-                </div>
+        <Box>
+            <input ref={fileInputRef} type="file" onChange={handleUpload} style={{ display: 'none' }} />
 
-                <div className="flex gap-2">
-                    <input ref={fileInputRef} type="file" onChange={handleUpload} className="hidden" />
-                    <Button type="button" variant="secondary" onClick={handlePickFile} disabled={isUploading}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Box>
+                    <Typography variant="h5">Files</Typography>
+                    <Typography variant="body2" color="text.secondary">Uploads are stored in <Box component="span" sx={{ fontFamily: 'Monospace' }}>public/uploads</Box>.</Typography>
+                </Box>
+
+                <Stack direction="row" spacing={1}>
+                    <Button type="button" variant="default" onClick={handlePickFile} disabled={isUploading} startIcon={<UploadFileIcon />}>
                         {isUploading ? 'Uploading...' : 'Upload file'}
                     </Button>
-                    <Button type="button" variant="secondary" onClick={refresh} disabled={isRefreshing}>
+                    <Button type="button" variant="outline" onClick={refresh} disabled={isRefreshing} startIcon={<RefreshIcon />}>
                         {isRefreshing ? 'Refreshing...' : 'Refresh'}
                     </Button>
-                </div>
-            </div>
+                </Stack>
+            </Stack>
 
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Filename</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Size</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Updated</th>
-                            <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
+            <TableContainer component={Paper}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Filename</TableCell>
+                            <TableCell>Size</TableCell>
+                            <TableCell>Updated</TableCell>
+                            <TableCell align="right">Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
 
-                    <tbody className="divide-y divide-gray-200">
+                    <TableBody>
                         {files.map((f) => (
-                            <tr key={f.filename} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 text-gray-900">
-                                    <div className="flex flex-col">
-                                        <span className="font-medium">{f.filename}</span>
-                                        <a
-                                            className="text-xs text-blue-600 hover:underline break-all"
-                                            href={f.url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                        >
-                                            {f.url}
-                                        </a>
-                                    </div>
-                                </td>
-                                <td className="px-4 py-3 text-gray-700 text-sm">{formatBytes(f.size)}</td>
-                                <td className="px-4 py-3 text-gray-700 text-sm">{new Date(f.updatedAt).toLocaleString()}</td>
-                                <td className="px-4 py-3">
-                                    <div className="flex justify-end gap-2">
-                                        <Button
-                                            asChild
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                        >
-                                            <a href={f.url} target="_blank" rel="noreferrer">
-                                                Preview
-                                            </a>
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleCopy(f.url)}
-                                        >
-                                            Copy URL
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={() => handleDelete(f.filename)}
-                                            disabled={!!deleting[f.filename]}
-                                        >
-                                            {deleting[f.filename] ? 'Deleting...' : 'Delete'}
-                                        </Button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <TableRow key={f.filename} hover sx={{ '&:nth-of-type(odd)': { backgroundColor: 'action.hover' } }}>
+                                <TableCell>
+                                    <Box>
+                                        <Typography variant="body1">{f.filename}</Typography>
+                                        <Link href={f.url} target="_blank" rel="noreferrer" underline="hover" sx={{ fontSize: 12, wordBreak: 'break-all' }}>{f.url}</Link>
+                                    </Box>
+                                </TableCell>
+                                <TableCell>{formatBytes(f.size)}</TableCell>
+                                <TableCell>{new Date(f.updatedAt).toLocaleString()}</TableCell>
+                                <TableCell align="right">
+                                    <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                                        <Tooltip title="Preview">
+                                            <span>
+                                                <IconButton aria-label={`preview-${f.filename}`} size="small" onClick={() => handlePreview(f.url, f.filename)}>
+                                                    <VisibilityIcon fontSize="small" />
+                                                </IconButton>
+                                            </span>
+                                        </Tooltip>
+
+                                        <Tooltip title="Copy URL">
+                                            <span>
+                                                <IconButton aria-label={`copy-${f.filename}`} size="small" onClick={() => handleCopy(f.url)}>
+                                                    <ContentCopyIcon fontSize="small" />
+                                                </IconButton>
+                                            </span>
+                                        </Tooltip>
+
+                                        <Tooltip title="Delete">
+                                            <span>
+                                                <IconButton aria-label={`delete-${f.filename}`} size="small" color="error" onClick={() => handleDelete(f.filename)} disabled={!!deleting[f.filename]}>
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                            </span>
+                                        </Tooltip>
+                                    </Stack>
+                                </TableCell>
+                            </TableRow>
                         ))}
 
                         {files.length === 0 && (
-                            <tr>
-                                <td colSpan={4} className="px-4 py-10 text-center text-gray-600">
-                                    No files found.
-                                </td>
-                            </tr>
+                            <TableRow>
+                                <TableCell colSpan={4} align="center">No files found.</TableCell>
+                            </TableRow>
                         )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+            <Dialog open={previewOpen} onClose={closePreview} fullWidth maxWidth="md">
+                <DialogTitle>{previewName}</DialogTitle>
+                <DialogContent>
+                    {previewUrl && isImage(previewUrl) ? (
+                        <Box sx={{ width: '100%', height: { xs: 240, md: 480 }, position: 'relative' }}>
+                            <Image src={previewUrl} alt={previewName || 'preview'} fill style={{ objectFit: 'contain' }} />
+                        </Box>
+                    ) : (
+                        <Box sx={{ width: '100%', height: { xs: 300, md: 600 } }}>
+                            {previewUrl ? <iframe src={previewUrl} title={previewName || 'preview'} style={{ width: '100%', height: '100%', border: 0 }} /> : null}
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="outline" onClick={closePreview}>Close</Button>
+                    <Button component={NextLink} variant="secondary" href={previewUrl ?? '#'} target="_blank" rel="noreferrer">
+                        Open in new tab
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
     );
 };

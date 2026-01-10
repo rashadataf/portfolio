@@ -1,10 +1,15 @@
 'use client';
-
-import { useState } from 'react';
+import { useCallback, useRef } from 'react';
+import Image from 'next/image';
+import { toast } from 'sonner';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
+import { useSafeState } from '@/hooks/useSafeState.hook';
 import { Project } from '@/modules/project/project.entity';
 import { createProject, updateProject } from '@/modules/project/project.controller';
+import { uploadFile } from '@/modules/file/file.controller';
 import { Button } from '@/components/UI/Button';
-import { toast } from 'sonner';
 
 interface ProjectFormProps {
     initialData?: Project;
@@ -13,7 +18,7 @@ interface ProjectFormProps {
 }
 
 export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormProps) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useSafeState({
         title: initialData?.title || '',
         description: initialData?.description || '',
         imageUrl: initialData?.imageUrl || '',
@@ -24,193 +29,214 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
         appStoreUrl: initialData?.appStoreUrl || '',
         displayOrder: initialData?.displayOrder || 0,
     });
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useSafeState(false);
+    const [isUploadingImage, setIsUploadingImage] = useSafeState(false);
+    const imageRef = useRef<HTMLInputElement | null>(null);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === 'displayOrder' ? Number(value) : value,
-        }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            const technologiesArray = formData.technologies
-                .split(',')
-                .map((tech) => tech.trim())
-                .filter((tech) => tech.length > 0);
-
-            const dataToSubmit = {
-                ...formData,
-                technologies: technologiesArray,
-            };
-
-            let result;
-            if (initialData) {
-                result = await updateProject(initialData.id, { ...dataToSubmit, id: initialData.id });
-            } else {
-                result = await createProject(dataToSubmit);
+    const handleFileUpload = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            setIsUploadingImage(true);
+            try {
+                const result = await uploadFile(file);
+                if (result.success && result.url) {
+                    setFormData((prev) => ({ ...prev, imageUrl: result.url }));
+                    toast.success('Image uploaded successfully');
+                } else {
+                    toast.error('Failed to upload image');
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('An error occurred during upload');
+            } finally {
+                setIsUploadingImage(false);
+                if (e.target) e.target.value = '';
             }
+        },
+        [setFormData, setIsUploadingImage]
+    );
 
-            if (result.success) {
-                toast.success(`Project ${initialData ? 'updated' : 'created'} successfully`);
-                onSuccess();
-            } else {
-                toast.error(`Failed to ${initialData ? 'update' : 'create'} project`);
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            const { name, value } = e.target;
+            setFormData((prev) => ({
+                ...prev,
+                [name]: name === 'displayOrder' ? Number(value) : value,
+            }));
+        },
+        [setFormData]
+    );
+
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+                const technologiesArray = formData.technologies
+                    .split(',')
+                    .map((tech) => tech.trim())
+                    .filter((tech) => tech.length > 0);
+
+                const dataToSubmit = {
+                    ...formData,
+                    technologies: technologiesArray,
+                };
+
+                let result;
+                if (initialData) {
+                    result = await updateProject(initialData.id, { ...dataToSubmit, id: initialData.id });
+                } else {
+                    result = await createProject(dataToSubmit);
+                }
+
+                if (result.success) {
+                    toast.success(`Project ${initialData ? 'updated' : 'created'} successfully`);
+                    onSuccess();
+                } else {
+                    toast.error(`Failed to ${initialData ? 'update' : 'create'} project`);
+                }
+            } catch (error) {
+                toast.error('An error occurred');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            toast.error('An error occurred');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [formData, initialData, onSuccess, setIsLoading]
+    );
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-300">
-                    Title
-                </label>
-                <input
-                    type="text"
-                    id="title"
+        <form onSubmit={handleSubmit}>
+            <Stack spacing={2}>
+                <TextField
+                    label="Title"
                     name="title"
                     value={formData.title}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-300">
-                    Description
-                </label>
-                <textarea
-                    id="description"
+                <TextField
+                    label="Description"
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
                     required
-                    rows={4}
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
+                    multiline
+                    rows={6}
+                    placeholder="Short summary of the project and notable features"
                 />
-            </div>
 
-            <div>
-                <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-300">
-                    Image URL
-                </label>
-                <input
-                    type="text"
-                    id="imageUrl"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                />
-            </div>
+                <Box>
+                    <TextField
+                        label="Image URL"
+                        name="imageUrl"
+                        value={formData.imageUrl}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                        <input type="file" accept="image/*" ref={imageRef} style={{ display: 'none' }} onChange={handleFileUpload} disabled={isUploadingImage} />
+                        <Button type="button" variant="default" size="sm" onClick={() => imageRef.current?.click()} disabled={isUploadingImage} sx={{ minWidth: 120 }}>
+                            {isUploadingImage ? 'Uploading...' : 'Upload Image'}
+                        </Button>
 
-            <div>
-                <label htmlFor="technologies" className="block text-sm font-medium text-gray-300">
-                    Technologies (comma separated)
-                </label>
-                <input
-                    type="text"
-                    id="technologies"
+                        {formData.imageUrl && (
+                            <Box sx={{ width: 64, height: 40, borderRadius: 1, overflow: 'hidden', border: 1, borderColor: 'divider', position: 'relative' }}>
+                                <Image src={formData.imageUrl} alt="preview" fill style={{ objectFit: 'cover' }} />
+                            </Box>
+                        )}
+                    </Box>
+                </Box>
+
+                <TextField
+                    label="Technologies (comma separated)"
                     name="technologies"
                     value={formData.technologies}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
+                    helperText="E.g. React, Next.js, PostgreSQL"
+                    placeholder="React, Next.js, PostgreSQL"
                 />
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label htmlFor="liveUrl" className="block text-sm font-medium text-gray-300">
-                        Live URL
-                    </label>
-                    <input
-                        type="text"
-                        id="liveUrl"
-                        name="liveUrl"
-                        value={formData.liveUrl}
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                    />
-                </div>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                        <TextField
+                            label="Live URL"
+                            name="liveUrl"
+                            value={formData.liveUrl}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
 
-                <div>
-                    <label htmlFor="sourceCodeUrl" className="block text-sm font-medium text-gray-300">
-                        Source Code URL
-                    </label>
-                    <input
-                        type="text"
-                        id="sourceCodeUrl"
-                        name="sourceCodeUrl"
-                        value={formData.sourceCodeUrl}
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                    />
-                </div>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                        <TextField
+                            label="Source Code URL"
+                            name="sourceCodeUrl"
+                            value={formData.sourceCodeUrl}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
+                </Stack>
 
-                <div>
-                    <label htmlFor="playStoreUrl" className="block text-sm font-medium text-gray-300">
-                        Play Store URL
-                    </label>
-                    <input
-                        type="text"
-                        id="playStoreUrl"
-                        name="playStoreUrl"
-                        value={formData.playStoreUrl}
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                    />
-                </div>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                        <TextField
+                            label="Play Store URL"
+                            name="playStoreUrl"
+                            value={formData.playStoreUrl}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
 
-                <div>
-                    <label htmlFor="appStoreUrl" className="block text-sm font-medium text-gray-300">
-                        App Store URL
-                    </label>
-                    <input
-                        type="text"
-                        id="appStoreUrl"
-                        name="appStoreUrl"
-                        value={formData.appStoreUrl}
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
-                    />
-                </div>
-            </div>
+                    <Box sx={{ flex: '1 1 0', minWidth: 0 }}>
+                        <TextField
+                            label="App Store URL"
+                            name="appStoreUrl"
+                            value={formData.appStoreUrl}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
 
-            <div>
-                <label htmlFor="displayOrder" className="block text-sm font-medium text-gray-300">
-                    Display Order
-                </label>
-                <input
-                    type="number"
-                    id="displayOrder"
+                    <Box sx={{ width: { xs: '100%', md: 140 } }}>
+                        <TextField
+                            label="Display Order"
+                            name="displayOrder"
+                            type="number"
+                            value={formData.displayOrder}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Box>
+                </Stack>
+
+                <TextField
+                    label="Display Order"
                     name="displayOrder"
+                    type="number"
                     value={formData.displayOrder}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-100 shadow-sm focus:border-accent-color focus:ring-accent-color sm:text-sm p-2 border"
+                    fullWidth
                 />
-            </div>
 
-            <div className="flex justify-end space-x-3 pt-4">
-                <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
-                    Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Saving...' : initialData ? 'Update Project' : 'Create Project'}
-                </Button>
-            </div>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, pt: 1 }}>
+                    <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={isLoading} sx={{ minWidth: 160 }}>
+                        {isLoading ? 'Saving...' : initialData ? 'Update Project' : 'Create Project'}
+                    </Button>
+                </Box>
+            </Stack>
         </form>
     );
 };
