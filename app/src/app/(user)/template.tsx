@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@/context/theme.provider'
 import { Navbar } from '@/components/NavBar'
 import { Footer } from '@/components/Footer'
@@ -8,9 +11,6 @@ export const metadata: Metadata = {
     description: 'Portfolio for Rashad Ataf',
     manifest: "/manifest.json"
 }
-
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
 
 export default function TemplateLayout({
     children,
@@ -22,7 +22,9 @@ export default function TemplateLayout({
             <Navbar />
             <Box component="main" sx={{ flex: '1 1 auto', py: 4 }}>
                 <Container maxWidth="lg">
-                    {children}
+                    <AppRouterCacheProvider>
+                        {children}
+                    </AppRouterCacheProvider>
                 </Container>
             </Box>
             <Footer />
