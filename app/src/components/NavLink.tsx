@@ -3,11 +3,12 @@ import Link from 'next/link';
 import Button from '@mui/material/Button';
 import { usePathname } from 'next/navigation';
 import { NavLinkProp } from '@/types';
-
+import { LoadingIndicator } from '@/components/UI/LoadingIndicator';
+ 
 export const NavLink = ({ href, title, className }: NavLinkProp) => {
     const currentPath = usePathname();
     const isActive = currentPath === href;
-
+ 
     return (
         <Button
             component={Link}
@@ -25,6 +26,7 @@ export const NavLink = ({ href, title, className }: NavLinkProp) => {
             aria-current={isActive ? 'page' : undefined}
         >
             {title}
+           <LoadingIndicator />
         </Button>
     );
 };

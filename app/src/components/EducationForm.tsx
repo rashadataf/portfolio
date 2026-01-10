@@ -1,13 +1,13 @@
 'use client';
-
-import { useState } from 'react';
-import { Education } from '@/modules/education/education.entity';
-import { createEducation, updateEducation } from '@/modules/education/education.controller';
-import { Button } from '@/components/UI/Button';
+import { useCallback } from 'react';
 import { toast } from 'sonner';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import { Education } from '@/modules/education/education.entity';
+import { createEducation, updateEducation } from '@/modules/education/education.controller';
+import { Button } from '@/components/UI/Button';
 
 interface EducationFormProps {
     initialData?: Education;
@@ -16,7 +16,7 @@ interface EducationFormProps {
 }
 
 export const EducationForm = ({ initialData, onSuccess, onCancel }: EducationFormProps) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useSafeState({
         institution: initialData?.institution || '',
         degree: initialData?.degree || '',
         field: initialData?.field || '',
@@ -24,40 +24,46 @@ export const EducationForm = ({ initialData, onSuccess, onCancel }: EducationFor
         endDate: initialData?.endDate || '',
         displayOrder: initialData?.displayOrder || 0,
     });
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useSafeState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === 'displayOrder' ? Number(value) : value,
-        }));
-    };
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { name, value } = e.target;
+            setFormData((prev) => ({
+                ...prev,
+                [name]: name === 'displayOrder' ? Number(value) : value,
+            }));
+        },
+        [setFormData]
+    );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            let result;
-            if (initialData) {
-                result = await updateEducation(initialData.id, formData);
-            } else {
-                result = await createEducation(formData);
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+                let result;
+                if (initialData) {
+                    result = await updateEducation(initialData.id, formData);
+                } else {
+                    result = await createEducation(formData);
+                }
+
+                if (result.success) {
+                    toast.success(`Education ${initialData ? 'updated' : 'created'} successfully`);
+                    onSuccess();
+                } else {
+                    toast.error(`Failed to ${initialData ? 'update' : 'create'} education`);
+                }
+            } catch (error) {
+                toast.error('An error occurred');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-
-            if (result.success) {
-                toast.success(`Education ${initialData ? 'updated' : 'created'} successfully`);
-                onSuccess();
-            } else {
-                toast.error(`Failed to ${initialData ? 'update' : 'create'} education`);
-            }
-        } catch (error) {
-            toast.error('An error occurred');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [formData, initialData, onSuccess, setIsLoading]
+    );
 
     return (
         <form onSubmit={handleSubmit}>

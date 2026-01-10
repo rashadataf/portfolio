@@ -1,12 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Education } from '@/modules/education/education.entity';
-import { deleteEducation, importEducationsJson, deleteAllEducations } from '@/modules/education/education.controller';
-import { Button } from '@/components/UI/Button';
-import { Modal } from '@/components/Modal';
-import { EducationForm } from '@/components/EducationForm';
-import { toast } from 'sonner';
+import { useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pencil, Trash2, Plus, Upload, Trash } from 'lucide-react';
 import Box from '@mui/material/Box';
@@ -14,97 +8,127 @@ import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import { toast } from 'sonner';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import { Education } from '@/modules/education/education.entity';
+import { deleteEducation, importEducationsJson, deleteAllEducations } from '@/modules/education/education.controller';
+import { Button } from '@/components/UI/Button';
+import { Modal } from '@/components/Modal';
+import { EducationForm } from '@/components/EducationForm';
 
 interface EducationListProps {
     educations: Education[];
 }
 
 export const EducationList = ({ educations }: EducationListProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedEducation, setSelectedEducation] = useState<Education | undefined>(undefined);
-    const [isImporting, setIsImporting] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useSafeState(false);
+    const [selectedEducation, setSelectedEducation] = useSafeState<Education | undefined>(undefined);
+    const [isImporting, setIsImporting] = useSafeState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
 
-    const handleEdit = (education: Education) => {
-        setSelectedEducation(education);
-        setIsModalOpen(true);
-    };
+    const handleEdit = useCallback(
+        (education: Education) => {
+            setSelectedEducation(education);
+            setIsModalOpen(true);
+        },
+        [setIsModalOpen, setSelectedEducation]
+    );
 
-    const handleCreate = () => {
-        setSelectedEducation(undefined);
-        setIsModalOpen(true);
-    };
+    const handleCreate = useCallback(
+        () => {
+            setSelectedEducation(undefined);
+            setIsModalOpen(true);
+        },
+        [setIsModalOpen, setSelectedEducation]
+    );
 
-    const handleImportClick = () => {
-        fileInputRef.current?.click();
-    };
+    const handleImportClick = useCallback(
+        () => {
+            fileInputRef.current?.click();
+        },
+        []
+    );
 
-    const handleDeleteAll = async () => {
-        if (confirm('Are you sure you want to delete ALL education entries? This action cannot be undone.')) {
+    const handleDeleteAll = useCallback(
+        async () => {
+            if (
+                confirm('Are you sure you want to delete ALL education entries? This action cannot be undone.')
+            ) {
+                try {
+                    const result = await deleteAllEducations();
+                    if (result.success) {
+                        toast.success('All education entries deleted successfully');
+                        router.refresh();
+                    } else {
+                        toast.error('Failed to delete education entries');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    toast.error('An error occurred');
+                }
+            }
+        },
+        [router]
+    );
+
+    const handleFileChange = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            setIsImporting(true);
+            const formData = new FormData();
+            formData.append('file', file);
+
             try {
-                const result = await deleteAllEducations();
+                const result = await importEducationsJson(formData);
                 if (result.success) {
-                    toast.success('All education entries deleted successfully');
+                    toast.success('Education imported successfully');
                     router.refresh();
                 } else {
-                    toast.error('Failed to delete education entries');
+                    toast.error(result.error || 'Failed to import education');
                 }
             } catch (error) {
                 console.error(error);
-                toast.error('An error occurred');
-            }
-        }
-    };
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setIsImporting(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const result = await importEducationsJson(formData);
-            if (result.success) {
-                toast.success('Education imported successfully');
-                router.refresh();
-            } else {
-                toast.error(result.error || 'Failed to import education');
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error('An error occurred during import');
-        } finally {
-            setIsImporting(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        }
-    };
-
-    const handleDelete = async (id: number) => {
-        if (confirm('Are you sure you want to delete this education entry?')) {
-            try {
-                const result = await deleteEducation(id);
-                if (result.success) {
-                    toast.success('Education deleted successfully');
-                    router.refresh();
-                } else {
-                    toast.error('Failed to delete education');
+                toast.error('An error occurred during import');
+            } finally {
+                setIsImporting(false);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
                 }
-            } catch (error) {
-                console.error(error);
-                toast.error('An error occurred');
             }
-        }
-    };
+        },
+        [router, setIsImporting]
+    );
 
-    const handleSuccess = () => {
-        setIsModalOpen(false);
-        router.refresh();
-    };
+    const handleDelete = useCallback(
+        async (id: number) => {
+            if (confirm('Are you sure you want to delete this education entry?')) {
+                try {
+                    const result = await deleteEducation(id);
+                    if (result.success) {
+                        toast.success('Education deleted successfully');
+                        router.refresh();
+                    } else {
+                        toast.error('Failed to delete education');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    toast.error('An error occurred');
+                }
+            }
+        },
+        [router]
+    );
+
+    const handleSuccess = useCallback(
+        () => {
+            setIsModalOpen(false);
+            router.refresh();
+        },
+        [router, setIsModalOpen]
+    );
 
     return (
         <Box>

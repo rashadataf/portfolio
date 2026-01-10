@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { Skill, SkillCategory } from '@/modules/skill/skill.entity';
-import { createSkill, updateSkill } from '@/modules/skill/skill.controller';
-import { Button } from '@/components/UI/Button';
+import { useCallback } from 'react';
 import { toast } from 'sonner';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import { Skill, SkillCategory } from '@/modules/skill/skill.entity';
+import { createSkill, updateSkill } from '@/modules/skill/skill.controller';
+import { Button } from '@/components/UI/Button';
 
 interface SkillFormProps {
     initialData?: Skill;
@@ -17,46 +18,52 @@ interface SkillFormProps {
 }
 
 export const SkillForm = ({ initialData, onSuccess, onCancel }: SkillFormProps) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useSafeState({
         name: initialData?.name || '',
         percentage: initialData?.percentage || 50,
         category: initialData?.category || SkillCategory.Proficient,
         displayOrder: initialData?.displayOrder || 0,
     });
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useSafeState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target as HTMLInputElement;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === 'percentage' || name === 'displayOrder' ? Number(value) : value,
-        }));
-    };
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            const { name, value } = e.target as HTMLInputElement;
+            setFormData((prev) => ({
+                ...prev,
+                [name]: name === 'percentage' || name === 'displayOrder' ? Number(value) : value,
+            }));
+        },
+        [setFormData]
+    );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            let result;
-            if (initialData) {
-                result = await updateSkill(initialData.id, formData);
-            } else {
-                result = await createSkill(formData);
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+                let result;
+                if (initialData) {
+                    result = await updateSkill(initialData.id, formData);
+                } else {
+                    result = await createSkill(formData);
+                }
+
+                if (result.success) {
+                    toast.success(`Skill ${initialData ? 'updated' : 'created'} successfully`);
+                    onSuccess();
+                } else {
+                    toast.error(`Failed to ${initialData ? 'update' : 'create'} skill`);
+                }
+            } catch (error) {
+                toast.error('An error occurred');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-
-            if (result.success) {
-                toast.success(`Skill ${initialData ? 'updated' : 'created'} successfully`);
-                onSuccess();
-            } else {
-                toast.error(`Failed to ${initialData ? 'update' : 'create'} skill`);
-            }
-        } catch (error) {
-            toast.error('An error occurred');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [formData, initialData, onSuccess, setIsLoading]
+    );
 
     return (
         <form onSubmit={handleSubmit}>

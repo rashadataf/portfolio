@@ -1,17 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { toast } from 'sonner';
+import { useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-
-import { Button } from '@/components/UI/Button';
-import {
-    deleteUploadedFile,
-    getUploadedFiles,
-    uploadFile,
-    type UploadedFileMeta,
-} from '@/modules/file/file.controller';
-
+import Image from 'next/image';
+import NextLink from 'next/link';
+import { toast } from 'sonner';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
@@ -29,14 +22,21 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import Image from 'next/image';
-import NextLink from 'next/link';
-
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import { Button } from '@/components/UI/Button';
+import {
+    deleteUploadedFile,
+    getUploadedFiles,
+    uploadFile,
+    type UploadedFileMeta,
+} from '@/modules/file/file.controller';
+
+
 
 function formatBytes(bytes: number) {
     if (!Number.isFinite(bytes)) return '-';
@@ -54,96 +54,120 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [files, setFiles] = useState<UploadedFileMeta[]>(initialFiles);
-    const [isUploading, setIsUploading] = useState(false);
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const [deleting, setDeleting] = useState<Record<string, boolean>>({});
-    const [previewOpen, setPreviewOpen] = useState(false);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [previewName, setPreviewName] = useState<string | null>(null);
+    const [files, setFiles] = useSafeState<UploadedFileMeta[]>(initialFiles);
+    const [isUploading, setIsUploading] = useSafeState(false);
+    const [isRefreshing, setIsRefreshing] = useSafeState(false);
+    const [deleting, setDeleting] = useSafeState<Record<string, boolean>>({});
+    const [previewOpen, setPreviewOpen] = useSafeState(false);
+    const [previewUrl, setPreviewUrl] = useSafeState<string | null>(null);
+    const [previewName, setPreviewName] = useSafeState<string | null>(null);
 
-    const isImage = (url: string) => /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(url);
+    const isImage = useCallback(
+        (url: string) => /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(url),
+        []
+    );
 
-    const handlePreview = (url: string, name: string) => {
-        setPreviewUrl(url);
-        setPreviewName(name);
-        setPreviewOpen(true);
-    };
+    const handlePreview = useCallback(
+        (url: string, name: string) => {
+            setPreviewUrl(url);
+            setPreviewName(name);
+            setPreviewOpen(true);
+        },
+        [setPreviewName, setPreviewOpen, setPreviewUrl]
+    );
 
-    const closePreview = () => {
-        setPreviewOpen(false);
-        setPreviewUrl(null);
-        setPreviewName(null);
-    };
+    const closePreview = useCallback(
+        () => {
+            setPreviewOpen(false);
+            setPreviewUrl(null);
+            setPreviewName(null);
+        },
+        [setPreviewName, setPreviewOpen, setPreviewUrl]
+    );
 
-    const refresh = async () => {
-        setIsRefreshing(true);
-        try {
-            const res = await getUploadedFiles();
-            if (res.success) {
-                setFiles(res.data);
-            } else {
-                toast.error(res.error);
+    const refresh = useCallback(
+        async () => {
+            setIsRefreshing(true);
+            try {
+                const res = await getUploadedFiles();
+                if (res.success) {
+                    setFiles(res.data);
+                } else {
+                    toast.error(res.error);
+                }
+            } finally {
+                setIsRefreshing(false);
             }
-        } finally {
-            setIsRefreshing(false);
-        }
-    };
+        },
+        [setFiles, setIsRefreshing]
+    );
 
-    const handlePickFile = () => fileInputRef.current?.click();
+    const handlePickFile = useCallback(
+        () => fileInputRef.current?.click(),
+        []
+    );
 
-    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleUpload = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
 
-        setIsUploading(true);
-        try {
-            const res = await uploadFile(file);
-            if (res.success && res.url) {
-                await navigator.clipboard.writeText(res.url);
-                toast.success('Uploaded. URL copied to clipboard.');
-                await refresh();
-                router.refresh();
-            } else {
-                toast.error(res.error || 'Upload failed');
+            setIsUploading(true);
+            try {
+                const res = await uploadFile(file);
+                if (res.success && res.url) {
+                    await navigator.clipboard.writeText(res.url);
+                    toast.success('Uploaded. URL copied to clipboard.');
+                    await refresh();
+                    router.refresh();
+                } else {
+                    toast.error(res.error || 'Upload failed');
+                }
+            } catch (err) {
+                console.error(err);
+                toast.error('Upload failed');
+            } finally {
+                setIsUploading(false);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
             }
-        } catch (err) {
-            console.error(err);
-            toast.error('Upload failed');
-        } finally {
-            setIsUploading(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
+        },
+        [refresh, router, setIsUploading]
+    );
+
+    const handleCopy = useCallback(
+        async (url: string) => {
+            await navigator.clipboard.writeText(url);
+            toast.success('URL copied');
+        },
+        []
+    );
+
+    const handleDelete = useCallback(
+        async (filename: string) => {
+            const ok = confirm(`Delete "${filename}"? This cannot be undone.`);
+            if (!ok) return;
+
+            setDeleting((m) => ({ ...m, [filename]: true }));
+            try {
+                const res = await deleteUploadedFile(filename);
+                if (res.success) {
+                    toast.success('File deleted');
+                    await refresh();
+                    router.refresh();
+                } else {
+                    toast.error(res.error || 'Delete failed');
+                }
+            } catch (err) {
+                console.error(err);
+                toast.error('Delete failed');
+            } finally {
+                setDeleting((m) => ({ ...m, [filename]: false }));
             }
-        }
-    };
-
-    const handleCopy = async (url: string) => {
-        await navigator.clipboard.writeText(url);
-        toast.success('URL copied');
-    };
-
-    const handleDelete = async (filename: string) => {
-        const ok = confirm(`Delete "${filename}"? This cannot be undone.`);
-        if (!ok) return;
-
-        setDeleting((m) => ({ ...m, [filename]: true }));
-        try {
-            const res = await deleteUploadedFile(filename);
-            if (res.success) {
-                toast.success('File deleted');
-                await refresh();
-                router.refresh();
-            } else {
-                toast.error(res.error || 'Delete failed');
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error('Delete failed');
-        } finally {
-            setDeleting((m) => ({ ...m, [filename]: false }));
-        }
-    };
+        },
+        [refresh, router, setDeleting]
+    );
 
     return (
         <Box>
@@ -162,7 +186,7 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
                     <Button type="button" variant="outline" onClick={refresh} disabled={isRefreshing} startIcon={<RefreshIcon />}>
                         {isRefreshing ? 'Refreshing...' : 'Refresh'}
                     </Button>
-                </Stack> 
+                </Stack>
             </Stack>
 
             <TableContainer component={Paper}>
@@ -181,7 +205,7 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
                             <TableRow key={f.filename} hover sx={{ '&:nth-of-type(odd)': { backgroundColor: 'action.hover' } }}>
                                 <TableCell>
                                     <Box>
-                                                        <Typography variant="body1">{f.filename}</Typography>
+                                        <Typography variant="body1">{f.filename}</Typography>
                                         <Link href={f.url} target="_blank" rel="noreferrer" underline="hover" sx={{ fontSize: 12, wordBreak: 'break-all' }}>{f.url}</Link>
                                     </Box>
                                 </TableCell>

@@ -1,15 +1,15 @@
 'use client';
-
-import { useState, useRef } from 'react';
-import { Project } from '@/modules/project/project.entity';
-import { createProject, updateProject } from '@/modules/project/project.controller';
-import { uploadFile } from '@/modules/file/file.controller';
-import { Button } from '@/components/UI/Button';
+import { useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
-import Image from 'next/image';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import { Project } from '@/modules/project/project.entity';
+import { createProject, updateProject } from '@/modules/project/project.controller';
+import { uploadFile } from '@/modules/file/file.controller';
+import { Button } from '@/components/UI/Button';
 
 interface ProjectFormProps {
     initialData?: Project;
@@ -18,7 +18,7 @@ interface ProjectFormProps {
 }
 
 export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormProps) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useSafeState({
         title: initialData?.title || '',
         description: initialData?.description || '',
         imageUrl: initialData?.imageUrl || '',
@@ -29,71 +29,82 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
         appStoreUrl: initialData?.appStoreUrl || '',
         displayOrder: initialData?.displayOrder || 0,
     });
-    const [isLoading, setIsLoading] = useState(false);
-    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [isLoading, setIsLoading] = useSafeState(false);
+    const [isUploadingImage, setIsUploadingImage] = useSafeState(false);
     const imageRef = useRef<HTMLInputElement | null>(null);
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setIsUploadingImage(true);
-        try {
-            const result = await uploadFile(file);
-            if (result.success && result.url) {
-                setFormData((prev) => ({ ...prev, imageUrl: result.url }));
-                toast.success('Image uploaded successfully');
-            } else {
-                toast.error('Failed to upload image');
+
+    const handleFileUpload = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            setIsUploadingImage(true);
+            try {
+                const result = await uploadFile(file);
+                if (result.success && result.url) {
+                    setFormData((prev) => ({ ...prev, imageUrl: result.url }));
+                    toast.success('Image uploaded successfully');
+                } else {
+                    toast.error('Failed to upload image');
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('An error occurred during upload');
+            } finally {
+                setIsUploadingImage(false);
+                if (e.target) e.target.value = '';
             }
-        } catch (error) {
-            console.error(error);
-            toast.error('An error occurred during upload');
-        } finally {
-            setIsUploadingImage(false);
-            if (e.target) e.target.value = '';
-        }
-    }
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: name === 'displayOrder' ? Number(value) : value,
-        }));
-    };
+        },
+        [setFormData, setIsUploadingImage]
+    );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            const technologiesArray = formData.technologies
-                .split(',')
-                .map((tech) => tech.trim())
-                .filter((tech) => tech.length > 0);
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            const { name, value } = e.target;
+            setFormData((prev) => ({
+                ...prev,
+                [name]: name === 'displayOrder' ? Number(value) : value,
+            }));
+        },
+        [setFormData]
+    );
 
-            const dataToSubmit = {
-                ...formData,
-                technologies: technologiesArray,
-            };
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+                const technologiesArray = formData.technologies
+                    .split(',')
+                    .map((tech) => tech.trim())
+                    .filter((tech) => tech.length > 0);
 
-            let result;
-            if (initialData) {
-                result = await updateProject(initialData.id, { ...dataToSubmit, id: initialData.id });
-            } else {
-                result = await createProject(dataToSubmit);
+                const dataToSubmit = {
+                    ...formData,
+                    technologies: technologiesArray,
+                };
+
+                let result;
+                if (initialData) {
+                    result = await updateProject(initialData.id, { ...dataToSubmit, id: initialData.id });
+                } else {
+                    result = await createProject(dataToSubmit);
+                }
+
+                if (result.success) {
+                    toast.success(`Project ${initialData ? 'updated' : 'created'} successfully`);
+                    onSuccess();
+                } else {
+                    toast.error(`Failed to ${initialData ? 'update' : 'create'} project`);
+                }
+            } catch (error) {
+                toast.error('An error occurred');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-
-            if (result.success) {
-                toast.success(`Project ${initialData ? 'updated' : 'created'} successfully`);
-                onSuccess();
-            } else {
-                toast.error(`Failed to ${initialData ? 'update' : 'create'} project`);
-            }
-        } catch (error) {
-            toast.error('An error occurred');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [formData, initialData, onSuccess, setIsLoading]
+    );
 
     return (
         <form onSubmit={handleSubmit}>

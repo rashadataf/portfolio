@@ -1,12 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Experience } from '@/modules/experience/experience.entity';
-import { deleteExperience, importExperiencesJson, deleteAllExperiences } from '@/modules/experience/experience.controller';
-import { Button } from '@/components/UI/Button';
-import { Modal } from '@/components/Modal';
-import { ExperienceForm } from '@/components/ExperienceForm';
-import { toast } from 'sonner';
+import { useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pencil, Trash2, Plus, Upload, Trash } from 'lucide-react';
 import Box from '@mui/material/Box';
@@ -14,97 +8,127 @@ import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import { toast } from 'sonner';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import { Experience } from '@/modules/experience/experience.entity';
+import { deleteExperience, importExperiencesJson, deleteAllExperiences } from '@/modules/experience/experience.controller';
+import { Button } from '@/components/UI/Button';
+import { Modal } from '@/components/Modal';
+import { ExperienceForm } from '@/components/ExperienceForm';
 
 interface ExperienceListProps {
     experiences: Experience[];
 }
 
 export const ExperienceList = ({ experiences }: ExperienceListProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedExperience, setSelectedExperience] = useState<Experience | undefined>(undefined);
-    const [isImporting, setIsImporting] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useSafeState(false);
+    const [selectedExperience, setSelectedExperience] = useSafeState<Experience | undefined>(undefined);
+    const [isImporting, setIsImporting] = useSafeState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
 
-    const handleEdit = (experience: Experience) => {
-        setSelectedExperience(experience);
-        setIsModalOpen(true);
-    };
+    const handleEdit = useCallback(
+        (experience: Experience) => {
+            setSelectedExperience(experience);
+            setIsModalOpen(true);
+        },
+        [setIsModalOpen, setSelectedExperience]
+    );
 
-    const handleCreate = () => {
-        setSelectedExperience(undefined);
-        setIsModalOpen(true);
-    };
+    const handleCreate = useCallback(
+        () => {
+            setSelectedExperience(undefined);
+            setIsModalOpen(true);
+        },
+        [setIsModalOpen, setSelectedExperience]
+    );
 
-    const handleImportClick = () => {
-        fileInputRef.current?.click();
-    };
+    const handleImportClick = useCallback(
+        () => {
+            fileInputRef.current?.click();
+        },
+        []
+    );
 
-    const handleDeleteAll = async () => {
-        if (confirm('Are you sure you want to delete ALL experiences? This action cannot be undone.')) {
+    const handleDeleteAll = useCallback(
+        async () => {
+            if (
+                confirm('Are you sure you want to delete ALL experiences? This action cannot be undone.')
+            ) {
+                try {
+                    const result = await deleteAllExperiences();
+                    if (result.success) {
+                        toast.success('All experiences deleted successfully');
+                        router.refresh();
+                    } else {
+                        toast.error('Failed to delete experiences');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    toast.error('An error occurred');
+                }
+            }
+        },
+        [router]
+    );
+
+    const handleFileChange = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            setIsImporting(true);
+            const formData = new FormData();
+            formData.append('file', file);
+
             try {
-                const result = await deleteAllExperiences();
+                const result = await importExperiencesJson(formData);
                 if (result.success) {
-                    toast.success('All experiences deleted successfully');
+                    toast.success('Experiences imported successfully');
                     router.refresh();
                 } else {
-                    toast.error('Failed to delete experiences');
+                    toast.error(result.error || 'Failed to import experiences');
                 }
             } catch (error) {
                 console.error(error);
-                toast.error('An error occurred');
-            }
-        }
-    };
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setIsImporting(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const result = await importExperiencesJson(formData);
-            if (result.success) {
-                toast.success('Experiences imported successfully');
-                router.refresh();
-            } else {
-                toast.error(result.error || 'Failed to import experiences');
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error('An error occurred during import');
-        } finally {
-            setIsImporting(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        }
-    };
-
-    const handleDelete = async (id: number) => {
-        if (confirm('Are you sure you want to delete this experience?')) {
-            try {
-                const result = await deleteExperience(id);
-                if (result.success) {
-                    toast.success('Experience deleted successfully');
-                    router.refresh();
-                } else {
-                    toast.error('Failed to delete experience');
+                toast.error('An error occurred during import');
+            } finally {
+                setIsImporting(false);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
                 }
-            } catch (error) {
-                console.error(error);
-                toast.error('An error occurred');
             }
-        }
-    };
+        },
+        [router, setIsImporting]
+    );
 
-    const handleSuccess = () => {
-        setIsModalOpen(false);
-        router.refresh();
-    };
+    const handleDelete = useCallback(
+        async (id: number) => {
+            if (confirm('Are you sure you want to delete this experience?')) {
+                try {
+                    const result = await deleteExperience(id);
+                    if (result.success) {
+                        toast.success('Experience deleted successfully');
+                        router.refresh();
+                    } else {
+                        toast.error('Failed to delete experience');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    toast.error('An error occurred');
+                }
+            }
+        },
+        [router]
+    );
+
+    const handleSuccess = useCallback(
+        () => {
+            setIsModalOpen(false);
+            router.refresh();
+        },
+        [router, setIsModalOpen]
+    );
 
     return (
         <Box>

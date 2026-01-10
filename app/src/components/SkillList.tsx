@@ -1,13 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Skill } from '@/modules/skill/skill.entity';
-import { deleteSkill, importSkillsJson, deleteAllSkills } from '@/modules/skill/skill.controller';
-import { Button } from '@/components/UI/Button';
-import { Modal } from '@/components/Modal';
-import { SkillForm } from '@/components/SkillForm';
-import { toast } from 'sonner';
+import { useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
@@ -22,97 +17,128 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import { Skill } from '@/modules/skill/skill.entity';
+import { deleteSkill, importSkillsJson, deleteAllSkills } from '@/modules/skill/skill.controller';
+import { Button } from '@/components/UI/Button';
+import { Modal } from '@/components/Modal';
+import { SkillForm } from '@/components/SkillForm';
 
 interface SkillListProps {
     skills: Skill[];
 }
 
 export const SkillList = ({ skills }: SkillListProps) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedSkill, setSelectedSkill] = useState<Skill | undefined>(undefined);
-    const [isImporting, setIsImporting] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useSafeState(false);
+    const [selectedSkill, setSelectedSkill] = useSafeState<Skill | undefined>(undefined);
+    const [isImporting, setIsImporting] = useSafeState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
 
-    const handleEdit = (skill: Skill) => {
-        setSelectedSkill(skill);
-        setIsModalOpen(true);
-    };
+    const handleEdit = useCallback(
+        (skill: Skill) => {
+            setSelectedSkill(skill);
+            setIsModalOpen(true);
+        },
+        [setIsModalOpen, setSelectedSkill]
+    );
 
-    const handleCreate = () => {
-        setSelectedSkill(undefined);
-        setIsModalOpen(true);
-    };
+    const handleCreate = useCallback(
+        () => {
+            setSelectedSkill(undefined);
+            setIsModalOpen(true);
+        },
+        [setIsModalOpen, setSelectedSkill]
+    );
 
-    const handleImportClick = () => {
-        fileInputRef.current?.click();
-    };
+    const handleImportClick = useCallback(
+        () => {
+            fileInputRef.current?.click();
+        },
+        []
+    );
 
-    const handleDeleteAll = async () => {
-        if (confirm('Are you sure you want to delete ALL skills? This action cannot be undone.')) {
+    const handleDeleteAll = useCallback(
+        async () => {
+            if (
+                confirm('Are you sure you want to delete ALL skills? This action cannot be undone.')
+            ) {
+                try {
+                    const result = await deleteAllSkills();
+                    if (result.success) {
+                        toast.success('All skills deleted successfully');
+                        router.refresh();
+                    } else {
+                        toast.error('Failed to delete skills');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    toast.error('An error occurred');
+                }
+            }
+        },
+        [router]
+    );
+
+    const handleFileChange = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            setIsImporting(true);
+            const formData = new FormData();
+            formData.append('file', file);
+
             try {
-                const result = await deleteAllSkills();
+                const result = await importSkillsJson(formData);
                 if (result.success) {
-                    toast.success('All skills deleted successfully');
+                    toast.success('Skills imported successfully');
                     router.refresh();
                 } else {
-                    toast.error('Failed to delete skills');
+                    toast.error(result.error || 'Failed to import skills');
                 }
             } catch (error) {
                 console.error(error);
-                toast.error('An error occurred');
-            }
-        }
-    };
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setIsImporting(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const result = await importSkillsJson(formData);
-            if (result.success) {
-                toast.success('Skills imported successfully');
-                router.refresh();
-            } else {
-                toast.error(result.error || 'Failed to import skills');
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error('An error occurred during import');
-        } finally {
-            setIsImporting(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        }
-    };
-
-    const handleDelete = async (id: number) => {
-        if (confirm('Are you sure you want to delete this skill?')) {
-            try {
-                const result = await deleteSkill(id);
-                if (result.success) {
-                    toast.success('Skill deleted successfully');
-                    router.refresh();
-                } else {
-                    toast.error('Failed to delete skill');
+                toast.error('An error occurred during import');
+            } finally {
+                setIsImporting(false);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
                 }
-            } catch (error) {
-                console.error(error);
-                toast.error('An error occurred');
             }
-        }
-    };
+        },
+        [router, setIsImporting]
+    );
 
-    const handleSuccess = () => {
-        setIsModalOpen(false);
-        router.refresh();
-    };
+    const handleDelete = useCallback(
+        async (id: number) => {
+            if (
+                confirm('Are you sure you want to delete this skill?')
+            ) {
+                try {
+                    const result = await deleteSkill(id);
+                    if (result.success) {
+                        toast.success('Skill deleted successfully');
+                        router.refresh();
+                    } else {
+                        toast.error('Failed to delete skill');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    toast.error('An error occurred');
+                }
+            }
+        },
+        [router]
+    );
+
+    const handleSuccess = useCallback(
+        () => {
+            setIsModalOpen(false);
+            router.refresh();
+        },
+        [router, setIsModalOpen]
+    );
 
     return (
         <Box>

@@ -1,87 +1,97 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Profile } from '@/modules/profile/profile.entity';
-import { updateProfile } from '@/modules/profile/profile.controller';
-import { uploadFile } from '@/modules/file/file.controller';
-import { Button } from '@/components/UI/Button';
-import { toast } from 'sonner';
+import { useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import { Profile } from '@/modules/profile/profile.entity';
+import { updateProfile } from '@/modules/profile/profile.controller';
+import { uploadFile } from '@/modules/file/file.controller';
+import { Button } from '@/components/UI/Button';
 
 interface ProfileFormProps {
     initialData: Profile;
 }
 
 export const ProfileForm = ({ initialData }: ProfileFormProps) => {
-    const [formData, setFormData] = useState(initialData);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isUploadingResume, setIsUploadingResume] = useState(false);
-    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [formData, setFormData] = useSafeState(initialData);
+    const [isLoading, setIsLoading] = useSafeState(false);
+    const [isUploadingResume, setIsUploadingResume] = useSafeState(false);
+    const [isUploadingImage, setIsUploadingImage] = useSafeState(false);
     const router = useRouter();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            const { name, value } = e.target;
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        },
+        [setFormData]
+    );
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'resumeUrl' | 'heroImageUrl') => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleFileUpload = useCallback(
+        async (e: React.ChangeEvent<HTMLInputElement>, field: 'resumeUrl' | 'heroImageUrl') => {
+            const file = e.target.files?.[0];
+            if (!file) return;
 
-        const isResume = field === 'resumeUrl';
-        const setUploading = isResume ? setIsUploadingResume : setIsUploadingImage;
+            const isResume = field === 'resumeUrl';
+            const setUploading = isResume ? setIsUploadingResume : setIsUploadingImage;
 
-        setUploading(true);
-        try {
-            const result = await uploadFile(file);
-            if (result.success && result.url) {
-                setFormData((prev) => ({ ...prev, [field]: result.url }));
-                toast.success(`${isResume ? 'Resume' : 'Image'} uploaded successfully`);
-            } else {
-                toast.error(`Failed to upload ${isResume ? 'resume' : 'image'}`);
+            setUploading(true);
+            try {
+                const result = await uploadFile(file);
+                if (result.success && result.url) {
+                    setFormData((prev) => ({ ...prev, [field]: result.url }));
+                    toast.success(`${isResume ? 'Resume' : 'Image'} uploaded successfully`);
+                } else {
+                    toast.error(`Failed to upload ${isResume ? 'resume' : 'image'}`);
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('An error occurred during upload');
+            } finally {
+                setUploading(false);
             }
-        } catch (error) {
-            console.error(error);
-            toast.error('An error occurred during upload');
-        } finally {
-            setUploading(false);
-        }
-    };
+        },
+        [setFormData, setIsUploadingImage, setIsUploadingResume]
+    );
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            const result = await updateProfile(initialData.slug, {
-                headline: formData.headline,
-                bioEn: formData.bioEn,
-                bioAr: formData.bioAr,
-                aboutEn: formData.aboutEn,
-                happyClients: Number(formData.happyClients),
-                projectsCompleted: Number(formData.projectsCompleted),
-                yearsOfExperience: Number(formData.yearsOfExperience),
-                resumeUrl: formData.resumeUrl,
-                contactEmail: formData.contactEmail,
-                heroImageUrl: formData.heroImageUrl,
-            });
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+                const result = await updateProfile(initialData.slug, {
+                    headline: formData.headline,
+                    bioEn: formData.bioEn,
+                    bioAr: formData.bioAr,
+                    aboutEn: formData.aboutEn,
+                    happyClients: Number(formData.happyClients),
+                    projectsCompleted: Number(formData.projectsCompleted),
+                    yearsOfExperience: Number(formData.yearsOfExperience),
+                    resumeUrl: formData.resumeUrl,
+                    contactEmail: formData.contactEmail,
+                    heroImageUrl: formData.heroImageUrl,
+                });
 
-            if (result.success) {
-                toast.success('Profile updated successfully');
-                router.refresh();
-            } else {
-                toast.error('Failed to update profile');
+                if (result.success) {
+                    toast.success('Profile updated successfully');
+                    router.refresh();
+                } else {
+                    toast.error('Failed to update profile');
+                }
+            } catch (error) {
+                toast.error('An error occurred');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            toast.error('An error occurred');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [formData.aboutEn, formData.bioAr, formData.bioEn, formData.contactEmail, formData.happyClients, formData.headline, formData.heroImageUrl, formData.projectsCompleted, formData.resumeUrl, formData.yearsOfExperience, initialData.slug, router, setIsLoading]
+    );
 
     const resumeRef = useRef<HTMLInputElement | null>(null);
     const imageRef = useRef<HTMLInputElement | null>(null);
