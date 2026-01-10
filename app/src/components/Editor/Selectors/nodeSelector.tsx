@@ -1,5 +1,7 @@
+import React from 'react';
+import type { MouseEvent } from 'react';
+import type { MenuListProps } from '@mui/material/MenuList';
 import {
-  Check,
   ChevronDown,
   Heading1,
   Heading2,
@@ -11,11 +13,13 @@ import {
   CheckSquare,
   type LucideIcon,
 } from "lucide-react";
-import { EditorBubbleItem, EditorInstance, useEditor } from "novel";
-import { Popover } from "@radix-ui/react-popover";
-
-import { PopoverContent, PopoverTrigger } from "@/components/UI/Popover";
-import { Button } from "@/components/UI/Button";
+import { EditorInstance, useEditor } from "novel";
+import Menu from '@mui/material/Menu';
+import { useSafeState } from '@/hooks/useSafeState.hook';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 
 export type SelectorItem = {
   name: string;
@@ -96,45 +100,102 @@ interface NodeSelectorProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export const NodeSelector = ({ open, onOpenChange }: NodeSelectorProps) => {
+export const NodeSelector = ({ onOpenChange }: NodeSelectorProps) => {
+  const [anchorPos, setAnchorPos] = useSafeState<{ top: number; left: number } | null>(null);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   const { editor } = useEditor();
-  if (!editor) return null;
 
-  const activeItem = items.filter((item) => item.isActive(editor)).pop() ?? {
-    name: "Multiple",
+  const setEditorBubbleMenuOpen = (open: boolean, name?: string) => {
+    const el = typeof document !== 'undefined' ? document.querySelector('.editor-bubble') as HTMLElement | null : null;
+    if (!el) return;
+    if (open) el.setAttribute('data-menu-open', name || 'true');
+    else el.removeAttribute('data-menu-open');
   };
 
+  const handleOpen = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+    // increase the vertical offset so the menu appears clearly below the toolbar
+    setAnchorPos({ top: Math.round(rect.bottom + 16), left: Math.round(rect.left) });
+    setEditorBubbleMenuOpen(true, 'node-selector');
+    onOpenChange(true);
+  }, [onOpenChange, setAnchorPos]);
+
+  const handleClose = React.useCallback(() => {
+    setAnchorPos(null);
+    setEditorBubbleMenuOpen(false);
+    onOpenChange(false);
+  }, [onOpenChange, setAnchorPos]);
+
+  React.useEffect(() => {
+    if (anchorPos && process.env.NODE_ENV !== 'production') {
+      console.log('Popover mounted', { anchorPos });
+      const centerX = Math.round(anchorPos.left + 10);
+      const centerY = Math.round(anchorPos.top + 10);
+      // elementFromPoint expects viewport coordinates
+      const el = document.elementFromPoint(centerX, centerY);
+      if (el && !(el as HTMLElement).closest('[data-menu-name="node-selector"]')) {
+        console.warn('Menu overlap detected (node-selector)', { found: el?.tagName, classes: (el as HTMLElement)?.className });
+        const delta = 12;
+        console.log('Nudging node-selector by', delta);
+        // nudge asynchronously
+        window.requestAnimationFrame(() => setAnchorPos((p) => p ? { top: p.top + delta, left: p.left } : p));
+      }
+    }
+  }, [anchorPos, setAnchorPos]);
+
+  // typed list props for MUI Menu to avoid using `any` and to set data-menu-name via ref
+  const listProps: MenuListProps & { ref?: (el: HTMLUListElement | null) => void } = {
+    onMouseDown: (e: MouseEvent<HTMLUListElement>) => e.preventDefault(),
+    ref: (el: HTMLUListElement | null) => { if (el) el?.setAttribute('data-menu-name', 'node-selector'); }
+  };
+
+  if (!editor) return null;
+  const activeItem = items.filter((item) => item.isActive(editor)).pop() ?? { name: "Multiple" };
+
   return (
-    <Popover modal={true} open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger
-        asChild
+    <>
+      <Button
+        ref={triggerRef}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={handleOpen}
+        size="small"
+        variant="text"
+        sx={{ minWidth: 'auto', p: '6px' }}
         className="gap-2 rounded-none border-none hover:bg-accent focus:ring-0"
       >
-        <Button size="sm" variant="ghost" className="gap-2">
-          <span className="whitespace-nowrap text-sm">{activeItem.name}</span>
-          <ChevronDown className="h-4 w-4" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent sideOffset={5} align="start" className="w-48 p-1">
+        <span className="whitespace-nowrap text-sm">{activeItem.name}</span>
+        <ChevronDown className="h-4 w-4" />
+      </Button>
+
+      <Menu
+        open={!!anchorPos}
+        onClose={handleClose}
+        anchorReference="anchorPosition"
+        anchorPosition={anchorPos ? { top: Math.round(anchorPos.top), left: Math.round(anchorPos.left) } : undefined}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        slotProps={{ list: listProps, paper: { sx: { p: 0, position: 'fixed' as const, zIndex: 5000 } } }}
+        container={typeof document !== 'undefined' ? document.body : undefined}
+      >
         {items.map((item, index) => (
-          <EditorBubbleItem
+          <MenuItem
             key={index}
-            onSelect={(editor) => {
+            onClick={() => {
               item.command(editor);
-              onOpenChange(false);
+              handleClose();
             }}
-            className="flex cursor-pointer items-center justify-between rounded-sm px-2 py-1 text-sm hover:bg-accent"
+            selected={activeItem.name === item.name}
           >
-            <div className="flex items-center space-x-2">
-              <div className="rounded-sm border p-1">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 22 }}>
                 <item.icon className="h-3 w-3" />
-              </div>
-              <span>{item.name}</span>
-            </div>
-            {activeItem.name === item.name && <Check className="h-4 w-4" />}
-          </EditorBubbleItem>
+              </Box>
+              <Typography variant="body2">{item.name}</Typography>
+            </Box>
+          </MenuItem>
         ))}
-      </PopoverContent>
-    </Popover>
+      </Menu>
+    </>
   );
 };

@@ -2,15 +2,18 @@
 import '@/app/prosemirror.css';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
 import { Section } from "@/components/Section";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus } from '@/types';
-import { createArticle, getArticleById, updateArticle } from '@/modules/article/article.controller';
+import { createArticle, getArticleById, updateArticle, uploadImage } from '@/modules/article/article.controller';
 import { CreateArticleDTO } from '@/modules/article/article.dto';
 import { Loader } from '@/components//Loader';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 
 interface ArticlePageProps {
     articleId?: string;
@@ -94,9 +97,41 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
         [articleId, setAuthor, setContentAr, setContentEn, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn, setDescriptionEn, setDescriptionAr, setEnEditorKey, setArEditorKey]
     );
 
+    const [isUploadingCover, setIsUploadingCover] = useSafeState(false);
+
+    interface UploadResponse { url?: string; status?: number; message?: string }
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
         setCoverImage(file);
+        if (file) {
+            const localUrl = URL.createObjectURL(file);
+            setCoverImageUrl(localUrl);
+            setIsUploadingCover(true);
+
+            (async () => {
+                try {
+                    const res = (await uploadImage(file)) as UploadResponse;
+                    if (res && res.url) {
+                        const url = res.url;
+                        // wait until the uploaded image can be loaded
+                        await new Promise<void>((resolve, reject) => {
+                            const img = new Image();
+                            img.src = url as string;
+                            img.onload = () => resolve();
+                            img.onerror = () => reject(new Error('uploaded image failed to load'));
+                        });
+                        setCoverImageUrl(url);
+                    } else {
+                        console.error('Upload failed', res);
+                    }
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    setIsUploadingCover(false);
+                }
+            })();
+        }
     };
 
     const handleSaveOrUpdate = async (publish: boolean) => {
@@ -140,95 +175,30 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
         <Section id="new-article" ariaLabelledBy="new-article-header" className="container mx-auto py-10 flex flex-col items-center">
             <h1 id="new-article-header" className="text-4xl font-bold text-center mb-10">New Article</h1>
             <div className="flex flex-col p-6 border max-w-full w-full gap-6 rounded-md bg-primary-color text-secondary-color">
-                <input
-                    type="text"
-                    value={titleEn}
-                    onChange={(e) => setTitleEn(e.target.value)}
-                    placeholder="Title (English)"
-                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
-                    required
-                />
-                <input
-                    type="text"
-                    value={titleAr}
-                    onChange={(e) => setTitleAr(e.target.value)}
-                    placeholder="العنوان (العربي)"
-                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
-                    dir='rtl'
-                    required
-                />
-                <input
-                    type="text"
-                    value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
-                    placeholder="Author"
-                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
-                    required
-                />
-                <input
-                    type="text"
-                    value={keywordsEn}
-                    onChange={(e) => setKeywordsEn(e.target.value)}
-                    placeholder="Keywords (English, comma-separated)"
-                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
-                    required
-                />
-                <input
-                    type="text"
-                    value={keywordsAr}
-                    onChange={(e) => setKeywordsAr(e.target.value)}
-                    placeholder="كلمات مفتاحية (بالعربي، مفصولة بالفاصلة)"
-                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
-                    dir='rtl'
-                    required
-                />
-                <input
-                    type="text"
-                    value={descriptionEn}
-                    onChange={(e) => setDescriptionEn(e.target.value)}
-                    placeholder="Description (English)"
-                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
-                    required
-                />
-                <input
-                    type="text"
-                    value={descriptionAr}
-                    onChange={(e) => setDescriptionAr(e.target.value)}
-                    placeholder="الوصف (بالعربي)"
-                    className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
-                    dir="rtl"
-                    required
-                />
+                <TextField label="Title (English)" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} fullWidth required />
+                <TextField label="العنوان (بالعربي)" value={titleAr} onChange={(e) => setTitleAr(e.target.value)} fullWidth required slotProps={{ htmlInput: { dir: 'rtl' } }} />
+                <TextField label="Author" value={author} onChange={(e) => setAuthor(e.target.value)} fullWidth required />
+                <TextField label="Keywords (English, comma-separated)" value={keywordsEn} onChange={(e) => setKeywordsEn(e.target.value)} fullWidth required />
+                <TextField label="كلمات مفتاحية (بالعربي، مفصولة بالفاصلة)" value={keywordsAr} onChange={(e) => setKeywordsAr(e.target.value)} fullWidth required slotProps={{ htmlInput: { dir: 'rtl' } }} />
+                <TextField label="Description (English)" value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} fullWidth required />
+                <TextField label="الوصف (بالعربي)" value={descriptionAr} onChange={(e) => setDescriptionAr(e.target.value)} fullWidth required slotProps={{ htmlInput: { dir: 'rtl' } }} />
                 {
                     articleId ? (
-                        <div className="flex flex-col gap-2">
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             {coverImageUrl && (
-                                <div>
-                                    <Image
-                                        src={coverImageUrl}
-                                        alt="Cover Preview"
-                                        className="max-w-full h-auto rounded"
-                                        width={300}
-                                        height={300}
-                                    />
-                                </div>
+                                <Box>
+                                    <NextImage src={coverImageUrl} alt="Cover Preview" width={300} height={300} style={{ maxWidth: '100%', height: 'auto', borderRadius: 8 }} unoptimized />
+                                </Box>
                             )}
                             <input
                                 type="file"
                                 onChange={handleFileChange}
-                                className="p-2 border rounded bg-inherit border-secondary-color placeholder-transparent-accent-color"
                                 accept="image/*"
                             />
-                        </div>
+                        </Box>
                     ) : (
                         coverImageUrl && (
-                            <Image
-                                src={coverImageUrl}
-                                alt="Cover Image"
-                                className="max-w-full h-auto rounded"
-                                width={300}
-                                height={300}
-                            />
+                            <NextImage src={coverImageUrl} alt="Cover Image" width={300} height={300} style={{ maxWidth: '100%', height: 'auto', borderRadius: 8 }} unoptimized />
                         )
                     )
                 }
@@ -242,42 +212,26 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 </div>
                 {
                     articleId && (
-                        <div className="flex gap-4 mt-4">
-                            <button
-                                onClick={() => handleSaveOrUpdate(false)}
-                                disabled={loading}
-                                className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                            >
-                                {loading ? "Updating..." : "Save as Draft"}
-                            </button>
-                            <button
-                                onClick={() => handleSaveOrUpdate(true)}
-                                disabled={loading}
-                                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                                {loading ? "Updating..." : "Publish"}
-                            </button>
-                        </div>
+                        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                            <Button variant="outlined" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(false)}>
+                                {loading ? 'Updating...' : (isUploadingCover ? 'Uploading image...' : 'Save as Draft')}
+                            </Button>
+                            <Button variant="contained" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(true)}>
+                                {loading ? 'Updating...' : (isUploadingCover ? 'Uploading image...' : 'Publish')}
+                            </Button>
+                        </Box>
                     )
                 }
                 {
                     !articleId && (
-                        <div className="flex gap-4 mt-4">
-                            <button
-                                onClick={() => handleSaveOrUpdate(false)}
-                                disabled={loading}
-                                className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                            >
-                                {loading ? "Saving..." : "Save as Draft"}
-                            </button>
-                            <button
-                                onClick={() => handleSaveOrUpdate(true)}
-                                disabled={loading}
-                                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                                {loading ? "Publishing..." : "Publish"}
-                            </button>
-                        </div>
+                        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                            <Button variant="outlined" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(false)}>
+                                {loading ? 'Saving...' : (isUploadingCover ? 'Uploading image...' : 'Save as Draft')}
+                            </Button>
+                            <Button variant="contained" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(true)}>
+                                {loading ? 'Publishing...' : (isUploadingCover ? 'Uploading image...' : 'Publish')}
+                            </Button>
+                        </Box>
                     )
                 }
             </div>

@@ -9,7 +9,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import type { SelectorItem } from "@/components/Editor/Selectors/nodeSelector";
-import { Button } from "@/components/UI/Button";
+import Button from '@mui/material/Button';
 
 export const TextButtons = () => {
   const { editor } = useEditor();
@@ -57,7 +57,7 @@ export const TextButtons = () => {
             item.command(editor);
           }}
         >
-          <Button size="sm" className="rounded-none" variant="ghost">
+          <Button size="small" onMouseDown={(e) => e.preventDefault()} variant="text" sx={{ minWidth: 'auto', p: '6px' }} className="rounded-none">
             <item.icon
               className={cn("h-4 w-4", {
                 "text-blue-500": item.isActive(editor),

@@ -98,6 +98,44 @@ const starterKit = StarterKit.configure({
   gapcursor: false,
 });
 
+import { Mark } from '@tiptap/core';
+import type { RawCommands } from '@tiptap/core';
+
+/**
+ * fontSize mark: unique name 'fontSize' (no duplicate with textStyle)
+ * Stores inline font-size via style attribute and exposes a setFontSize command
+ */
+const fontSize = Mark.create({
+  name: 'fontSize',
+  addOptions() {
+    return { HTMLAttributes: {} };
+  },
+  addAttributes() {
+    return {
+      fontSize: { default: null },
+    };
+  },
+  parseHTML() {
+    return [{ style: 'font-size' }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    if (!HTMLAttributes.fontSize) return ['span', 0];
+    return ['span', { style: `font-size: ${HTMLAttributes.fontSize}` }, 0];
+  },
+  addCommands() {
+    return {
+      setFontSize:
+        (fontSize: string | null) =>
+        ({ commands }: { commands: RawCommands }) => {
+          if (!fontSize) {
+            return commands.unsetMark('fontSize');
+          }
+          return commands.setMark('fontSize', { fontSize });
+        },
+    } as Partial<RawCommands>;
+  },
+});
+
 export const defaultExtensions = [
   starterKit,
   placeholder,
@@ -107,5 +145,6 @@ export const defaultExtensions = [
   taskList,
   taskItem,
   horizontalRule,
+  fontSize,
   aiHighlight,
 ];
