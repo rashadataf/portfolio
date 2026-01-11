@@ -2,17 +2,12 @@ import {
   useEffect,
   useRef,
   useState,
-  useCallback,
-  type MouseEvent
+  useCallback
 } from "react";
-import type { MenuListProps } from '@mui/material/MenuList';
 import { useEditor } from "novel";
 import { Check, Trash } from "lucide-react";
-
-import { cn } from "@/lib/utils";
-import Menu from '@mui/material/Menu';
+import * as Popover from "@radix-ui/react-popover";
 import TextField from '@mui/material/TextField';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 
 export function isValidUrl(url: string) {
@@ -43,62 +38,41 @@ interface LinkSelectorProps {
 export const LinkSelector = ({ onOpenChange }: LinkSelectorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { editor } = useEditor();
-  const [anchorPos, setAnchorPos] = useState<{ top: number; left: number } | null>(null);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const [open, setOpen] = useState(false);
 
-  const setEditorBubbleMenuOpen_local = (open: boolean) => {
-    const el = typeof document !== 'undefined' ? document.querySelector('.editor-bubble') as HTMLElement | null : null;
-    if (!el) return;
-    if (open) el.setAttribute('data-menu-open', 'link-selector');
-    else el.removeAttribute('data-menu-open');
-  };
+  const handleOpenChange = useCallback((o: boolean) => {
+    setOpen(o);
+    onOpenChange(o);
+  }, [onOpenChange]);
 
-  const handleOpen = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
-    setAnchorPos({ top: Math.round(rect.bottom + 8), left: Math.round(rect.left) });
-    setEditorBubbleMenuOpen_local(true);
-    onOpenChange(true);
-  }, [onOpenChange, setAnchorPos]);
-
-  const handleClose = useCallback(() => {
-    setAnchorPos(null);
-    setEditorBubbleMenuOpen_local(false);
-    onOpenChange(false);
-  }, [onOpenChange, setAnchorPos]);
-
-  const listProps: MenuListProps & { ref?: (el: HTMLUListElement | null) => void } = {
-    onMouseDown: (e: MouseEvent<HTMLUListElement>) => e.preventDefault(),
-    ref: (el: HTMLUListElement | null) => { if (el) el.setAttribute('data-menu-name', 'link-selector'); }
-  };
-
-  useEffect(() => { if (inputRef.current) { inputRef.current?.focus(); } }, [anchorPos]);
+  useEffect(() => { if (inputRef.current) { inputRef.current?.focus(); } }, [open]);
 
   if (!editor) return null;
 
   return (
-    <>
-      <Button ref={triggerRef} size="small" onMouseDown={(e) => e.preventDefault()} onClick={handleOpen} variant="text" sx={{ minWidth: 'auto', p: '6px' }} className="gap-2 rounded-none border-none">
-        <p className="text-base">↗</p>
-        <p className={cn("underline decoration-stone-400 underline-offset-4", { "text-blue-500": editor.isActive("link") })}>Link</p>
-      </Button>
-
-      <Menu
-        open={!!anchorPos}
-        onClose={handleClose}
-        anchorReference="anchorPosition"
-        anchorPosition={anchorPos ? { top: Math.round(anchorPos.top), left: Math.round(anchorPos.left) } : undefined}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        slotProps={{ list: listProps, paper: { sx: { p: 0, position: 'fixed' as const, zIndex: 1800 } } }}
-        container={typeof document !== 'undefined' ? document.body : undefined}
+    <Popover.Root modal={true} open={open} onOpenChange={handleOpenChange}>
+      <Popover.Trigger asChild>
+        <Button size="small" onMouseDown={(e) => e.preventDefault()} variant="text" sx={{ minWidth: 'auto', p: '6px' }}>
+          <span style={{ fontSize: '1rem' }}>↗</span>
+          <span style={{
+            textDecoration: 'underline',
+            textDecorationColor: 'rgb(120 113 108)',
+            textUnderlineOffset: '4px',
+            color: editor.isActive("link") ? 'rgb(59 130 246)' : 'inherit'
+          }}>Link</span>
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content
+        sideOffset={5}
+        align="start"
+        className="popover-content"
       >
-        <Box component="form" sx={{ p: 1 }} onSubmit={(e) => {
+        <form style={{ padding: '8px' }} onSubmit={(e) => {
           e.preventDefault();
           const url = getUrlFromString(inputRef.current?.value || '');
           if (url) {
             editor.chain().focus().setLink({ href: url }).run();
-            handleClose();
+            handleOpenChange(false);
           }
         }}>
           <TextField
@@ -110,17 +84,17 @@ export const LinkSelector = ({ onOpenChange }: LinkSelectorProps) => {
             defaultValue={editor.getAttributes('link').href || ''}
           />
 
-          <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
             {editor.getAttributes('link').href ? (
-              <Button variant="outlined" color="error" onClick={() => { editor.chain().focus().unsetLink().run(); handleClose(); }}>
-                <Trash />
+              <Button variant="outlined" color="error" onClick={() => { editor.chain().focus().unsetLink().run(); handleOpenChange(false); }}>
+                <Trash size={16} />
               </Button>
             ) : (
-              <Button variant="contained" type="submit"><Check /></Button>
+              <Button variant="contained" type="submit"><Check size={16} /></Button>
             )}
-          </Box>
-        </Box>
-      </Menu>
-    </>
+          </div>
+        </form>
+      </Popover.Content>
+    </Popover.Root>
   );
 };

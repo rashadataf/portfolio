@@ -109,8 +109,8 @@ export const NodeSelector = ({ open, onOpenChange }: NodeSelectorProps) => {
           variant="text"
           sx={{ minWidth: 'auto', p: '6px' }}
         >
-          <span className="whitespace-nowrap text-sm">{activeItem.name}</span>
-          <ChevronDown className="h-4 w-4" />
+          <span style={{ whiteSpace: 'nowrap', fontSize: '0.875rem' }}>{activeItem.name}</span>
+          <ChevronDown size={16} />
         </Button>
       </Popover.Trigger>
       <Popover.Content
@@ -129,11 +129,11 @@ export const NodeSelector = ({ open, onOpenChange }: NodeSelectorProps) => {
           >
             <div className="flex items-center space-x-2">
               <div className="popover-item-icon">
-                <item.icon className="h-3 w-3" />
+                <item.icon size={12} />
               </div>
               <span>{item.name}</span>
             </div>
-            {activeItem.name === item.name && <Check className="h-4 w-4" />}
+            {activeItem.name === item.name && <Check size={16} />}
           </div>
         ))}
       </Popover.Content>

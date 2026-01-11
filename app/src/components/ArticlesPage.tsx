@@ -1,11 +1,18 @@
 'use client';
 import { KeyboardEvent, ChangeEvent, useCallback, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { Article } from "@/modules/article/article.entity";
 import { getPublishedArticles, serachPublishedArticles } from "@/modules/article/article.controller";
 import { trackPageVisit } from "@/modules/analytics/analytics.controller";
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
 
 // Function to detect text direction (rtl or ltr)
 const detectDirection = (text: string): "rtl" | "ltr" => {
@@ -84,80 +91,77 @@ export const ArticlesPage = () => {
 
     if (!articles.length && !searchQuery.trim()) {
         return (
-            <div className="container mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-screen">
-                <h1 className="text-4xl font-bold text-center mb-4">Articles Coming Soon!</h1>
-                <p className="text-xl text-center mb-6">
+            <Container maxWidth="md" sx={{ py: 10, px: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+                <Typography variant="h1" sx={{ textAlign: 'center', mb: 4 }}>Articles Coming Soon!</Typography>
+                <Typography variant="h5" sx={{ textAlign: 'center', mb: 6 }}>
                     I&apos;m currently working on some exciting articles. Stay tuned!
-                </p>
-                <div className="flex space-x-4"></div>
-            </div>
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 4 }}></Box>
+            </Container>
         );
     }
 
     return (
-        <section className="container mx-auto py-10 px-4">
-            <h1 className="text-4xl font-bold text-center mb-10">Articles</h1>
+        <Container maxWidth="lg" sx={{ py: 10, px: 4 }}>
+            <Typography variant="h1" sx={{ textAlign: 'center', mb: 10 }}>Articles</Typography>
 
-            <div className="mb-6 flex justify-center">
-                <input
+            <Box sx={{ mb: 6, display: 'flex', justifyContent: 'center' }}>
+                <TextField
                     type="text"
                     placeholder="Search articles..."
-                    className="w-full max-w-md p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                     value={searchQuery}
                     onChange={handleQueryChange}
                     onKeyDown={handleKeyDown}
-                    dir={inputDir}
+                    slotProps={{ htmlInput: { dir: inputDir } }}
+                    sx={{ maxWidth: 'md', width: '100%' }}
                 />
-                <button
+                <Button
                     onClick={handleSearch}
                     disabled={searchQuery.length === 0}
-                    className={`ml-2 p-3 text-white rounded-md shadow-md transition-all ${searchQuery.length === 0
-                        ? "bg-gray-300 cursor-not-allowed"
-                        : "bg-blue-500 hover:bg-blue-600"
-                        }`}
+                    variant="contained"
+                    sx={{ ml: 2, p: 3 }}
                 >
                     Search
-                </button>
-            </div>
+                </Button>
+            </Box>
 
             {
                 searchQuery.length > 0 && articles.length === 0 && (
-                    <p className="text-center text-gray-500">There are no results for your search.</p>
+                    <Typography variant="body1" sx={{ textAlign: 'center', color: 'text.secondary' }}>There are no results for your search.</Typography>
                 )
             }
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 6 }}>
                 {
                     articles.map((article) => (
                         <Link key={article.id} href={inputDir === "rtl" && searchPerformed ? `/articles/${article.slugAr}?lang=ar` : `/articles/${article.slugEn}?lang=en`} prefetch={false}>
-                            <div
-                                className="cursor-pointer p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-lg hover:border-gray-300 transition-all bg-white"
-                                dir={inputDir === 'rtl' && searchPerformed ? 'rtl' : 'ltr'}
-                            >
+                            <Card sx={{ cursor: 'pointer', height: '100%', display: 'flex', flexDirection: 'column' }}>
                                 {
                                     article.coverImage && (
-                                        <Image
-                                            src={article.coverImage}
+                                        <CardMedia
+                                            component="img"
+                                            image={article.coverImage}
                                             alt={inputDir === "rtl" && searchPerformed ? article.titleAr : article.titleEn}
-                                            className="w-full h-48 object-cover rounded-md mb-4"
-                                            width={300}
-                                            height={300}
-                                            priority
+                                            sx={{ height: 200, objectFit: 'cover' }}
                                         />
                                     )
                                 }
-                                <h2 className="text-xl font-semibold text-gray-800 mb-2">{inputDir === "rtl" && searchPerformed ? article.titleAr : article.titleEn}</h2>
-                                <p className={`text-gray-600 mb-2 ${inputDir === 'rtl' && searchPerformed ? 'text-right' : 'text-left'}`}>
-                                    {inputDir === 'rtl' && searchPerformed ? `بواسطة ${article.author}` : `By ${article.author}`}
-                                </p>
-                                <p className={`text-gray-500 text-sm ${inputDir === 'rtl' && searchPerformed ? 'text-right' : 'text-left'}`}>
-                                    {new Date(article.createdAt).toLocaleDateString(inputDir === 'rtl' && searchPerformed ? 'ar-sy' : 'en')}
-                                </p>
-                            </div>
+                                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                                    <Typography variant="h5" sx={{ fontWeight: 'semibold', color: 'text.primary', mb: 2 }}>
+                                        {inputDir === "rtl" && searchPerformed ? article.titleAr : article.titleEn}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, textAlign: inputDir === 'rtl' && searchPerformed ? 'right' : 'left' }}>
+                                        {inputDir === 'rtl' && searchPerformed ? `بواسطة ${article.author}` : `By ${article.author}`}
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ color: 'text.secondary', textAlign: inputDir === 'rtl' && searchPerformed ? 'right' : 'left' }}>
+                                        {new Date(article.createdAt).toLocaleDateString(inputDir === 'rtl' && searchPerformed ? 'ar-sy' : 'en')}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
                         </Link>
                     ))
                 }
-            </div>
-        </section>
+            </Box>
+        </Container>
     );
 };

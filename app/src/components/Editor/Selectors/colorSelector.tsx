@@ -1,20 +1,8 @@
 import React from 'react';
-import type { MouseEvent } from 'react';
-import type { MenuListProps } from '@mui/material/MenuList';
 import { Check, ChevronDown } from "lucide-react";
 import { useEditor } from "novel";
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import * as Popover from "@radix-ui/react-popover";
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-
-const setEditorBubbleMenuOpen = (open: boolean, name?: string) => {
-  const el = typeof document !== 'undefined' ? document.querySelector('.editor-bubble') as HTMLElement | null : null;
-  if (!el) return;
-  if (open) el.setAttribute('data-menu-open', name || 'true');
-  else el.removeAttribute('data-menu-open');
-};
 
 export interface BubbleColorMenuItem {
   name: string;
@@ -104,44 +92,8 @@ interface ColorSelectorProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export const ColorSelector = ({ onOpenChange }: ColorSelectorProps) => {
+export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
   const { editor } = useEditor();
-  const [anchorPos, setAnchorPos] = React.useState<{ top: number; left: number } | null>(null);
-  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
-
-  const handleOpen = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
-    setAnchorPos({ top: Math.round(rect.bottom + 8), left: Math.round(rect.left) });
-    setEditorBubbleMenuOpen(true, 'color-selector');
-    onOpenChange(true);
-  }, [onOpenChange, setAnchorPos]);
-
-  const handleClose = React.useCallback(() => {
-    setAnchorPos(null);
-    setEditorBubbleMenuOpen(false);
-    onOpenChange(false);
-  }, [onOpenChange, setAnchorPos]);
-
-  // typed list props for MUI Menu to avoid using `any` and to set data-menu-name via ref
-  const listProps: MenuListProps & { ref?: (el: HTMLUListElement | null) => void } = {
-    onMouseDown: (e: MouseEvent<HTMLUListElement>) => e.preventDefault(),
-    ref: (el: HTMLUListElement | null) => { if (el) el.setAttribute('data-menu-name', 'color-selector'); }
-  };
-
-  React.useEffect(() => {
-    if (anchorPos && process.env.NODE_ENV !== 'production') {
-      console.log('Popover mounted', { anchorPos });
-      const el = document.elementFromPoint(Math.round(anchorPos.left), Math.round(anchorPos.top));
-      if (el && !(el as HTMLElement).closest('[data-menu-name="color-selector"]')) {
-        console.warn('Menu overlap detected (color-selector)', { found: el?.tagName, classes: (el as HTMLElement)?.className });
-        const delta = 8;
-        console.log('Nudging color menu by', delta);
-        // nudge asynchronously to avoid setState-in-effect lint rule
-        window.requestAnimationFrame(() => setAnchorPos((p) => p ? { top: p.top + delta, left: p.left } : p));
-      }
-    }
-  }, [anchorPos, setAnchorPos]);
 
   if (!editor) return null;
 
@@ -154,76 +106,73 @@ export const ColorSelector = ({ onOpenChange }: ColorSelectorProps) => {
   );
 
   return (
-    <>
-      <Button size="small" ref={triggerRef} onMouseDown={(e) => e.preventDefault()} onClick={handleOpen} variant="text" sx={{ minWidth: 'auto', p: '6px' }} className="gap-2 rounded-none">
-        <span
-          className="rounded-sm px-1"
-          style={{
-            color: activeColorItem?.color,
-            backgroundColor: activeHighlightItem?.color,
-          }}
-        >
-          A
-        </span>
-        <ChevronDown className="h-4 w-4" />
-      </Button>
-
-      <Menu
-        open={!!anchorPos}
-        onClose={handleClose}
-        anchorReference="anchorPosition"
-        anchorPosition={anchorPos ? { top: Math.round(anchorPos.top), left: Math.round(anchorPos.left) } : undefined}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        slotProps={{ list: listProps, paper: { sx: { p: 0, position: 'fixed' as const, zIndex: 1800 } } }}
-        container={typeof document !== 'undefined' ? document.body : undefined}
+    <Popover.Root modal={true} open={open} onOpenChange={onOpenChange}>
+      <Popover.Trigger asChild>
+        <Button size="small" onMouseDown={(e) => e.preventDefault()} variant="text" sx={{ minWidth: 'auto', p: '6px' }}>
+          <span
+            style={{
+              color: activeColorItem?.color,
+              backgroundColor: activeHighlightItem?.color,
+              borderRadius: '2px',
+              padding: '0 4px',
+            }}
+          >
+            A
+          </span>
+          <ChevronDown size={16} />
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content
+        sideOffset={5}
+        align="start"
+        className="popover-content"
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', p: 1 }}>
-          <Typography variant="subtitle2" sx={{ px: 1 }}>Color</Typography>
+        <div style={{ display: 'flex', flexDirection: 'column', padding: '8px' }}>
+          <div style={{ fontSize: '0.875rem', fontWeight: 600, padding: '0 8px' }}>Color</div>
           {TEXT_COLORS.map(({ name, color }, index) => (
-            <MenuItem
+            <div
               key={index}
               onClick={() => {
                 editor.commands.unsetColor();
                 if (name !== "Default") {
                   editor.chain().focus().setColor(color || "").run();
                 }
-                handleClose();
+                onOpenChange(false);
               }}
-              sx={{ display: 'flex', justifyContent: 'space-between', px: 2 }}
+              className="popover-item"
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ borderRadius: '2px', px: 1, py: 0.25, fontWeight: 600, color }} component="span">A</Box>
-                <Typography variant="body2">{name}</Typography>
-              </Box>
-            </MenuItem>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ borderRadius: '2px', padding: '2px 4px', fontWeight: 600, color }}>A</span>
+                <span>{name}</span>
+              </div>
+            </div>
           ))}
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', p: 1 }}>
-          <Typography variant="subtitle2" sx={{ px: 1 }}>Background</Typography>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', padding: '8px' }}>
+          <div style={{ fontSize: '0.875rem', fontWeight: 600, padding: '0 8px' }}>Background</div>
           {HIGHLIGHT_COLORS.map(({ name, color }, index) => (
-            <MenuItem
+            <div
               key={index}
               onClick={() => {
                 editor.commands.unsetHighlight();
                 if (name !== "Default") {
                   editor.chain().focus().setHighlight({ color }).run();
                 }
-                handleClose();
+                onOpenChange(false);
               }}
-              sx={{ display: 'flex', justifyContent: 'space-between', px: 2 }}
+              className="popover-item"
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ borderRadius: '2px', px: 1, py: 0.25, fontWeight: 600, backgroundColor: color }} component="span">A</Box>
-                <Typography variant="body2">{name}</Typography>
-              </Box>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ borderRadius: '2px', padding: '2px 4px', fontWeight: 600, backgroundColor: color }}>A</span>
+                <span>{name}</span>
+              </div>
               {editor.isActive("highlight", { color }) && (
-                <Check />
+                <Check size={16} />
               )}
-            </MenuItem>
+            </div>
           ))}
-        </Box>
-      </Menu>
-    </>
+        </div>
+      </Popover.Content>
+    </Popover.Root>
   );
 };

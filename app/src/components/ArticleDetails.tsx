@@ -7,6 +7,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { markInteraction, reportScrollDepth, trackBlogView, trackClickEvent, trackPageVisit } from "@/modules/analytics/analytics.controller";
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 
 type Props = {
     article: Article;
@@ -60,38 +64,40 @@ export const ArticleDetails = ({ article, lang }: Props) => {
     };
 
     return (
-        <section
-            className="max-w-3xl mx-auto py-10 px-6 md:px-10 xl:px-12 leading-relaxed"
+        <Container
+            maxWidth="lg"
+            sx={{ py: 10, px: { xs: 6, md: 10, xl: 12 }, lineHeight: 'relaxed' }}
             onClick={handleInteraction}
             onScroll={handleInteraction}
         >
             {article.coverImage && (
-                <div className="relative mb-10 w-full h-[50vh] rounded-lg overflow-hidden">
+                <Box sx={{ position: 'relative', mb: 10, width: '100%', height: '50vh', borderRadius: 2, overflow: 'hidden' }}>
                     <Image
                         src={article.coverImage}
                         alt={isArabic ? article.titleAr : article.titleEn}
                         fill
-                        className="object-cover"
+                        style={{ objectFit: 'cover' }}
                         priority
                     />
-                </div>
+                </Box>
             )}
 
-            <div className="flex flex-col items-start mb-6 space-y-4" dir={dir}>
-                <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-gray-900">
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 6, gap: 4 }} dir={dir}>
+                <Typography variant="h1" sx={{ fontWeight: 'extrabold', lineHeight: 'tight', letterSpacing: 'tight', color: 'text.primary' }}>
                     {isArabic ? article.titleAr : article.titleEn}
-                </h1>
-                <p className="text-lg text-gray-600">By {article.author}</p>
-                <button
+                </Typography>
+                <Typography variant="h6" sx={{ color: 'text.secondary' }}>By {article.author}</Typography>
+                <Button
                     onClick={handleLanguageToggle}
-                    className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
+                    variant="contained"
+                    sx={{ px: 5, py: 2 }}
                 >
                     {isArabic ? "View in English" : "عرض باللغة العربية"}
-                </button>
-            </div>
+                </Button>
+            </Box>
 
-            <div
-                className={`${isArabic ? "text-right" : "text-left"} text-lg leading-[1.8]`}
+            <Box
+                sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
                 dir={dir}
             >
                 <Viewer
@@ -99,7 +105,7 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                     initialValue={isArabic ? article.contentAr : article.contentEn}
                     dir={dir}
                 />
-            </div>
-        </section>
+            </Box>
+        </Container>
     );
 };
