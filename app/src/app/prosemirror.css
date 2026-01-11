@@ -224,3 +224,51 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
   vertical-align: middle;
 }
 
+/* Popover styles for NodeSelector */
+.popover-content {
+  width: 192px;
+  border-radius: 6px;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+  padding: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+}
+
+.popover-item {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.popover-item:hover {
+  background-color: hsl(var(--accent));
+}
+
+.popover-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid hsl(var(--border));
+  padding: 2px;
+}
+
+/* Utility classes for icons */
+.h-3 { height: 12px; }
+.w-3 { width: 12px; }
+.h-4 { height: 16px; }
+.w-4 { width: 16px; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.space-x-2 > * + * { margin-left: 8px; }
+.justify-between { justify-content: space-between; }
+.whitespace-nowrap { white-space: nowrap; }
+.text-sm { font-size: 14px; }
+

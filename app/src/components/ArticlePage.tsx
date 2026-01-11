@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import NextImage from 'next/image';
 import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
-import { Section } from "@/components/Section";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus } from '@/types';
 import { createArticle, getArticleById, updateArticle, uploadImage } from '@/modules/article/article.controller';
@@ -14,6 +13,8 @@ import { Loader } from '@/components//Loader';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 
 interface ArticlePageProps {
     articleId?: string;
@@ -172,9 +173,9 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
 
 
     return (
-        <Section id="new-article" ariaLabelledBy="new-article-header" className="container mx-auto py-10 flex flex-col items-center">
-            <h1 id="new-article-header" className="text-4xl font-bold text-center mb-10">New Article</h1>
-            <div className="flex flex-col p-6 border max-w-full w-full gap-6 rounded-md bg-primary-color text-secondary-color">
+        <Container id="new-article" aria-labelledby="new-article-header" maxWidth="md" sx={{ py: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Typography id="new-article-header" variant="h1" sx={{ textAlign: 'center', mb: 10 }}>New Article</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', p: 6, border: 1, maxWidth: '100%', width: '100%', gap: 6, borderRadius: 1, bgcolor: 'white', color: 'secondary.main' }}>
                 <TextField label="Title (English)" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} fullWidth required />
                 <TextField label="العنوان (بالعربي)" value={titleAr} onChange={(e) => setTitleAr(e.target.value)} fullWidth required slotProps={{ htmlInput: { dir: 'rtl' } }} />
                 <TextField label="Author" value={author} onChange={(e) => setAuthor(e.target.value)} fullWidth required />
@@ -202,14 +203,14 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                         )
                     )
                 }
-                <div className='border rounded bg-inherit border-secondary-color'>
-                    <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (English)</h2>
+                <Box sx={{ border: 1, borderRadius: 1, bgcolor: 'inherit', borderColor: 'secondary.main' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'semibold', borderBottom: 2, borderColor: 'secondary.main', p: 4 }}>Content (English)</Typography>
                     <Editor key={'en'} editorKey={enEditorKey} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} />
-                </div>
-                <div className='border rounded bg-inherit border-secondary-color'>
-                    <h2 className="text-lg font-semibold border-b-2 border-secondary-color p-4">Content (Arabic)</h2>
+                </Box>
+                <Box sx={{ border: 1, borderRadius: 1, bgcolor: 'inherit', borderColor: 'secondary.main' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'semibold', borderBottom: 2, borderColor: 'secondary.main', p: 4 }}>Content (Arabic)</Typography>
                     <Editor key={'ar'} editorKey={arEditorKey} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
-                </div>
+                </Box>
                 {
                     articleId && (
                         <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
@@ -234,7 +235,7 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                         </Box>
                     )
                 }
-            </div>
-        </Section>
+            </Box>
+        </Container>
     );
 };
