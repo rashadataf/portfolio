@@ -16,9 +16,7 @@ const aiHighlight = AIHighlight;
 const placeholder = Placeholder;
 const tiptapLink = TiptapLink.configure({
   HTMLAttributes: {
-    class: cx(
-      "text-blue-600 underline underline-offset-[3px] hover:text-blue-500 transition-colors cursor-pointer"
-    ),
+    class: cx("tiptap-link"),
   },
 });
 
@@ -26,67 +24,64 @@ const tiptapImage = TiptapImage.extend({
   addProseMirrorPlugins() {
     return [
       UploadImagesPlugin({
-        imageClass: cx("opacity-40 rounded-lg border border-stone-200"),
+        imageClass: cx("tiptap-image-loading"),
       }),
     ];
   },
 }).configure({
   allowBase64: true,
   HTMLAttributes: {
-    class: cx("rounded-lg border border-muted"),
+    class: cx("tiptap-image"),
   },
 });
 
 const taskList = TaskList.configure({
   HTMLAttributes: {
-    class: cx("not-prose pl-2 "),
+    class: cx("task-list"),
   },
 });
 const taskItem = TaskItem.configure({
   HTMLAttributes: {
-    class: cx("flex gap-2 items-start my-4"),
+    class: cx("task-item"),
   },
   nested: true,
 });
 
 const horizontalRule = HorizontalRule.configure({
   HTMLAttributes: {
-    class: cx("mt-4 mb-6 border-t border-muted-foreground"),
+    class: cx("horizontal-rule"),
   },
 });
 
 const starterKit = StarterKit.configure({
   bulletList: {
     HTMLAttributes: {
-      class: cx("list-disc list-outside leading-3 -mt-2"),
+      class: cx("bullet-list"),
     },
   },
   orderedList: {
     HTMLAttributes: {
-      class: cx("list-decimal list-outside leading-3 -mt-2"),
+      class: cx("ordered-list"),
     },
   },
   listItem: {
     HTMLAttributes: {
-      class: cx("leading-normal -mb-2"),
+      class: cx("list-item"),
     },
   },
   blockquote: {
     HTMLAttributes: {
-      class: cx("border-l-4 border-primary"),
+      class: cx("blockquote-custom"),
     },
   },
   codeBlock: {
     HTMLAttributes: {
-      class: cx(
-        "rounded-md bg-muted text-muted-foreground border p-5 font-mono font-medium text-left",
-      ),
-      dir: "ltr"
+      class: cx("code-block"),
     },
   },
   code: {
     HTMLAttributes: {
-      class: cx("rounded-lg bg-gray-800 text-gray-200 px-2 py-1 font-mono text-sm"),
+      class: cx("inline-code"),
       spellcheck: "false",
     },
   },

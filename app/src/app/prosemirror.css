@@ -111,6 +111,44 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
   text-decoration-thickness: 2px;
 }
 
+/* Task list and item styling */
+.task-list {
+  padding-left: 1rem;
+  list-style: none;
+}
+
+.task-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin: 0.5rem 0;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.task-item:hover {
+  background-color: hsl(var(--accent) / 0.5);
+}
+
+.task-item > label {
+  margin-right: 0.5rem;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.task-item > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-item > div > p {
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Overwrite tippy-box original max-width */
 
 .tippy-box {
@@ -337,5 +375,95 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
   font-size: 12px;
   color: hsl(var(--muted-foreground));
   margin: 2px 0 0 0;
+}
+
+/* Link styling */
+.tiptap-link {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-decoration-offset: 3px;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.tiptap-link:hover {
+  color: hsl(var(--primary) / 0.8);
+}
+
+/* Image styling */
+.tiptap-image {
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border));
+  max-width: 100%;
+  height: auto;
+}
+
+.tiptap-image-loading {
+  opacity: 0.4;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border));
+}
+
+/* Horizontal rule styling */
+.horizontal-rule {
+  margin: 1rem 0 1.5rem 0;
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* List styling */
+.bullet-list {
+  list-style-type: disc;
+  list-style-position: outside;
+  line-height: 1.2;
+  margin-top: -0.5rem;
+}
+
+.ordered-list {
+  list-style-type: decimal;
+  list-style-position: outside;
+  line-height: 1.2;
+  margin-top: -0.5rem;
+}
+
+.list-item {
+  line-height: normal;
+  margin-bottom: -0.5rem;
+}
+
+/* Blockquote styling */
+.blockquote-custom {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Code block styling */
+.code-block {
+  border-radius: 6px;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  padding: 1.25rem;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+  font-weight: 500;
+  text-align: left;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+  direction: ltr;
+}
+
+/* Inline code styling */
+.inline-code {
+  border-radius: 6px;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  padding: 0.125rem 0.5rem;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+  font-size: 0.875rem;
+  font-weight: 400;
 }
 

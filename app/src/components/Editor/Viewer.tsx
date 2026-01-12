@@ -28,7 +28,7 @@ export const Viewer = ({ initialValue, dir = 'ltr' }: EditorProp) => {
         extensions={extensions}
         editorProps={{
           attributes: {
-            class: `prose prose-lg max-w-full`,
+            class: `prose prose-lg dark:prose-invert prose-headings:font-title font-default max-w-full`,
           },
         }}
       >
