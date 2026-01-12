@@ -15,6 +15,13 @@ export enum ArticleStatus {
     ARCHIVED = 'archived',
 }
 
+export enum SaveStatus {
+    IDLE = 'idle',
+    SAVING = 'saving',
+    SAVED = 'saved',
+    ERROR = 'error',
+}
+
 export type ThemeContextType = {
     theme: THEME,
     toggleTheme: () => void;

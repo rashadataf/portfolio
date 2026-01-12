@@ -6,7 +6,7 @@ import NextImage from 'next/image';
 import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
 import { useSafeState } from "@/hooks/useSafeState.hook";
-import { ArticleStatus } from '@/types';
+import { ArticleStatus, SaveStatus } from '@/types';
 import { createArticle, getArticleById, updateArticle, uploadImage } from '@/modules/article/article.controller';
 import { CreateArticleDTO } from '@/modules/article/article.dto';
 import { Loader } from '@/components//Loader';
@@ -65,6 +65,12 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
     const [loading, setLoading] = useSafeState(false);
     const [enEditorKey, setEnEditorKey] = useSafeState('en');
     const [arEditorKey, setArEditorKey] = useSafeState('ar');
+
+    // Autosave state
+    const [currentArticleId, setCurrentArticleId] = useSafeState<string | null>(articleId || null);
+    const [saveStatus, setSaveStatus] = useSafeState<SaveStatus>(SaveStatus.IDLE);
+    const [lastSavedAt, setLastSavedAt] = useSafeState<Date | null>(null);
+    const autosaveTimer = useRef<number | null>(null);
 
     useEffect(
         () => {
@@ -159,14 +165,20 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 contentSearchAr: prepareTextForTSVector(textAr),
                 slugEn: generateSlug(titleEn),
                 slugAr: generateSlug(titleAr),
+                coverImage: coverImageUrl || undefined,
             };
 
-            if (articleId) {
+            if (currentArticleId) {
                 // Update existing article
-                await updateArticle(articleId, articlePayload, coverImage);
+                await updateArticle(currentArticleId, articlePayload, coverImage);
             } else {
-                // Create new article
-                await createArticle(articlePayload, coverImage);
+                // Create new article and set id for future autosaves
+                const res = await createArticle(articlePayload, coverImage);
+                if (res?.article?.id) {
+                    setCurrentArticleId(res.article.id);
+                    setEnEditorKey(`${res.article.id}_en`);
+                    setArEditorKey(`${res.article.id}_ar`);
+                }
             }
 
             router.push('/admin/articles');
@@ -177,10 +189,88 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
         }
     };
 
+    // Autosave: debounce changes and save as draft
+    const saveDraft = async () => {
+        try {
+            setSaveStatus(SaveStatus.SAVING);
+            const articlePayload: CreateArticleDTO = {
+                titleEn,
+                titleAr,
+                author,
+                descriptionEn,
+                descriptionAr,
+                status: ArticleStatus.DRAFT,
+                keywordsEn: keywordsEn.split(",").map(kw => kw.trim()),
+                keywordsAr: keywordsAr.split(",").map(kw => kw.trim()),
+                contentEn: contentEn ? JSON.parse(JSON.stringify(contentEn)) : ({ type: 'doc', content: [] } as unknown as JSONContent),
+                contentAr: contentAr ? JSON.parse(JSON.stringify(contentAr)) : ({ type: 'doc', content: [] } as unknown as JSONContent),
+                contentSearchEn: prepareTextForTSVector(textEn),
+                contentSearchAr: prepareTextForTSVector(textAr),
+                slugEn: generateSlug(titleEn),
+                slugAr: generateSlug(titleAr),
+                coverImage: coverImageUrl || undefined,
+            };
+
+            if (currentArticleId) {
+                await updateArticle(currentArticleId, articlePayload, null);
+            } else {
+                const res = await createArticle(articlePayload, null);
+                if (res?.article?.id) {
+                    setCurrentArticleId(res.article.id);
+                    setEnEditorKey(`${res.article.id}_en`);
+                    setArEditorKey(`${res.article.id}_ar`);
+                }
+            }
+
+            setSaveStatus(SaveStatus.SAVED);
+            setLastSavedAt(new Date());
+            // Clear 'saved' state after a small delay
+            setTimeout(() => {
+                setSaveStatus(SaveStatus.IDLE);
+            }, 3000);
+        } catch (err) {
+            console.error('Autosave failed:', err);
+            setSaveStatus(SaveStatus.ERROR);
+        }
+    };
+
+    const isMountedRef = useRef(false);
+
+    useEffect(() => {
+        // Skip autosave on first mount
+        if (!isMountedRef.current) {
+            isMountedRef.current = true;
+            return;
+        }
+
+        if (autosaveTimer.current) {
+            window.clearTimeout(autosaveTimer.current);
+        }
+
+        autosaveTimer.current = window.setTimeout(() => {
+            saveDraft();
+        }, 2500);
+
+        return () => {
+            if (autosaveTimer.current) {
+                window.clearTimeout(autosaveTimer.current);
+            }
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [titleEn, titleAr, author, keywordsEn, keywordsAr, descriptionEn, descriptionAr, contentEn, contentAr, textEn, textAr, coverImageUrl]);
+
 
     return (
         <Container id="new-article" aria-labelledby="new-article-header" maxWidth="md" sx={{ py: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography id="new-article-header" variant="h1" sx={{ textAlign: 'center', mb: 10 }}>New Article</Typography>
+            <Typography id="new-article-header" variant="h1" sx={{ textAlign: 'center', mb: 2 }}>New Article</Typography>
+
+            <Typography variant="caption" sx={{ mb: 4, color: 'text.secondary' }}>
+                {saveStatus === SaveStatus.SAVING && 'Saving...'}
+                {saveStatus === SaveStatus.SAVED && (`Saved ${lastSavedAt ? lastSavedAt.toLocaleTimeString() : ''}`)}
+                {saveStatus === SaveStatus.ERROR && 'Save failed'}
+                {saveStatus === SaveStatus.IDLE && lastSavedAt && (`Last saved ${lastSavedAt.toLocaleTimeString()}`)}
+            </Typography>
+
             <Box sx={{ display: 'flex', flexDirection: 'column', p: 6, border: 1, maxWidth: '100%', width: '100%', gap: 6, borderRadius: 1, bgcolor: 'background.paper', borderColor: 'divider' }}>
                 <TextField label="Title (English)" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} fullWidth required />
                 <TextField label="العنوان (بالعربي)" value={titleAr} onChange={(e) => setTitleAr(e.target.value)} fullWidth required slotProps={{ htmlInput: { dir: 'rtl' } }} />
