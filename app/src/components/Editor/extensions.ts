@@ -38,11 +38,13 @@ const tiptapImage = TiptapImage.extend({
 const taskList = TaskList.configure({
   HTMLAttributes: {
     class: cx("task-list"),
+    style: "list-style: none; list-style-type: none;",
   },
 });
 const taskItem = TaskItem.configure({
   HTMLAttributes: {
     class: cx("task-item"),
+    style: "display: flex !important; align-items: center !important; gap: 0.5rem !important; margin: 0.25rem 0 !important;",
   },
   nested: true,
 });

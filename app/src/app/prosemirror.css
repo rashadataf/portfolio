@@ -112,15 +112,43 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
 }
 
 /* Task list and item styling */
-.task-list {
-  padding-left: 1rem;
-  list-style: none;
+ul.task-list {
+  padding-left: 1rem !important;
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+.task-list[data-type="taskList"] {
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+/* Override prose styles for task lists */
+.prose ul.task-list,
+.prose .task-list {
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+/* Ultra-specific override for task lists */
+ul.task-list[data-type="taskList"] {
+  list-style: none !important;
+  list-style-type: none !important;
+  list-style-image: none !important;
+}
+
+/* Override any prose ul styles for task lists */
+.prose ul.task-list[data-type="taskList"],
+.prose ul.task-list {
+  list-style: none !important;
+  list-style-type: none !important;
+  list-style-image: none !important;
 }
 
 .task-item {
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-start;
+  display: flex !important;
+  gap: 0.5rem !important;
+  align-items: flex-start !important;
   margin: 0.5rem 0;
   padding: 0.25rem;
   border-radius: 4px;
@@ -134,19 +162,41 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
 .task-item > label {
   margin-right: 0.5rem;
   user-select: none;
-  display: flex;
+  display: flex !important;
   align-items: center;
   cursor: pointer;
+  flex-shrink: 0;
+  min-width: 20px;
+  justify-content: center;
 }
 
 .task-item > div {
-  flex: 1;
+  flex: 1 !important;
   min-width: 0;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .task-item > div > p {
-  margin: 0;
+  margin: 0 !important;
   line-height: 1.5;
+  display: inline !important;
+}
+
+/* Override prose styles for task items */
+.prose .task-item,
+.prose li.task-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 0.5rem !important;
+}
+
+.prose .task-item > div > p {
+  display: inline !important;
+  margin: 0 !important;
+  float: none !important;
+  clear: none !important;
 }
 
 /* Overwrite tippy-box original max-width */
