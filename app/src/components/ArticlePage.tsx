@@ -1,6 +1,6 @@
 "use client";
 import '@/app/prosemirror.css';
-import { useEffect } from 'react';
+import { useEffect, useRef } from "react";
 import { useRouter } from 'next/navigation';
 import NextImage from 'next/image';
 import dynamic from 'next/dynamic';
@@ -100,7 +100,13 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
 
     const [isUploadingCover, setIsUploadingCover] = useSafeState(false);
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     interface UploadResponse { url?: string; status?: number; message?: string }
+
+    const handleFileButtonClick = () => {
+        fileInputRef.current?.click();
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
@@ -191,16 +197,36 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                                     <NextImage src={coverImageUrl} alt="Cover Preview" width={300} height={300} style={{ maxWidth: '100%', height: 'auto', borderRadius: 8 }} unoptimized />
                                 </Box>
                             )}
+                            <Button variant="outlined" onClick={handleFileButtonClick} disabled={isUploadingCover}>
+                                {isUploadingCover ? 'Uploading...' : 'Change Cover Image'}
+                            </Button>
                             <input
+                                ref={fileInputRef}
                                 type="file"
                                 onChange={handleFileChange}
                                 accept="image/*"
+                                style={{ display: 'none' }}
                             />
                         </Box>
                     ) : (
-                        coverImageUrl && (
-                            <NextImage src={coverImageUrl} alt="Cover Image" width={300} height={300} style={{ maxWidth: '100%', height: 'auto', borderRadius: 8 }} unoptimized />
-                        )
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Typography variant="body1">Cover Image</Typography>
+                            <Button variant="outlined" onClick={handleFileButtonClick} disabled={isUploadingCover}>
+                                {isUploadingCover ? 'Uploading...' : 'Upload Cover Image'}
+                            </Button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                onChange={handleFileChange}
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                            />
+                            {coverImageUrl && (
+                                <Box>
+                                    <NextImage src={coverImageUrl} alt="Cover Image" width={300} height={300} style={{ maxWidth: '100%', height: 'auto', borderRadius: 8 }} unoptimized />
+                                </Box>
+                            )}
+                        </Box>
                     )
                 }
                 <Box sx={{ border: 1, borderRadius: 1, bgcolor: 'inherit', borderColor: 'secondary.main' }}>

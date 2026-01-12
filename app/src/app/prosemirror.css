@@ -272,3 +272,70 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
 .whitespace-nowrap { white-space: nowrap; }
 .text-sm { font-size: 14px; }
 
+/* Slash command popup styles */
+.slash-command-popup {
+  z-index: 50;
+  height: auto;
+  max-height: 330px;
+  overflow-y: auto;
+  border-radius: 6px;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+  padding: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
+}
+
+.slash-command-empty {
+  padding: 8px;
+  color: hsl(var(--muted-foreground));
+}
+
+.slash-command-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  border-radius: 6px;
+  padding: 8px;
+  color: hsl(var(--foreground));
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.slash-command-item:hover,
+.slash-command-item[aria-selected="true"] {
+  background-color: hsl(var(--accent));
+}
+
+.slash-command-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+  flex-shrink: 0;
+}
+
+.slash-command-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.slash-command-item-title {
+  font-weight: 500;
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.slash-command-item-description {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  margin: 2px 0 0 0;
+}
+
