@@ -36,8 +36,8 @@ export const HomePage = ({ profile }: HomePageProps) => {
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: { xs: 'center', md: 'space-between' }, gap: { xs: 4, md: 8 }, flexGrow: 1, px: { xs: 3, md: 6, xl: 8 }, py: { xs: 4, md: 8 } }}>
 
             <Section id="main-image" ariaLabelledBy="main-page-image" className="p-2 md:w-1/2" sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
-                <Paper elevation={6} sx={{ p: 2, borderRadius: 2, boxShadow: 6, width: { xs: '100%', md: 560 }, maxWidth: '100%', overflow: 'hidden' }}>
-                    <Box sx={{ position: 'relative', width: '100%', height: { xs: 320, md: 520 } }}>
+                <Paper elevation={6} sx={{ p: 2, borderRadius: 2, boxShadow: 6, width: { xs: 320, sm: 480, md: 560 }, maxWidth: '100%', overflow: 'hidden' }}>
+                    <Box sx={{ position: 'relative', width: '100%', height: { xs: 400, sm: 400, md: 520 }, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.100', border: '1px solid', borderColor: 'divider' }}>
                         <Image
                             src={profile?.heroImageUrl || profilePic}
                             alt="Portrait of Rashad Ataf, Full Stack Developer."
@@ -45,6 +45,12 @@ export const HomePage = ({ profile }: HomePageProps) => {
                             style={{ objectFit: 'cover' }}
                             priority
                             quality={75}
+                            sizes="(max-width: 599px) 320px, (max-width: 899px) 480px, 560px"
+                            onError={(e) => {
+                                console.error('Image failed to load:', profile?.heroImageUrl || '/images/rashad.webp');
+                                // Fallback to a placeholder
+                                e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0VjE2QzE0IDE3LjEgMTMuMSAxOCA5IDE4QzQuOSAxOCA0IDE3LjEgNCAxNlY0QzQgMi45IDQuOSAyIDYgMkMxMC4yIDIgMTIgMTEuMiAxMiAyWk0xMiA3QzEwLjkgNyA5LjUgNy41IDkuNSA5QzkuNSA5LjUgOS45IDggMTEgOFMxMi44IDguNSA5LjUgOVoiIGZpbGw9IiM5Q0E0QUYiLz4KPC9zdmc+';
+                            }}
                         />
                     </Box>
                 </Paper>
