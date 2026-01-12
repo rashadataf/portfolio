@@ -10,6 +10,7 @@ import { ArticleStatus, SaveStatus } from '@/types';
 import { createArticle, getArticleById, updateArticle, uploadImage } from '@/modules/article/article.controller';
 import { CreateArticleDTO } from '@/modules/article/article.dto';
 import { Loader } from '@/components//Loader';
+import PublishCelebration from '@/components/PublishCelebration';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -147,6 +148,10 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
         }
     };
 
+    const [showPublishModal, setShowPublishModal] = useSafeState(false);
+    const [publishedUrl, setPublishedUrl] = useSafeState<string>('');
+    const [publishedTitle, setPublishedTitle] = useSafeState<string>('');
+
     const handleSaveOrUpdate = async (publish: boolean) => {
         setLoading(true);
         try {
@@ -170,7 +175,18 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
 
             if (currentArticleId) {
                 // Update existing article
-                await updateArticle(currentArticleId, articlePayload, coverImage);
+                const res = await updateArticle(currentArticleId, articlePayload, coverImage);
+                if (publish && res?.article) {
+                    const slug = res.article.slugEn || generateSlug(titleEn);
+                    const relativeUrl = `/articles/${slug}?lang=en`;
+                    const origin = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://www.rashadataf.com');
+                    const absoluteUrl = new URL(relativeUrl, origin).toString();
+                    setPublishedUrl(absoluteUrl);
+                    setPublishedTitle(res.article.titleEn || titleEn);
+                    setShowPublishModal(true);
+                } else if (!publish) {
+                    router.push('/admin/articles');
+                }
             } else {
                 // Create new article and set id for future autosaves
                 const res = await createArticle(articlePayload, coverImage);
@@ -179,14 +195,28 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                     setEnEditorKey(`${res.article.id}_en`);
                     setArEditorKey(`${res.article.id}_ar`);
                 }
+                if (publish && res?.article) {
+                    const slug = res.article.slugEn || generateSlug(titleEn);
+                    const relativeUrl = `/articles/${slug}?lang=en`;
+                    const absoluteUrl = makeAbsoluteUrl(relativeUrl);
+                    setPublishedUrl(absoluteUrl);
+                    setPublishedTitle(res.article.titleEn || titleEn);
+                    setShowPublishModal(true);
+                } else if (!publish) {
+                    router.push('/admin/articles');
+                }
             }
-
-            router.push('/admin/articles');
         } catch (error) {
             console.error("Error saving/updating article:", error);
         } finally {
             setLoading(false);
         }
+    };
+
+    // Helper: produce absolute URL. Uses NEXT_PUBLIC_SITE_URL if provided, otherwise falls back to window.location.origin or a default domain.
+    const makeAbsoluteUrl = (relativeUrl: string) => {
+        const origin = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://www.rashadataf.com');
+        return new URL(relativeUrl, origin).toString();
     };
 
     // Autosave: debounce changes and save as draft
@@ -327,6 +357,20 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                     <Typography variant="h6" sx={{ fontWeight: 'semibold', borderBottom: 2, borderColor: 'divider', p: 4, bgcolor: 'background.default' }}>Content (Arabic)</Typography>
                     <Editor key={'ar'} editorKey={arEditorKey} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
                 </Box>
+
+                {/* Publish celebration modal */}
+                {showPublishModal && (
+                    // dynamic import would be fine, but small component so import statically
+                    <PublishCelebration
+                        open={showPublishModal}
+                        title={publishedTitle || titleEn}
+                        url={publishedUrl}
+                        onClose={() => {
+                            setShowPublishModal(false);
+                            router.push('/admin/articles');
+                        }}
+                    />
+                )}
                 {
                     articleId && (
                         <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
