@@ -70,11 +70,19 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
             createTheme({
                 palette: {
                     mode: theme === THEME.DARK ? 'dark' : 'light',
-                    primary: { main: '#6B21A8' },
-                    secondary: { main: '#00BFA6' },
+                    primary: { 
+                        main: theme === THEME.DARK ? '#9c27b0' : '#6B21A8' 
+                    },
+                    secondary: { 
+                        main: theme === THEME.DARK ? '#00e5ff' : '#00BFA6' 
+                    },
                     background: {
-                        default: theme === THEME.DARK ? '#0f0f10' : '#ffffff',
-                        paper: theme === THEME.DARK ? '#121212' : '#ffffff'
+                        default: theme === THEME.DARK ? '#1a1a1a' : '#ffffff',
+                        paper: theme === THEME.DARK ? '#2a2a2a' : '#ffffff'
+                    },
+                    text: {
+                        primary: theme === THEME.DARK ? '#ffffff' : '#000000',
+                        secondary: theme === THEME.DARK ? '#b0b0b0' : '#666666'
                     }
                 },
                 components: {

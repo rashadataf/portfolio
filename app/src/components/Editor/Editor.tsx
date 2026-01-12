@@ -40,7 +40,7 @@ export const Editor = ({ initialValue, onChange, onTextChange, dir = "ltr", edit
   const [openLink, setOpenLink] = useSafeState(false);
 
   return (
-    <Paper elevation={2} sx={{ p: 2 }}>
+    <Paper elevation={2} sx={{ p: 2, bgcolor: 'background.paper' }}>
       <EditorRoot key={editorKey}>
         <EditorContent
           editable={editable}
