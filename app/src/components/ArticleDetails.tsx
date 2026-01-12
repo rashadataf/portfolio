@@ -31,6 +31,36 @@ export const ArticleDetails = ({ article, lang }: Props) => {
     const isArabic = lang === "ar";
     const dir = isArabic ? "rtl" : "ltr";
 
+    // Reading time (simple heuristic: 200 wpm)
+    const plainText = (isArabic ? article.contentAr : article.contentEn)?.content ? JSON.stringify(isArabic ? article.contentAr : article.contentEn) : '';
+    const words = plainText ? (plainText.match(/\w+/g) || []).length : 0;
+    const readingTime = Math.max(1, Math.ceil(words / 200));
+
+    const [applauseCount, setApplauseCount] = useSafeState<number>(() => {
+        try {
+            const key = `applause_${article.id}`;
+            const stored = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+            return stored ? parseInt(stored, 10) : 0;
+        } catch {
+            return 0;
+        }
+    });
+
+    const handleApplaud = () => {
+        setApplauseCount((c) => {
+            const nc = c + 1;
+            try { localStorage.setItem(`applause_${article.id}`, String(nc)); } catch { }
+            return nc;
+        });
+        // Small visual feedback: use toast or simple animation
+        // We'll add a tiny CSS-based burst animation by toggling a data attribute
+        const root = document.getElementById(`article-${article.id}`);
+        if (root) {
+            root.dataset.applaud = '1';
+            setTimeout(() => { if (root) delete root.dataset.applaud; }, 700);
+        }
+    };
+
     useEffect(
         () => {
             const handleScroll = () => {
@@ -65,11 +95,20 @@ export const ArticleDetails = ({ article, lang }: Props) => {
 
     return (
         <Container
+            id={`article-${article.id}`}
             maxWidth="lg"
             sx={{ py: 10, px: { xs: 6, md: 10, xl: 12 }, lineHeight: 'relaxed' }}
             onClick={handleInteraction}
             onScroll={handleInteraction}
         >
+            {/* Small metadata row: author, reading time, applause */}
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>By {article.author}</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>• {readingTime} min read</Typography>
+                <Button variant="outlined" size="small" onClick={handleApplaud} sx={{ ml: 'auto' }}>
+                    👏 {applauseCount}
+                </Button>
+            </Box>
             {article.coverImage && (
                 <Box sx={{ position: 'relative', mb: 10, width: '100%', height: '50vh', borderRadius: 2, overflow: 'hidden' }}>
                     <Image

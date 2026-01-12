@@ -29,6 +29,51 @@
   }
 }
 
+/* Image load / lazy fade-in */
+.prose img {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 300ms ease, transform 300ms ease;
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+}
+.prose img.img-loaded {
+  opacity: 1;
+  transform: none;
+}
+
+/* RTL adjustments for prose content */
+[dir="rtl"] .prose,
+.prose[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+  /* Use an Arabic-friendly font stack when rendering RTL content */
+  font-family: "Noto Naskh Arabic", "Noto Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+[dir="rtl"] .prose img,
+.prose[dir="rtl"] img {
+  float: right;
+}
+
+[dir="rtl"] .prose ul,
+[dir="rtl"] .prose ol,
+.prose[dir="rtl"] ul,
+.prose[dir="rtl"] ol {
+  padding-inline-start: 1rem;
+  text-align: right;
+}
+
+/* Convenience class if the inner element receives class but not dir */
+.prose-rtl {
+  direction: rtl;
+  text-align: right;
+  font-family: "Noto Naskh Arabic", "Noto Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+.prose-rtl img {
+  float: right;
+}
 .img-placeholder {
   position: relative;
 
