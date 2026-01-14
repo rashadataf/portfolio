@@ -16,9 +16,7 @@ const aiHighlight = AIHighlight;
 const placeholder = Placeholder;
 const tiptapLink = TiptapLink.configure({
   HTMLAttributes: {
-    class: cx(
-      "text-blue-600 underline underline-offset-[3px] hover:text-blue-500 transition-colors cursor-pointer"
-    ),
+    class: cx("tiptap-link"),
   },
 });
 
@@ -26,67 +24,66 @@ const tiptapImage = TiptapImage.extend({
   addProseMirrorPlugins() {
     return [
       UploadImagesPlugin({
-        imageClass: cx("opacity-40 rounded-lg border border-stone-200"),
+        imageClass: cx("tiptap-image-loading"),
       }),
     ];
   },
 }).configure({
   allowBase64: true,
   HTMLAttributes: {
-    class: cx("rounded-lg border border-muted"),
+    class: cx("tiptap-image"),
   },
 });
 
 const taskList = TaskList.configure({
   HTMLAttributes: {
-    class: cx("not-prose pl-2 "),
+    class: cx("task-list"),
+    style: "list-style: none; list-style-type: none;",
   },
 });
 const taskItem = TaskItem.configure({
   HTMLAttributes: {
-    class: cx("flex gap-2 items-start my-4"),
+    class: cx("task-item"),
+    style: "display: flex !important; align-items: center !important; gap: 0.5rem !important; margin: 0.25rem 0 !important;",
   },
   nested: true,
 });
 
 const horizontalRule = HorizontalRule.configure({
   HTMLAttributes: {
-    class: cx("mt-4 mb-6 border-t border-muted-foreground"),
+    class: cx("horizontal-rule"),
   },
 });
 
 const starterKit = StarterKit.configure({
   bulletList: {
     HTMLAttributes: {
-      class: cx("list-disc list-outside leading-3 -mt-2"),
+      class: cx("bullet-list"),
     },
   },
   orderedList: {
     HTMLAttributes: {
-      class: cx("list-decimal list-outside leading-3 -mt-2"),
+      class: cx("ordered-list"),
     },
   },
   listItem: {
     HTMLAttributes: {
-      class: cx("leading-normal -mb-2"),
+      class: cx("list-item"),
     },
   },
   blockquote: {
     HTMLAttributes: {
-      class: cx("border-l-4 border-primary"),
+      class: cx("blockquote-custom"),
     },
   },
   codeBlock: {
     HTMLAttributes: {
-      class: cx(
-        "rounded-md bg-muted text-muted-foreground border p-5 font-mono font-medium text-left",
-      ),
-      dir: "ltr"
+      class: cx("code-block"),
     },
   },
   code: {
     HTMLAttributes: {
-      class: cx("rounded-lg bg-gray-800 text-gray-200 px-2 py-1 font-mono text-sm"),
+      class: cx("inline-code"),
       spellcheck: "false",
     },
   },
@@ -98,6 +95,44 @@ const starterKit = StarterKit.configure({
   gapcursor: false,
 });
 
+import { Mark } from '@tiptap/core';
+import type { RawCommands } from '@tiptap/core';
+
+/**
+ * fontSize mark: unique name 'fontSize' (no duplicate with textStyle)
+ * Stores inline font-size via style attribute and exposes a setFontSize command
+ */
+const fontSize = Mark.create({
+  name: 'fontSize',
+  addOptions() {
+    return { HTMLAttributes: {} };
+  },
+  addAttributes() {
+    return {
+      fontSize: { default: null },
+    };
+  },
+  parseHTML() {
+    return [{ style: 'font-size' }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    if (!HTMLAttributes.fontSize) return ['span', 0];
+    return ['span', { style: `font-size: ${HTMLAttributes.fontSize}` }, 0];
+  },
+  addCommands() {
+    return {
+      setFontSize:
+        (fontSize: string | null) =>
+        ({ commands }: { commands: RawCommands }) => {
+          if (!fontSize) {
+            return commands.unsetMark('fontSize');
+          }
+          return commands.setMark('fontSize', { fontSize });
+        },
+    } as Partial<RawCommands>;
+  },
+});
+
 export const defaultExtensions = [
   starterKit,
   placeholder,
@@ -107,5 +142,6 @@ export const defaultExtensions = [
   taskList,
   taskItem,
   horizontalRule,
+  fontSize,
   aiHighlight,
 ];

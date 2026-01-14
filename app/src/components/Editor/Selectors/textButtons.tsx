@@ -7,9 +7,8 @@ import {
   CodeIcon,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import type { SelectorItem } from "@/components/Editor/Selectors/nodeSelector";
-import { Button } from "@/components/UI/Button";
+import Button from '@mui/material/Button';
 
 export const TextButtons = () => {
   const { editor } = useEditor();
@@ -49,7 +48,7 @@ export const TextButtons = () => {
   ];
 
   return (
-    <div className="flex">
+    <div style={{ display: 'flex' }}>
       {items.map((item, index) => (
         <EditorBubbleItem
           key={index}
@@ -57,11 +56,12 @@ export const TextButtons = () => {
             item.command(editor);
           }}
         >
-          <Button size="sm" className="rounded-none" variant="ghost">
+          <Button size="small" onMouseDown={(e) => e.preventDefault()} variant="text" sx={{ minWidth: 'auto', p: '6px' }}>
             <item.icon
-              className={cn("h-4 w-4", {
-                "text-blue-500": item.isActive(editor),
-              })}
+              size={16}
+              style={{
+                color: item.isActive(editor) ? 'rgb(59 130 246)' : 'inherit'
+              }}
             />
           </Button>
         </EditorBubbleItem>

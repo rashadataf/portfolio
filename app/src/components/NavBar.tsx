@@ -14,7 +14,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Container from '@mui/material/Container';
 import { ThemeToggler } from '@/components/DarkModeToggle';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { MenuIcon } from '@/components/Icons';
+import MenuIcon from '@mui/icons-material/Menu';
 import { NavLink } from '@/components/NavLink';
 
 export const Navbar = () => {
@@ -43,14 +43,14 @@ export const Navbar = () => {
                         </Link>
                     </Box>
 
-                    <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 2 }}>
                         {menuItems.map((m) => (
                             <NavLink key={m.href} href={m.href} title={m.label} />
                         ))}
                         <ThemeToggler />
                     </Box>
 
-                    <IconButton edge="end" color="inherit" aria-label="menu" onClick={toggleDrawer} sx={{ display: { md: 'none' } }}>
+                    <IconButton edge="end" color="inherit" aria-label="menu" onClick={toggleDrawer} sx={{ display: { lg: 'none' } }}>
                         <MenuIcon />
                     </IconButton>
                 </Toolbar>

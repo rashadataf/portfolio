@@ -29,6 +29,51 @@
   }
 }
 
+/* Image load / lazy fade-in */
+.prose img {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 300ms ease, transform 300ms ease;
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+}
+.prose img.img-loaded {
+  opacity: 1;
+  transform: none;
+}
+
+/* RTL adjustments for prose content */
+[dir="rtl"] .prose,
+.prose[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+  /* Use an Arabic-friendly font stack when rendering RTL content */
+  font-family: "Noto Naskh Arabic", "Noto Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+[dir="rtl"] .prose img,
+.prose[dir="rtl"] img {
+  float: right;
+}
+
+[dir="rtl"] .prose ul,
+[dir="rtl"] .prose ol,
+.prose[dir="rtl"] ul,
+.prose[dir="rtl"] ol {
+  padding-inline-start: 1rem;
+  text-align: right;
+}
+
+/* Convenience class if the inner element receives class but not dir */
+.prose-rtl {
+  direction: rtl;
+  text-align: right;
+  font-family: "Noto Naskh Arabic", "Noto Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+.prose-rtl img {
+  float: right;
+}
 .img-placeholder {
   position: relative;
 
@@ -111,6 +156,94 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
   text-decoration-thickness: 2px;
 }
 
+/* Task list and item styling */
+ul.task-list {
+  padding-left: 1rem !important;
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+.task-list[data-type="taskList"] {
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+/* Override prose styles for task lists */
+.prose ul.task-list,
+.prose .task-list {
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+/* Ultra-specific override for task lists */
+ul.task-list[data-type="taskList"] {
+  list-style: none !important;
+  list-style-type: none !important;
+  list-style-image: none !important;
+}
+
+/* Override any prose ul styles for task lists */
+.prose ul.task-list[data-type="taskList"],
+.prose ul.task-list {
+  list-style: none !important;
+  list-style-type: none !important;
+  list-style-image: none !important;
+}
+
+.task-item {
+  display: flex !important;
+  gap: 0.5rem !important;
+  align-items: flex-start !important;
+  margin: 0.5rem 0;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.task-item:hover {
+  background-color: hsl(var(--accent) / 0.5);
+}
+
+.task-item > label {
+  margin-right: 0.5rem;
+  user-select: none;
+  display: flex !important;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 20px;
+  justify-content: center;
+}
+
+.task-item > div {
+  flex: 1 !important;
+  min-width: 0;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.task-item > div > p {
+  margin: 0 !important;
+  line-height: 1.5;
+  display: inline !important;
+}
+
+/* Override prose styles for task items */
+.prose .task-item,
+.prose li.task-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 0.5rem !important;
+}
+
+.prose .task-item > div > p {
+  display: inline !important;
+  margin: 0 !important;
+  float: none !important;
+  clear: none !important;
+}
+
 /* Overwrite tippy-box original max-width */
 
 .tippy-box {
@@ -164,3 +297,268 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
 .dark .drag-handle {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' style='fill: rgba(255, 255, 255, 0.5)'%3E%3Cpath d='M3,2 C2.44771525,2 2,1.55228475 2,1 C2,0.44771525 2.44771525,0 3,0 C3.55228475,0 4,0.44771525 4,1 C4,1.55228475 3.55228475,2 3,2 Z M3,6 C2.44771525,6 2,5.55228475 2,5 C2,4.44771525 2.44771525,4 3,4 C3.55228475,4 4,4.44771525 4,5 C4,5.55228475 3.55228475,6 3,6 Z M3,10 C2.44771525,10 2,9.55228475 2,9 C2,8.44771525 2.44771525,8 3,8 C3.55228475,8 4,8.44771525 4,9 C4,9.55228475 3.55228475,10 3,10 Z M7,2 C6.44771525,2 6,1.55228475 6,1 C6,0.44771525 6.44771525,0 7,0 C7.55228475,0 8,0.44771525 8,1 C8,1.55228475 7.55228475,2 7,2 Z M7,6 C6.44771525,6 6,5.55228475 6,5 C6,4.44771525 6.44771525,4 7,4 C7.55228475,4 8,4.44771525 8,5 C8,5.55228475 7.55228475,6 7,6 Z M7,10 C6.44771525,10 6,9.55228475 6,9 C6,8.44771525 6.44771525,8 7,8 C7.55228475,8 8,8.44771525 8,9 C8,9.55228475 7.55228475,10 7,10 Z'%3E%3C/path%3E%3C/svg%3E");
 }
+
+/* Editor bubble and tippy popper fixes */
+.editor-bubble {
+  overflow: visible !important;
+  z-index: 1000;
+}
+
+.tippy-popper,
+.tippy-box {
+  z-index: 1400 !important;
+}
+
+/* Dev-only outlines for menus/popovers */
+[data-menu-name] {
+  outline: 1px dashed rgba(200, 40, 40, 0.7);
+  box-shadow: 0 0 0 2px rgba(200, 40, 40, 0.06);
+}
+
+/* Ensure the editor bubble toolbar lays out horizontally and doesn't wrap */
+.editor-bubble {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.98);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(4px);
+  z-index: 1000 !important; /* keep below menu layers */
+}
+
+/* Slightly reduce padding on EditorBubble items to keep toolbar compact */
+.editor-bubble .MuiButton-root, .editor-bubble button {
+  padding: 6px !important;
+  min-width: auto !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Ensure inline groups and items don't stack vertically */
+.editor-bubble .EditorBubbleItem,
+.editor-bubble .editor-bubble-item,
+.editor-bubble .bubble-item,
+.editor-bubble .flex {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px;
+}
+
+/* Small tweak for icons inside the bubble */
+.editor-bubble svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Popover styles for NodeSelector */
+.popover-content {
+  width: 192px;
+  border-radius: 6px;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+  padding: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+}
+
+.popover-item {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.popover-item:hover {
+  background-color: hsl(var(--accent));
+}
+
+.popover-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid hsl(var(--border));
+  padding: 2px;
+}
+
+/* Utility classes for icons */
+.h-3 { height: 12px; }
+.w-3 { width: 12px; }
+.h-4 { height: 16px; }
+.w-4 { width: 16px; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.space-x-2 > * + * { margin-left: 8px; }
+.justify-between { justify-content: space-between; }
+.whitespace-nowrap { white-space: nowrap; }
+.text-sm { font-size: 14px; }
+
+/* Slash command popup styles */
+.slash-command-popup {
+  z-index: 50;
+  height: auto;
+  max-height: 330px;
+  overflow-y: auto;
+  border-radius: 6px;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+  padding: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
+}
+
+.slash-command-empty {
+  padding: 8px;
+  color: hsl(var(--muted-foreground));
+}
+
+.slash-command-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  border-radius: 6px;
+  padding: 8px;
+  color: hsl(var(--foreground));
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.slash-command-item:hover,
+.slash-command-item[aria-selected="true"] {
+  background-color: hsl(var(--accent));
+}
+
+.slash-command-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--background));
+  flex-shrink: 0;
+}
+
+.slash-command-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.slash-command-item-title {
+  font-weight: 500;
+  margin: 0;
+  color: hsl(var(--foreground));
+}
+
+.slash-command-item-description {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  margin: 2px 0 0 0;
+}
+
+/* Link styling */
+.tiptap-link {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-decoration-offset: 3px;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.tiptap-link:hover {
+  color: hsl(var(--primary) / 0.8);
+}
+
+/* Image styling */
+.tiptap-image {
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border));
+  max-width: 100%;
+  height: auto;
+}
+
+.tiptap-image-loading {
+  opacity: 0.4;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border));
+}
+
+/* Horizontal rule styling */
+.horizontal-rule {
+  margin: 1rem 0 1.5rem 0;
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* List styling */
+.bullet-list {
+  list-style-type: disc;
+  list-style-position: outside;
+  line-height: 1.2;
+  margin-top: -0.5rem;
+}
+
+.ordered-list {
+  list-style-type: decimal;
+  list-style-position: outside;
+  line-height: 1.2;
+  margin-top: -0.5rem;
+}
+
+.list-item {
+  line-height: normal;
+  margin-bottom: -0.5rem;
+}
+
+/* Blockquote styling */
+.blockquote-custom {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Code block styling */
+.code-block {
+  border-radius: 6px;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  padding: 1.25rem;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+  font-weight: 500;
+  text-align: left;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+  direction: ltr;
+}
+
+/* Inline code styling */
+.inline-code {
+  border-radius: 6px;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  padding: 0.125rem 0.5rem;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+

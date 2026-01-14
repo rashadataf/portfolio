@@ -1,5 +1,5 @@
+import React from 'react';
 import {
-  Check,
   ChevronDown,
   Heading1,
   Heading2,
@@ -9,13 +9,12 @@ import {
   TextIcon,
   Code,
   CheckSquare,
+  Check,
   type LucideIcon,
 } from "lucide-react";
-import { EditorBubbleItem, EditorInstance, useEditor } from "novel";
-import { Popover } from "@radix-ui/react-popover";
-
-import { PopoverContent, PopoverTrigger } from "@/components/UI/Popover";
-import { Button } from "@/components/UI/Button";
+import { EditorInstance, useEditor } from "novel";
+import * as Popover from "@radix-ui/react-popover";
+import Button from '@mui/material/Button';
 
 export type SelectorItem = {
   name: string;
@@ -98,43 +97,46 @@ interface NodeSelectorProps {
 
 export const NodeSelector = ({ open, onOpenChange }: NodeSelectorProps) => {
   const { editor } = useEditor();
-  if (!editor) return null;
 
-  const activeItem = items.filter((item) => item.isActive(editor)).pop() ?? {
-    name: "Multiple",
-  };
+  if (!editor) return null;
+  const activeItem = items.filter((item) => item.isActive(editor)).pop() ?? { name: "Multiple" };
 
   return (
-    <Popover modal={true} open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger
-        asChild
-        className="gap-2 rounded-none border-none hover:bg-accent focus:ring-0"
-      >
-        <Button size="sm" variant="ghost" className="gap-2">
-          <span className="whitespace-nowrap text-sm">{activeItem.name}</span>
-          <ChevronDown className="h-4 w-4" />
+    <Popover.Root modal={true} open={open} onOpenChange={onOpenChange}>
+      <Popover.Trigger asChild>
+        <Button
+          size="small"
+          variant="text"
+          sx={{ minWidth: 'auto', p: '6px' }}
+        >
+          <span style={{ whiteSpace: 'nowrap', fontSize: '0.875rem' }}>{activeItem.name}</span>
+          <ChevronDown size={16} />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent sideOffset={5} align="start" className="w-48 p-1">
-        {items.map((item, index) => (
-          <EditorBubbleItem
-            key={index}
-            onSelect={(editor) => {
+      </Popover.Trigger>
+      <Popover.Content
+        sideOffset={5}
+        align="start"
+        className="popover-content"
+      >
+        {items.map((item) => (
+          <div
+            key={item.name}
+            onClick={() => {
               item.command(editor);
               onOpenChange(false);
             }}
-            className="flex cursor-pointer items-center justify-between rounded-sm px-2 py-1 text-sm hover:bg-accent"
+            className="popover-item"
           >
             <div className="flex items-center space-x-2">
-              <div className="rounded-sm border p-1">
-                <item.icon className="h-3 w-3" />
+              <div className="popover-item-icon">
+                <item.icon size={12} />
               </div>
               <span>{item.name}</span>
             </div>
-            {activeItem.name === item.name && <Check className="h-4 w-4" />}
-          </EditorBubbleItem>
+            {activeItem.name === item.name && <Check size={16} />}
+          </div>
         ))}
-      </PopoverContent>
-    </Popover>
+      </Popover.Content>
+    </Popover.Root>
   );
 };
