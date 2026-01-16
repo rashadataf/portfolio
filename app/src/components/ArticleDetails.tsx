@@ -20,6 +20,7 @@ type Props = {
 export const ArticleDetails = ({ article, lang }: Props) => {
     const router = useRouter();
     const [maxScrollDepth, setMaxScrollDepth] = useSafeState(0);
+    const [progress, setProgress] = useSafeState(0);
 
     const handleLanguageToggle = () => {
         const newLang = lang === 'ar' ? 'en' : 'ar';
@@ -65,8 +66,10 @@ export const ArticleDetails = ({ article, lang }: Props) => {
         () => {
             const handleScroll = () => {
                 const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-                const currentScrollDepth = (window.scrollY / scrollHeight) * 100;
-                setMaxScrollDepth((prevDepth) => Math.max(prevDepth, currentScrollDepth));
+                const currentScrollDepth = scrollHeight > 0 ? (window.scrollY / scrollHeight) * 100 : 0;
+                const clamped = Math.min(100, Math.max(0, currentScrollDepth));
+                setProgress(clamped);
+                setMaxScrollDepth((prevDepth) => Math.max(prevDepth, clamped));
             };
 
             const initMetrics = () => {
@@ -86,7 +89,7 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                 window.removeEventListener("scroll", handleScroll);
             };
         },
-        [article.id, maxScrollDepth, setMaxScrollDepth]
+        [article.id, maxScrollDepth, setMaxScrollDepth, setProgress]
     );
 
     const handleInteraction = () => {
@@ -94,57 +97,63 @@ export const ArticleDetails = ({ article, lang }: Props) => {
     };
 
     return (
-        <Container
-            id={`article-${article.id}`}
-            maxWidth="lg"
-            sx={{ py: 10, px: { xs: 6, md: 10, xl: 12 }, lineHeight: 'relaxed' }}
-            onClick={handleInteraction}
-            onScroll={handleInteraction}
-        >
-            {/* Small metadata row: author, reading time, applause */}
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>By {article.author}</Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>• {readingTime} min read</Typography>
-                <Button variant="outlined" size="small" onClick={handleApplaud} sx={{ ml: 'auto' }}>
-                    👏 {applauseCount}
-                </Button>
+        <>
+            {/* Reading progress bar (fixed at top) */}
+            <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', zIndex: 2000, pointerEvents: 'none' }}>
+                <Box sx={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, rgba(59,130,246,1), rgba(99,102,241,1))', transition: 'width 0.08s linear' }} />
             </Box>
-            {article.coverImage && (
-                <Box sx={{ position: 'relative', mb: 10, width: '100%', height: '50vh', borderRadius: 2, overflow: 'hidden' }}>
-                    <Image
-                        src={article.coverImage}
-                        alt={isArabic ? article.titleAr : article.titleEn}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        priority
+            <Container
+                id={`article-${article.id}`}
+                maxWidth="lg"
+                sx={{ py: 10, px: { xs: 6, md: 10, xl: 12 }, lineHeight: 'relaxed' }}
+                onClick={handleInteraction}
+                onScroll={handleInteraction}
+            >
+                {/* Small metadata row: author, reading time, applause */}
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>By {article.author}</Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>• {readingTime} min read</Typography>
+                    <Button variant="outlined" size="small" onClick={handleApplaud} sx={{ ml: 'auto' }}>
+                        👏 {applauseCount}
+                    </Button>
+                </Box>
+                {article.coverImage && (
+                    <Box sx={{ position: 'relative', mb: 10, width: '100%', height: '50vh', borderRadius: 2, overflow: 'hidden' }}>
+                        <Image
+                            src={article.coverImage}
+                            alt={isArabic ? article.titleAr : article.titleEn}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            priority
+                        />
+                    </Box>
+                )}
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 6, gap: 4 }} dir={dir}>
+                    <Typography variant="h1" sx={{ fontWeight: 'extrabold', lineHeight: 'tight', letterSpacing: 'tight', color: 'text.primary' }}>
+                        {isArabic ? article.titleAr : article.titleEn}
+                    </Typography>
+                    <Typography variant="h6" sx={{ color: 'text.secondary' }}>By {article.author}</Typography>
+                    <Button
+                        onClick={handleLanguageToggle}
+                        variant="contained"
+                        sx={{ px: 5, py: 2 }}
+                    >
+                        {isArabic ? "View in English" : "عرض باللغة العربية"}
+                    </Button>
+                </Box>
+
+                <Box
+                    sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
+                    dir={dir}
+                >
+                    <Viewer
+                        key={lang}
+                        initialValue={isArabic ? article.contentAr : article.contentEn}
+                        dir={dir}
                     />
                 </Box>
-            )}
-
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 6, gap: 4 }} dir={dir}>
-                <Typography variant="h1" sx={{ fontWeight: 'extrabold', lineHeight: 'tight', letterSpacing: 'tight', color: 'text.primary' }}>
-                    {isArabic ? article.titleAr : article.titleEn}
-                </Typography>
-                <Typography variant="h6" sx={{ color: 'text.secondary' }}>By {article.author}</Typography>
-                <Button
-                    onClick={handleLanguageToggle}
-                    variant="contained"
-                    sx={{ px: 5, py: 2 }}
-                >
-                    {isArabic ? "View in English" : "عرض باللغة العربية"}
-                </Button>
-            </Box>
-
-            <Box
-                sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
-                dir={dir}
-            >
-                <Viewer
-                    key={lang}
-                    initialValue={isArabic ? article.contentAr : article.contentEn}
-                    dir={dir}
-                />
-            </Box>
-        </Container>
+            </Container>
+        </>
     );
 };
