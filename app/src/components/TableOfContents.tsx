@@ -40,6 +40,8 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
     const itemsRef = useRef<TOCItem[]>([]);
     const mutRef = useRef<MutationObserver | null>(null);
     const timeoutRef = useRef<number | null>(null);
+    const headingsRef = useRef<HTMLElement[]>([]);
+    const scrollRafRef = useRef<number | null>(null);
 
     useEffect(() => {
         const root = document.getElementById(contentId);
@@ -48,16 +50,30 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
 
         // Helper to scan headings and populate TOC
         const scanAndPopulate = () => {
-            const headingElems = Array.from(root.querySelectorAll('h1,h2,h3')) as HTMLElement[];
+            // also include elements that may be rendered with role=heading (aria-based headings)
+            const nodeList = root.querySelectorAll('h1,h2,h3,[role="heading"]');
+            const headingElems = Array.from(nodeList) as HTMLElement[];
             if (!headingElems.length) return false;
 
             const toc: TOCItem[] = headingElems.map((h) => {
+                const rawText = (h.innerText || h.textContent || '').toString().trim();
                 if (!h.id) {
-                    h.id = slugify(h.innerText || h.textContent || 'heading');
+                    h.id = slugify(rawText || 'heading');
                 }
-                const level = parseInt(h.tagName.replace('H', ''), 10) || 1;
-                return { id: h.id, text: h.innerText || h.textContent || '', level };
+
+                let level = 1;
+                if (h.tagName && /^H[1-6]$/.test(h.tagName)) {
+                    level = parseInt(h.tagName.replace('H', ''), 10) || 1;
+                } else if (h.getAttribute) {
+                    const ariaLevel = h.getAttribute('aria-level');
+                    if (ariaLevel) level = parseInt(ariaLevel, 10) || 1;
+                }
+
+                return { id: h.id, text: rawText, level };
             });
+
+            // store heading elements for scroll-based fallback
+            headingsRef.current = headingElems;
 
             // Defer setting state to avoid synchronous setState inside the effect
             rafRef.current = requestAnimationFrame(() => {
@@ -74,6 +90,12 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
         if (!found) {
             mutRef.current = new MutationObserver(() => {
                 const ok = scanAndPopulate();
+                if (ok) {
+                    // after headings appear, make sure observer watches them
+                    const newHeadings = Array.from(root.querySelectorAll('h1,h2,h3,[role="heading"]')) as HTMLElement[];
+                    headingsRef.current = newHeadings;
+                    if (observerRef.current) newHeadings.forEach(h => observerRef.current?.observe(h));
+                }
                 if (ok && mutRef.current) {
                     mutRef.current.disconnect();
                 }
@@ -87,21 +109,65 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
             }, 500);
         }
 
-        // IntersectionObserver to highlight current heading
+        // IntersectionObserver kept to trigger recalculation when intersections change
         const obs = new IntersectionObserver(
-            (entries) => {
-                const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-                if (visible.length) {
-                    setActiveId(visible[0].target.id);
-                }
+            () => {
+                // Defer to the unified distance-based computation for consistency
+                updateActiveFromScroll();
             },
-            { root: null, rootMargin: '0px 0px -60% 0px', threshold: [0, 0.1, 0.5, 1] }
+            { root: null, rootMargin: '0px 0px -60% 0px', threshold: [0, 0.01, 0.1, 0.5, 1] }
         );
 
         observerRef.current = obs;
         // Observe whatever headings currently exist (scan again)
-        const currentHeadings = Array.from(root.querySelectorAll('h1,h2,h3')) as HTMLElement[];
+        const currentHeadings = Array.from(root.querySelectorAll('h1,h2,h3,[role="heading"]')) as HTMLElement[];
+        headingsRef.current = currentHeadings;
         currentHeadings.forEach((h) => obs.observe(h));
+
+        // Scroll-based detection: choose heading whose center is closest to viewport center
+        const updateActiveFromScroll = () => {
+            const hs = headingsRef.current;
+            if (!hs || !hs.length) return;
+
+            const viewportCenterY = window.innerHeight / 2;
+            let bestId: string | null = null;
+            let bestDistance = Number.POSITIVE_INFINITY;
+
+            for (let i = 0; i < hs.length; i++) {
+                const rect = hs[i].getBoundingClientRect();
+                const elemCenter = rect.top + rect.height / 2;
+                const distance = Math.abs(elemCenter - viewportCenterY);
+
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    bestId = hs[i].id;
+                }
+            }
+
+            // If at bottom (within 50px), prefer the last heading
+            const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
+            if (atBottom) {
+                const last = hs[hs.length - 1];
+                if (last) {
+                    if (bestId !== last.id) setActiveId(last.id);
+                    return;
+                }
+            }
+
+            // Switch unconditionally to the closest heading center (avoid hysteresis flicker)
+            if (bestId && bestId !== activeId) {
+                setActiveId(bestId);
+            }
+        };
+
+        const onScroll = () => {
+            if (scrollRafRef.current != null) cancelAnimationFrame(scrollRafRef.current);
+            scrollRafRef.current = requestAnimationFrame(updateActiveFromScroll);
+        };
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        // run once to initialize
+        updateActiveFromScroll();
 
         return () => {
             if (observerRef.current) {
@@ -116,6 +182,10 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
             if (rafRef.current != null) {
                 cancelAnimationFrame(rafRef.current);
             }
+            if (scrollRafRef.current != null) {
+                cancelAnimationFrame(scrollRafRef.current);
+            }
+            window.removeEventListener('scroll', onScroll);
         };
     }, [activeId, contentId]);
 
@@ -139,9 +209,51 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
 
             <Collapse in={open} timeout="auto" unmountOnExit>
                 <List dense disablePadding>
-                    {items.map((it) => (
-                        <ListItem key={it.id} sx={{ pl: Math.max(1, (it.level - 1) * 2) }}>
-                            <ListItemButton onClick={() => handleGoto(it.id)} selected={activeId === it.id}>
+                    {items.map((it, idx) => (
+                        <ListItem key={it.id} role="listitem" sx={{ pl: Math.max(1, (it.level - 1) * 2) }}>
+                            <ListItemButton
+                                component="button"
+                                onClick={() => handleGoto(it.id)}
+                                selected={activeId === it.id}
+                                id={`toc-btn-${it.id}`}
+                                onKeyDown={(e) => {
+                                    // keyboard navigation inside TOC
+                                    if (e.key === 'ArrowDown') {
+                                        e.preventDefault();
+                                        const next = items[idx + 1];
+                                        if (next) {
+                                            const btn = document.getElementById(`toc-btn-${next.id}`) as HTMLButtonElement | null;
+                                            btn?.focus();
+                                            setActiveId(next.id);
+                                        }
+                                    } else if (e.key === 'ArrowUp') {
+                                        e.preventDefault();
+                                        const prev = items[idx - 1];
+                                        if (prev) {
+                                            const btn = document.getElementById(`toc-btn-${prev.id}`) as HTMLButtonElement | null;
+                                            btn?.focus();
+                                            setActiveId(prev.id);
+                                        }
+                                    } else if (e.key === 'Home') {
+                                        e.preventDefault();
+                                        const first = items[0];
+                                        const btn = first && (document.getElementById(`toc-btn-${first.id}`) as HTMLButtonElement | null);
+                                        btn?.focus();
+                                        if (first) setActiveId(first.id);
+                                    } else if (e.key === 'End') {
+                                        e.preventDefault();
+                                        const last = items[items.length - 1];
+                                        const btn = last && (document.getElementById(`toc-btn-${last.id}`) as HTMLButtonElement | null);
+                                        btn?.focus();
+                                        if (last) setActiveId(last.id);
+                                    } else if (e.key === 'Enter' || e.key === ' ') {
+                                        // activate
+                                        e.preventDefault();
+                                        handleGoto(it.id);
+                                    }
+                                }}
+                                aria-current={activeId === it.id ? 'true' : undefined}
+                            >
                                 <ListItemText primary={it.text} slotProps={{ primary: { noWrap: true, variant: 'body2' } }} />
                             </ListItemButton>
                         </ListItem>
