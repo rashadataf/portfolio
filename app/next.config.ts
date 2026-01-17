@@ -46,6 +46,9 @@ function getRemoteImagePatterns() {
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: getRemoteImagePatterns(),
+    // Configure image qualities used across the app to avoid runtime warnings
+    // (logs showed images requesting 60, 75 and 85)
+    qualities: [60, 75, 85],
   },
 };
 

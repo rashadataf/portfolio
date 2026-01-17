@@ -147,7 +147,7 @@ export const ProjectForm = ({ initialData, onSuccess, onCancel }: ProjectFormPro
 
                         {formData.imageUrl && (
                             <Box sx={{ width: 64, height: 40, borderRadius: 1, overflow: 'hidden', border: 1, borderColor: 'divider', position: 'relative' }}>
-                                <Image src={formData.imageUrl} alt="preview" fill style={{ objectFit: 'cover' }} />
+                                <Image src={formData.imageUrl} alt="preview" fill sizes="64px" style={{ objectFit: 'cover' }} />
                             </Box>
                         )}
                     </Box>

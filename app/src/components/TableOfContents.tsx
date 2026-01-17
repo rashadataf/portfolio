@@ -267,7 +267,7 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
             <Collapse in={open} timeout="auto" unmountOnExit>
                 <List dense disablePadding>
                     {items.map((it, idx) => (
-                        <ListItem key={it.id} role="listitem" sx={{ pl: Math.max(1, (it.level - 1) * 2) }}>
+                        <ListItem key={`${it.id}-${idx}`} role="listitem" sx={{ pl: Math.max(1, (it.level - 1) * 2) }}>
                             <ListItemButton
                                 component="button"
                                 onClick={() => handleGoto(it.id)}

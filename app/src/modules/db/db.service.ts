@@ -1,5 +1,9 @@
 import { Pool } from 'pg';
 
+declare global {
+  var __dbServiceConnectLogged: boolean | undefined;
+}
+
 class DatabaseService {
   private pool: Pool;
 
@@ -8,9 +12,13 @@ class DatabaseService {
       connectionString: process.env.DATABASE_URL
     });
 
-    this.pool.on('connect', () => {
-      console.log('Connected to PostgreSQL DB');
-    });
+    // Only attach the connect logger once across HMR/dev reloads
+    if (!globalThis.__dbServiceConnectLogged) {
+      this.pool.on('connect', () => {
+        console.log('Connected to PostgreSQL DB');
+        globalThis.__dbServiceConnectLogged = true;
+      });
+    }
 
     this.pool.on('error', (error) => {
       console.error('Error with PostgreSQL Pool:', error);

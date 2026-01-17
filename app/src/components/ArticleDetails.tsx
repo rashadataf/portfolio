@@ -63,35 +63,35 @@ export const ArticleDetails = ({ article, lang }: Props) => {
         }
     };
 
-    useEffect(
-        () => {
-            const handleScroll = () => {
-                const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-                const currentScrollDepth = scrollHeight > 0 ? (window.scrollY / scrollHeight) * 100 : 0;
-                const clamped = Math.min(100, Math.max(0, currentScrollDepth));
-                setProgress(clamped);
-                setMaxScrollDepth((prevDepth) => Math.max(prevDepth, clamped));
-            };
+    useEffect(() => {
+        // Keep a ref for max scroll depth so the effect doesn't re-run on every scroll
+        const maxScrollRef = { current: maxScrollDepth } as { current: number };
 
-            const initMetrics = () => {
-                trackPageVisit(`Article_${article.id}`);
-                trackBlogView(article.id.toString());
-                // startSessionTimer();
-                // checkBounceRate(`Article_${article.id}`);
-            };
+        const handleScroll = () => {
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const currentScrollDepth = scrollHeight > 0 ? (window.scrollY / scrollHeight) * 100 : 0;
+            const clamped = Math.min(100, Math.max(0, currentScrollDepth));
+            setProgress(clamped);
+            // update the ref and local state
+            maxScrollRef.current = Math.max(maxScrollRef.current, clamped);
+            setMaxScrollDepth((prevDepth) => Math.max(prevDepth, clamped));
+        };
 
-            initMetrics();
+        const initMetrics = () => {
+            trackPageVisit(`Article_${article.id}`);
+            trackBlogView(article.id.toString());
+        };
 
-            window.addEventListener("scroll", handleScroll);
+        initMetrics();
 
-            return () => {
-                reportScrollDepth(maxScrollDepth, article.id.toString());
-                // endSessionTimer(`Article_${article.id}`);
-                window.removeEventListener("scroll", handleScroll);
-            };
-        },
-        [article.id, maxScrollDepth, setMaxScrollDepth, setProgress]
-    );
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            reportScrollDepth(maxScrollRef.current, article.id.toString());
+            window.removeEventListener('scroll', handleScroll);
+        };
+        // only re-run if the article changes
+    }, [article.id, maxScrollDepth, setMaxScrollDepth, setProgress]);
 
     const handleInteraction = () => {
         markInteraction();
@@ -124,6 +124,7 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                             src={article.coverImage}
                             alt={isArabic ? article.titleAr : article.titleEn}
                             fill
+                            sizes="(max-width:599px) 100vw, (max-width:1199px) 720px, 1200px"
                             style={{ objectFit: 'cover' }}
                             priority
                         />
@@ -145,23 +146,46 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                 </Box>
 
                 <Box sx={{ display: 'flex', gap: 6 }}>
-                    <Box component="main" sx={{ flex: 1 }}>
-                        <Box
-                            id="article-content"
-                            sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
-                            dir={dir}
-                        >
-                            <Viewer
-                                key={lang}
-                                initialValue={isArabic ? article.contentAr : article.contentEn}
-                                dir={dir}
-                            />
-                        </Box>
-                    </Box>
+                    {isArabic ? (
+                        <>
+                            <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
+                                <TableOfContents contentId="article-content" />
+                            </Box>
+                            <Box component="main" sx={{ flex: 1 }}>
+                                <Box
+                                    id="article-content"
+                                    sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
+                                    dir={dir}
+                                >
+                                    <Viewer
+                                        key={lang}
+                                        initialValue={isArabic ? article.contentAr : article.contentEn}
+                                        dir={dir}
+                                    />
+                                </Box>
+                            </Box>
+                        </>
+                    ) : (
+                        <>
+                            <Box component="main" sx={{ flex: 1 }}>
+                                <Box
+                                    id="article-content"
+                                    sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
+                                    dir={dir}
+                                >
+                                    <Viewer
+                                        key={lang}
+                                        initialValue={isArabic ? article.contentAr : article.contentEn}
+                                        dir={dir}
+                                    />
+                                </Box>
+                            </Box>
 
-                    <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
-                        <TableOfContents contentId="article-content" />
-                    </Box>
+                            <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
+                                <TableOfContents contentId="article-content" />
+                            </Box>
+                        </>
+                    )}
                 </Box>
             </Container>
         </>

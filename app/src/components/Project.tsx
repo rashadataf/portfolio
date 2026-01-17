@@ -113,7 +113,13 @@ export const Project = ({
 
                     {imageUrl && (
                         <Box sx={{ width: { xs: '100%', md: 220 }, height: { xs: 160, md: 140 }, position: 'relative', borderRadius: 1, overflow: 'hidden', boxShadow: 1 }}>
-                            <Image src={imageUrl} alt={`Screenshot of ${title}`} fill style={{ objectFit: 'cover' }} />
+                            <Image
+                                src={imageUrl}
+                                alt={`Screenshot of ${title}`}
+                                fill
+                                sizes="(max-width:599px) 100vw, 220px"
+                                style={{ objectFit: 'cover' }}
+                            />
                         </Box>
                     )}
                 </Box>

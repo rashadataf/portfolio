@@ -255,7 +255,7 @@ export const FileManager = ({ initialFiles }: { initialFiles: UploadedFileMeta[]
                 <DialogContent>
                     {previewUrl && isImage(previewUrl) ? (
                         <Box sx={{ width: '100%', height: { xs: 240, md: 480 }, position: 'relative' }}>
-                            <Image src={previewUrl} alt={previewName || 'preview'} fill style={{ objectFit: 'contain' }} />
+                            <Image src={previewUrl} alt={previewName || 'preview'} fill sizes="(max-width:599px) 100vw, 480px" style={{ objectFit: 'contain' }} />
                         </Box>
                     ) : (
                         <Box sx={{ width: '100%', height: { xs: 300, md: 600 } }}>
