@@ -11,6 +11,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import TableOfContents from '@/components/TableOfContents';
 
 type Props = {
     article: Article;
@@ -143,15 +144,24 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                     </Button>
                 </Box>
 
-                <Box
-                    sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
-                    dir={dir}
-                >
-                    <Viewer
-                        key={lang}
-                        initialValue={isArabic ? article.contentAr : article.contentEn}
-                        dir={dir}
-                    />
+                <Box sx={{ display: 'flex', gap: 6 }}>
+                    <Box component="main" sx={{ flex: 1 }}>
+                        <Box
+                            id="article-content"
+                            sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
+                            dir={dir}
+                        >
+                            <Viewer
+                                key={lang}
+                                initialValue={isArabic ? article.contentAr : article.contentEn}
+                                dir={dir}
+                            />
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
+                        <TableOfContents contentId="article-content" />
+                    </Box>
                 </Box>
             </Container>
         </>
