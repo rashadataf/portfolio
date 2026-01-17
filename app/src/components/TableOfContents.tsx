@@ -42,6 +42,42 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
     const timeoutRef = useRef<number | null>(null);
     const headingsRef = useRef<HTMLElement[]>([]);
     const scrollRafRef = useRef<number | null>(null);
+    const manualScrollTimeoutRef = useRef<number | null>(null);
+
+    // compute and set active heading based on center-distance logic
+    const updateActiveFromScroll = () => {
+        const hs = headingsRef.current;
+        if (!hs || !hs.length) return;
+
+        const viewportCenterY = window.innerHeight / 2;
+        let bestId: string | null = null;
+        let bestDistance = Number.POSITIVE_INFINITY;
+
+        for (let i = 0; i < hs.length; i++) {
+            const rect = hs[i].getBoundingClientRect();
+            const elemCenter = rect.top + rect.height / 2;
+            const distance = Math.abs(elemCenter - viewportCenterY);
+
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestId = hs[i].id;
+            }
+        }
+
+        // If at bottom (within 50px), prefer the last heading
+        const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
+        if (atBottom) {
+            const last = hs[hs.length - 1];
+            if (last) {
+                if (bestId !== last.id) setActiveId(last.id);
+                return;
+            }
+        }
+
+        if (bestId && bestId !== activeId) {
+            setActiveId(bestId);
+        }
+    };
 
     useEffect(() => {
         const root = document.getElementById(contentId);
@@ -185,13 +221,34 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
             if (scrollRafRef.current != null) {
                 cancelAnimationFrame(scrollRafRef.current);
             }
+            if (manualScrollTimeoutRef.current != null) {
+                clearTimeout(manualScrollTimeoutRef.current);
+            }
             window.removeEventListener('scroll', onScroll);
         };
     }, [activeId, contentId]);
 
     const handleGoto = (id: string) => {
         const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!el) return;
+
+        // Immediately mark as active for instant feedback
+        setActiveId(id);
+
+        // Clear any pending manual timeout
+        if (manualScrollTimeoutRef.current != null) {
+            clearTimeout(manualScrollTimeoutRef.current);
+            manualScrollTimeoutRef.current = null;
+        }
+
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Re-evaluate after smooth scroll completes (approximate)
+        manualScrollTimeoutRef.current = window.setTimeout(() => {
+            // Recompute and set active based on final position
+            updateActiveFromScroll();
+            manualScrollTimeoutRef.current = null;
+        }, 600);
     };
 
     if (!items.length) return null;
