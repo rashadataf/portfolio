@@ -11,6 +11,9 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Drawer from '@mui/material/Drawer';
+import Fab from '@mui/material/Fab';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import TableOfContents from '@/components/TableOfContents';
 
 type Props = {
@@ -22,6 +25,7 @@ export const ArticleDetails = ({ article, lang }: Props) => {
     const router = useRouter();
     const [maxScrollDepth, setMaxScrollDepth] = useSafeState(0);
     const [progress, setProgress] = useSafeState(0);
+    const [drawerOpen, setDrawerOpen] = useSafeState(false);
 
     const handleLanguageToggle = () => {
         const newLang = lang === 'ar' ? 'en' : 'ar';
@@ -188,6 +192,25 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                     )}
                 </Box>
             </Container>
+
+            {/* Mobile TOC Drawer */}
+            <Fab
+                color="primary"
+                aria-label="table of contents"
+                sx={{ position: 'fixed', bottom: 16, ...(isArabic ? { left: 16 } : { right: 16 }), display: { xs: 'flex', md: 'none' } }}
+                onClick={() => setDrawerOpen(true)}
+            >
+                <MenuBookIcon />
+            </Fab>
+            <Drawer
+                anchor={isArabic ? 'left' : 'right'}
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+            >
+                <Box sx={{ width: 280, p: 2 }}>
+                    <TableOfContents contentId="article-content" dir={dir} />
+                </Box>
+            </Drawer>
         </>
     );
 };
