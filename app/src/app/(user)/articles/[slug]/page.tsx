@@ -7,6 +7,11 @@ export const revalidate = 60
 
 export const dynamicParams = true
 
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+};
+
 export async function generateStaticParams() {
     const { articles } = await getAllArticles();
     if (!articles) return [];
@@ -48,7 +53,7 @@ export async function generateMetadata({
         description,
         keywords: keywords || 'blog, articles, insights',
         robots: 'index, follow',
-        viewport: 'width=device-width, initial-scale=1.0',
+        // viewport moved to top-level `export const viewport` per Next.js guidance
         alternates: {
             canonical: `https://www.rashadataf.com/articles/${slug}?lang=${lang}`,
         },
