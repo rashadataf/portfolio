@@ -295,11 +295,14 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
     const handleExportMarkdown = (content: JSONContent | undefined, lang: 'en' | 'ar') => {
         if (!content) return;
         const markdown = jsonToMarkdown(content);
+        // Create a more descriptive filename using the title
+        const titleSlug = lang === 'en' ? (titleEn || 'untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase() : (titleAr || 'untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const filename = `${titleSlug}_${lang}.md`;
         const blob = new Blob([markdown], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `article_${lang}.md`;
+        a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
     };

@@ -35,6 +35,7 @@
     "novel": "^0.2.13",
     "pg": "^8.13.1",
     "prosemirror-markdown": "^1.13.2",
+    "prosemirror-model": "^1.25.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "sharp": "^0.33.5",
