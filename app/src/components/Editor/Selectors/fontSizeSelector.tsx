@@ -1,9 +1,9 @@
-import React from 'react';
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { useEditor } from "novel";
 import * as Popover from "@radix-ui/react-popover";
 import Button from '@mui/material/Button';
 import { ChevronDown } from "lucide-react";
+import { useSafeState } from "@/hooks/useSafeState.hook";
 
 const FONT_OPTIONS = [
   { label: 'Small', value: '0.8rem' },
@@ -14,12 +14,15 @@ const FONT_OPTIONS = [
 
 export const FontSizeSelector = ({ onOpenChange }: { onOpenChange: (o: boolean) => void }) => {
   const { editor } = useEditor();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useSafeState(false);
 
-  const handleOpenChange = useCallback((o: boolean) => {
-    setOpen(o);
-    onOpenChange(o);
-  }, [onOpenChange]);
+  const handleOpenChange = useCallback(
+    (o: boolean) => {
+      setOpen(o);
+      onOpenChange(o);
+    },
+    [onOpenChange, setOpen]
+  );
 
   useEffect(() => {
     if (open && process.env.NODE_ENV !== 'production') {

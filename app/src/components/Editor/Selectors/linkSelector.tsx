@@ -1,7 +1,6 @@
 import {
   useEffect,
   useRef,
-  useState,
   useCallback
 } from "react";
 import { useEditor } from "novel";
@@ -9,6 +8,7 @@ import { Check, Trash } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { useSafeState } from "@/hooks/useSafeState.hook";
 
 export function isValidUrl(url: string) {
   try {
@@ -38,12 +38,15 @@ interface LinkSelectorProps {
 export const LinkSelector = ({ onOpenChange }: LinkSelectorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { editor } = useEditor();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useSafeState(false);
 
-  const handleOpenChange = useCallback((o: boolean) => {
-    setOpen(o);
-    onOpenChange(o);
-  }, [onOpenChange]);
+  const handleOpenChange = useCallback(
+    (o: boolean) => {
+      setOpen(o);
+      onOpenChange(o);
+    },
+    [onOpenChange, setOpen]
+  );
 
   useEffect(() => { if (inputRef.current) { inputRef.current?.focus(); } }, [open]);
 

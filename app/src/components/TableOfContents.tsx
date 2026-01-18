@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
@@ -11,6 +11,7 @@ import Collapse from '@mui/material/Collapse';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import { useSafeState } from "@/hooks/useSafeState.hook";
 
 type TOCItem = {
     id: string;
@@ -34,9 +35,9 @@ interface Props {
 }
 
 export const TableOfContents = ({ contentId = 'article-content', dir = 'ltr' }: Props) => {
-    const [items, setItems] = useState<TOCItem[]>([]);
-    const [open, setOpen] = useState(true);
-    const [activeId, setActiveId] = useState<string | null>(null);
+    const [items, setItems] = useSafeState<TOCItem[]>([]);
+    const [open, setOpen] = useSafeState(true);
+    const [activeId, setActiveId] = useSafeState<string | null>(null);
     const observerRef = useRef<IntersectionObserver | null>(null);
     const rafRef = useRef<number | null>(null);
     const itemsRef = useRef<TOCItem[]>([]);
@@ -207,7 +208,7 @@ export const TableOfContents = ({ contentId = 'article-content', dir = 'ltr' }: 
             }
             window.removeEventListener('scroll', onScroll);
         };
-    }, [activeId, contentId]);
+    }, [activeId, contentId, setActiveId, setItems]);
 
     const handleGoto = (id: string) => {
         const el = document.getElementById(id);
