@@ -149,7 +149,7 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                     {isArabic ? (
                         <>
                             <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
-                                <TableOfContents contentId="article-content" />
+                                <TableOfContents contentId="article-content" dir={dir} />
                             </Box>
                             <Box component="main" sx={{ flex: 1 }}>
                                 <Box
@@ -182,7 +182,7 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                             </Box>
 
                             <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
-                                <TableOfContents contentId="article-content" />
+                                <TableOfContents contentId="article-content" dir={dir} />
                             </Box>
                         </>
                     )}

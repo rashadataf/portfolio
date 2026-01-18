@@ -22,16 +22,18 @@ function slugify(s: string) {
     return s
         .toLowerCase()
         .trim()
-        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/[^a-z0-9\s\-\u0600-\u06FF]/g, "") // Keep Arabic letters
         .replace(/\s+/g, "-")
-        .replace(/-+/g, "-");
+        .replace(/-+/g, "-")
+        .replace(/^-+|-+$/g, ""); // Remove leading/trailing dashes
 }
 
 interface Props {
     contentId?: string; // DOM id of the container to scan for headings
+    dir?: 'ltr' | 'rtl';
 }
 
-export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
+export const TableOfContents = ({ contentId = 'article-content', dir = 'ltr' }: Props) => {
     const [items, setItems] = useState<TOCItem[]>([]);
     const [open, setOpen] = useState(true);
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -57,10 +59,18 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
             const headingElems = Array.from(nodeList) as HTMLElement[];
             if (!headingElems.length) return false;
 
+            const usedIds = new Set<string>();
             const toc: TOCItem[] = headingElems.map((h) => {
                 const rawText = (h.innerText || h.textContent || '').toString().trim();
                 if (!h.id) {
-                    h.id = slugify(rawText || 'heading');
+                    const base = slugify(rawText || 'heading');
+                    let id = base;
+                    let i = 1;
+                    while (usedIds.has(id)) {
+                        id = `${base}-${i++}`;
+                    }
+                    usedIds.add(id);
+                    h.id = id;
                 }
 
                 let level = 1;
@@ -219,10 +229,8 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
 
         // Check if scroll happened after a delay
         const initialScrollY = window.scrollY;
-        console.log(`TOC.goto initial scroll: ${initialScrollY} for ${id}`);
         setTimeout(() => {
             const currentScrollY = window.scrollY;
-            console.log(`TOC.goto after scrollIntoView: ${currentScrollY} for ${id}, moved: ${Math.abs(currentScrollY - initialScrollY)}`);
             if (Math.abs(currentScrollY - initialScrollY) < 5) { // Lower threshold
                 // Scroll didn't move, fallback to manual scroll
                 const rect = el.getBoundingClientRect();
@@ -230,7 +238,6 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
                 const targetY = elementCenterY - window.innerHeight / 2;
                 const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
                 const clampedY = Math.max(0, Math.min(targetY, maxScroll));
-                console.log(`TOC.goto manual target: ${targetY}, clamped: ${clampedY} for ${id}`);
 
                 window.scrollTo({ top: clampedY, behavior: 'smooth' });
             }
@@ -252,10 +259,10 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
     if (!items.length) return null;
 
     return (
-        <Box sx={{ width: { xs: '100%', md: 280 }, position: { md: 'sticky' }, top: { md: 120 }, alignSelf: 'flex-start' }}>
+        <Box sx={{ width: { xs: '100%', md: 280 }, position: { md: 'sticky' }, top: { md: 120 }, alignSelf: 'flex-start' }} dir={dir}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                 <MenuBookIcon sx={{ color: 'text.secondary' }} />
-                <Box sx={{ fontWeight: 600 }}>On this page</Box>
+                <Box sx={{ fontWeight: 600 }}>{dir === 'rtl' ? "في هذه الصفحة" : "On this page"}</Box>
                 <Box sx={{ flex: 1 }} />
                 <IconButton size="small" onClick={() => setOpen((v) => !v)} aria-label="toggle table of contents">
                     {open ? <ExpandLess /> : <ExpandMore />}
