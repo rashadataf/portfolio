@@ -163,6 +163,13 @@ const turndownService = new TurndownService({
 export let lastListItemLog = '';
 export let lastImportLog = '';
 
+turndownService.addRule('paragraph', {
+  filter: 'p',
+  replacement: function (content: string) {
+    return content;
+  }
+});
+
 turndownService.addRule('listItem', {
   filter: 'li',
   replacement: function (content: string, node: Element, options: { bulletListMarker?: string }) {
@@ -242,7 +249,7 @@ turndownService.addRule('listItem', {
       } catch { }
     }
 
-    return indent + prefix + content;
+    return indent + prefix + content + '\n';
   }
 });
 
