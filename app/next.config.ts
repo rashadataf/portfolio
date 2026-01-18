@@ -50,6 +50,11 @@ const nextConfig: NextConfig = {
     // (logs showed images requesting 60, 75 and 85)
     qualities: [60, 75, 85],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
 };
 
 export default nextConfig;

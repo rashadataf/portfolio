@@ -14,7 +14,10 @@ import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 import Fab from '@mui/material/Fab';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import Share from '@mui/icons-material/Share';
+import Divider from '@mui/material/Divider';
 import TableOfContents from '@/components/TableOfContents';
+import '@/app/prosemirror.css';
 
 type Props = {
     article: Article;
@@ -97,6 +100,13 @@ export const ArticleDetails = ({ article, lang }: Props) => {
         // only re-run if the article changes
     }, [article.id, maxScrollDepth, setMaxScrollDepth, setProgress]);
 
+    useEffect(() => {
+        const content = document.getElementById('article-content');
+        if (content) {
+            content.classList.add('fade-in');
+        }
+    }, []);
+
     const handleInteraction = () => {
         markInteraction();
     };
@@ -110,7 +120,7 @@ export const ArticleDetails = ({ article, lang }: Props) => {
             <Container
                 id={`article-${article.id}`}
                 maxWidth="lg"
-                sx={{ py: 10, px: { xs: 6, md: 10, xl: 12 }, lineHeight: 'relaxed' }}
+                sx={{ py: { xs: 4, md: 10 }, px: { xs: 2, md: 10, xl: 12 }, lineHeight: 'relaxed' }}
                 onClick={handleInteraction}
                 onScroll={handleInteraction}
             >
@@ -121,75 +131,87 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                     <Button variant="outlined" size="small" onClick={handleApplaud} sx={{ ml: 'auto' }}>
                         👏 {applauseCount}
                     </Button>
-                </Box>
-                {article.coverImage && (
-                    <Box sx={{ position: 'relative', mb: 10, width: '100%', height: '50vh', borderRadius: 2, overflow: 'hidden' }}>
-                        <Image
-                            src={article.coverImage}
-                            alt={isArabic ? article.titleAr : article.titleEn}
-                            fill
-                            sizes="(max-width:599px) 100vw, (max-width:1199px) 720px, 1200px"
-                            style={{ objectFit: 'cover' }}
-                            priority
-                        />
-                    </Box>
-                )}
-
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 6, gap: 4 }} dir={dir}>
-                    <Typography variant="h1" sx={{ fontWeight: 'extrabold', lineHeight: 'tight', letterSpacing: 'tight', color: 'text.primary' }}>
-                        {isArabic ? article.titleAr : article.titleEn}
-                    </Typography>
-                    <Typography variant="h6" sx={{ color: 'text.secondary' }}>By {article.author}</Typography>
-                    <Button
-                        onClick={handleLanguageToggle}
-                        variant="contained"
-                        sx={{ px: 5, py: 2 }}
-                    >
-                        {isArabic ? "View in English" : "عرض باللغة العربية"}
+                    <Button variant="outlined" size="small" onClick={() => navigator.share({ title: article.titleEn, url: window.location.href })} sx={{ ml: 1 }}>
+                        <Share /> Share
                     </Button>
                 </Box>
-
-                <Box sx={{ display: 'flex', gap: 6 }}>
-                    {isArabic ? (
-                        <>
-                            <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
-                                <TableOfContents contentId="article-content" dir={dir} />
-                            </Box>
-                            <Box component="main" sx={{ flex: 1 }}>
-                                <Box
-                                    id="article-content"
-                                    sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
-                                    dir={dir}
-                                >
-                                    <Viewer
-                                        key={lang}
-                                        initialValue={isArabic ? article.contentAr : article.contentEn}
-                                        dir={dir}
-                                    />
-                                </Box>
-                            </Box>
-                        </>
-                    ) : (
-                        <>
-                            <Box component="main" sx={{ flex: 1 }}>
-                                <Box
-                                    id="article-content"
-                                    sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
-                                    dir={dir}
-                                >
-                                    <Viewer
-                                        key={lang}
-                                        initialValue={isArabic ? article.contentAr : article.contentEn}
-                                        dir={dir}
-                                    />
-                                </Box>
-                            </Box>
-
-                            <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
-                                <TableOfContents contentId="article-content" dir={dir} />
-                            </Box>
-                        </>
+                {/* Add ARIA for screen readers */}
+                <Box component="main" role="main" aria-labelledby="article-title">
+                    {article.coverImage && (
+                        <Box sx={{ position: 'relative', mb: 10, width: '100%', height: '50vh', borderRadius: 2, overflow: 'hidden' }}>
+                            <Image
+                                src={article.coverImage}
+                                alt={isArabic ? article.titleAr : article.titleEn}
+                                fill
+                                sizes="(max-width:599px) 100vw, (max-width:1199px) 720px, 1200px"
+                                style={{ objectFit: 'cover' }}
+                                priority
+                            />
+                        </Box>
                     )}
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 6, gap: 4 }} dir={dir}>
+                        <Typography id="article-title" variant="h1" sx={{ fontWeight: 'extrabold', lineHeight: 'tight', letterSpacing: 'tight', color: 'text.primary' }}>
+                            {isArabic ? article.titleAr : article.titleEn}
+                        </Typography>
+                        <Typography variant="h6" sx={{ color: 'text.secondary' }}>By {article.author}</Typography>
+                        <Button
+                            onClick={handleLanguageToggle}
+                            variant="contained"
+                            sx={{ px: 5, py: 2 }}
+                        >
+                            {isArabic ? "View in English" : "عرض باللغة العربية"}
+                        </Button>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', gap: 6 }}>
+                        {isArabic ? (
+                            <>
+                                <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
+                                    <TableOfContents contentId="article-content" dir={dir} />
+                                </Box>
+                                <Box component="main" sx={{ flex: 1 }}>
+                                    <Box
+                                        id="article-content"
+                                        sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
+                                        dir={dir}
+                                    >
+                                        <Viewer
+                                            key={lang}
+                                            initialValue={isArabic ? article.contentAr : article.contentEn}
+                                            dir={dir}
+                                        />
+                                    </Box>
+                                </Box>
+                            </>
+                        ) : (
+                            <>
+                                <Box component="main" sx={{ flex: 1 }}>
+                                    <Box
+                                        id="article-content"
+                                        sx={{ textAlign: isArabic ? 'right' : 'left', fontSize: '1.125rem', lineHeight: 1.8 }}
+                                        dir={dir}
+                                    >
+                                        <Viewer
+                                            key={lang}
+                                            initialValue={isArabic ? article.contentAr : article.contentEn}
+                                            dir={dir}
+                                        />
+                                    </Box>
+                                </Box>
+
+                                <Box sx={{ display: { xs: 'none', md: 'block' }, width: 280 }}>
+                                    <TableOfContents contentId="article-content" dir={dir} />
+                                </Box>
+                            </>
+                        )}
+                    </Box>
+                    <Divider sx={{ my: 4 }} />
+                    <Box sx={{ mt: 4 }}>
+                        <Typography variant="h6">Comments</Typography>
+                        {/* Placeholder for comment system */}
+                        <div id="comments">Comments coming soon...</div>
+                    </Box>
                 </Box>
             </Container>
 

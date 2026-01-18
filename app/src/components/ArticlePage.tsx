@@ -7,8 +7,9 @@ import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus, SaveStatus } from '@/types';
-import { createArticle, getArticleById, updateArticle, uploadImage } from '@/modules/article/article.controller';
+import { jsonToMarkdown, markdownToJson } from "@/lib/markdown";
 import { CreateArticleDTO } from '@/modules/article/article.dto';
+import { createArticle, getArticleById, updateArticle, uploadImage } from '@/modules/article/article.controller';
 import { Loader } from '@/components//Loader';
 import PublishCelebration from '@/components/PublishCelebration';
 import TextField from '@mui/material/TextField';
@@ -108,6 +109,8 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
     const [isUploadingCover, setIsUploadingCover] = useSafeState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const importEnRef = useRef<HTMLInputElement>(null);
+    const importArRef = useRef<HTMLInputElement>(null);
 
     interface UploadResponse { url?: string; status?: number; message?: string }
 
@@ -289,6 +292,42 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [titleEn, titleAr, author, keywordsEn, keywordsAr, descriptionEn, descriptionAr, contentEn, contentAr, textEn, textAr, coverImageUrl]);
 
+    const handleExportMarkdown = (content: JSONContent | undefined, lang: 'en' | 'ar') => {
+        if (!content) return;
+        const markdown = jsonToMarkdown(content);
+        const blob = new Blob([markdown], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `article_${lang}.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImportMarkdown = (event: React.ChangeEvent<HTMLInputElement>, lang: 'en' | 'ar') => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const markdown = e.target?.result as string;
+            console.log('Importing markdown for', lang, markdown.substring(0, 100));
+            const json = markdownToJson(markdown);
+            console.log('Converted to JSON:', json);
+            if (lang === 'en') {
+                setContentEn(json);
+                setEnEditorKey(`${Date.now()}_en`);
+                if (importEnRef.current) importEnRef.current.value = '';
+            } else {
+                setContentAr(json);
+                setArEditorKey(`${Date.now()}_ar`);
+                if (importArRef.current) importArRef.current.value = '';
+            }
+        };
+        reader.onerror = () => {
+            console.error('Error reading file');
+        };
+        reader.readAsText(file, 'UTF-8');
+    };
 
     return (
         <Container id="new-article" aria-labelledby="new-article-header" maxWidth="md" sx={{ py: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -373,24 +412,76 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 )}
                 {
                     articleId && (
-                        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                        <Box sx={{ display: 'flex', gap: 2, mt: 4, flexWrap: 'wrap' }}>
                             <Button variant="outlined" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(false)}>
                                 {loading ? 'Updating...' : (isUploadingCover ? 'Uploading image...' : 'Save as Draft')}
                             </Button>
                             <Button variant="contained" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(true)}>
                                 {loading ? 'Updating...' : (isUploadingCover ? 'Uploading image...' : 'Publish')}
                             </Button>
+                            <Button variant="text" onClick={() => handleExportMarkdown(contentEn, 'en')}>
+                                Export EN Markdown
+                            </Button>
+                            <Button variant="text" onClick={() => handleExportMarkdown(contentAr, 'ar')}>
+                                Export AR Markdown
+                            </Button>
+                            <Button variant="text" component="label">
+                                Import EN Markdown
+                                <input
+                                    ref={importEnRef}
+                                    type="file"
+                                    accept=".md"
+                                    hidden
+                                    onChange={(e) => handleImportMarkdown(e, 'en')}
+                                />
+                            </Button>
+                            <Button variant="text" component="label">
+                                Import AR Markdown
+                                <input
+                                    ref={importArRef}
+                                    type="file"
+                                    accept=".md"
+                                    hidden
+                                    onChange={(e) => handleImportMarkdown(e, 'ar')}
+                                />
+                            </Button>
                         </Box>
                     )
                 }
                 {
                     !articleId && (
-                        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                        <Box sx={{ display: 'flex', gap: 2, mt: 4, flexWrap: 'wrap' }}>
                             <Button variant="outlined" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(false)}>
                                 {loading ? 'Saving...' : (isUploadingCover ? 'Uploading image...' : 'Save as Draft')}
                             </Button>
                             <Button variant="contained" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(true)}>
                                 {loading ? 'Publishing...' : (isUploadingCover ? 'Uploading image...' : 'Publish')}
+                            </Button>
+                            <Button variant="text" onClick={() => handleExportMarkdown(contentEn, 'en')}>
+                                Export EN Markdown
+                            </Button>
+                            <Button variant="text" onClick={() => handleExportMarkdown(contentAr, 'ar')}>
+                                Export AR Markdown
+                            </Button>
+                            <Button variant="text" component="label">
+                                Import EN Markdown
+                                <input
+                                    ref={importEnRef}
+                                    type="file"
+                                    accept=".md"
+                                    hidden
+                                    onChange={(e) => handleImportMarkdown(e, 'en')}
+                                />
+                            </Button>
+                            <Button variant="text" component="label">
+                                Import AR Markdown
+                                <input
+                                    ref={importArRef}
+                                    type="file"
+                                    accept=".md"
+                                    hidden
+                                    onChange={(e) => handleImportMarkdown(e, 'ar')}
+                                />
                             </Button>
                         </Box>
                     )
