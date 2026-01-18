@@ -43,41 +43,7 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
     const headingsRef = useRef<HTMLElement[]>([]);
     const scrollRafRef = useRef<number | null>(null);
     const manualScrollTimeoutRef = useRef<number | null>(null);
-
-    // compute and set active heading based on center-distance logic
-    const updateActiveFromScroll = () => {
-        const hs = headingsRef.current;
-        if (!hs || !hs.length) return;
-
-        const viewportCenterY = window.innerHeight / 2;
-        let bestId: string | null = null;
-        let bestDistance = Number.POSITIVE_INFINITY;
-
-        for (let i = 0; i < hs.length; i++) {
-            const rect = hs[i].getBoundingClientRect();
-            const elemCenter = rect.top + rect.height / 2;
-            const distance = Math.abs(elemCenter - viewportCenterY);
-
-            if (distance < bestDistance) {
-                bestDistance = distance;
-                bestId = hs[i].id;
-            }
-        }
-
-        // If at bottom (within 50px), prefer the last heading
-        const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
-        if (atBottom) {
-            const last = hs[hs.length - 1];
-            if (last) {
-                if (bestId !== last.id) setActiveId(last.id);
-                return;
-            }
-        }
-
-        if (bestId && bestId !== activeId) {
-            setActiveId(bestId);
-        }
-    };
+    const manualScrollingRef = useRef<boolean>(false);
 
     useEffect(() => {
         const root = document.getElementById(contentId);
@@ -162,10 +128,15 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
 
         // Scroll-based detection: choose heading whose center is closest to viewport center
         const updateActiveFromScroll = () => {
+            if (manualScrollingRef.current) return;
+
             const hs = headingsRef.current;
             if (!hs || !hs.length) return;
 
-            const viewportCenterY = window.innerHeight / 2;
+            const stickyHeaderHeight = 120; // Adjust based on your header height
+            const visibleStart = stickyHeaderHeight;
+            const visibleHeight = window.innerHeight - stickyHeaderHeight;
+            const viewportCenterY = visibleStart + visibleHeight / 2;
             let bestId: string | null = null;
             let bestDistance = Number.POSITIVE_INFINITY;
 
@@ -232,6 +203,8 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
         const el = document.getElementById(id);
         if (!el) return;
 
+        manualScrollingRef.current = true;
+
         // Immediately mark as active for instant feedback
         setActiveId(id);
 
@@ -241,14 +214,39 @@ export const TableOfContents = ({ contentId = 'article-content' }: Props) => {
             manualScrollTimeoutRef.current = null;
         }
 
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Try scrollIntoView first with center block for better visibility
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
 
-        // Re-evaluate after smooth scroll completes (approximate)
-        manualScrollTimeoutRef.current = window.setTimeout(() => {
-            // Recompute and set active based on final position
-            updateActiveFromScroll();
+        // Check if scroll happened after a delay
+        const initialScrollY = window.scrollY;
+        console.log(`TOC.goto initial scroll: ${initialScrollY} for ${id}`);
+        setTimeout(() => {
+            const currentScrollY = window.scrollY;
+            console.log(`TOC.goto after scrollIntoView: ${currentScrollY} for ${id}, moved: ${Math.abs(currentScrollY - initialScrollY)}`);
+            if (Math.abs(currentScrollY - initialScrollY) < 5) { // Lower threshold
+                // Scroll didn't move, fallback to manual scroll
+                const rect = el.getBoundingClientRect();
+                const elementCenterY = rect.top + rect.height / 2 + window.scrollY;
+                const targetY = elementCenterY - window.innerHeight / 2;
+                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                const clampedY = Math.max(0, Math.min(targetY, maxScroll));
+                console.log(`TOC.goto manual target: ${targetY}, clamped: ${clampedY} for ${id}`);
+
+                window.scrollTo({ top: clampedY, behavior: 'smooth' });
+            }
+
+            // Update hash safely
+            if (window.history.replaceState) {
+                window.history.replaceState(null, '', `#${id}`);
+            } else {
+                window.location.hash = id;
+            }
+
+            // Re-evaluate active heading - removed to let scroll event handle it
+            // updateActiveFromScroll();
+            manualScrollingRef.current = false;
             manualScrollTimeoutRef.current = null;
-        }, 600);
+        }, 1000); // Increased timeout
     };
 
     if (!items.length) return null;
