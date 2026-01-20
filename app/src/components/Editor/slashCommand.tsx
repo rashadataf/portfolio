@@ -9,12 +9,16 @@ import {
   ListOrdered,
   Text,
   TextQuote,
+  FileText,
+  Download,
 } from "lucide-react";
 import { createSuggestionItems } from "novel/extensions";
 import { Command, renderItems } from "novel/extensions";
 import { uploadFn } from "@/components/Editor/imageUpload";
+import { JSONContent } from "novel";
 
-export const suggestionItems = createSuggestionItems([
+export const createSlashCommand = (onImportMarkdown?: () => void, onExportMarkdown?: (content: JSONContent) => void) => {
+  const suggestionItems = createSuggestionItems([
   {
     title: "Text",
     description: "Just start typing with plain text.",
@@ -140,11 +144,42 @@ export const suggestionItems = createSuggestionItems([
       input.click();
     },
   },
+  {
+    title: "Import Markdown",
+    description: "Import content from a Markdown file.",
+    searchTerms: ["import", "markdown", "md", "file"],
+    icon: <FileText size={18} />,
+    command: ({ editor, range }) => {
+      editor.view.dispatch(editor.view.state.tr.deleteRange(range.from, range.to));
+      if (onImportMarkdown) {
+        onImportMarkdown();
+      }
+    },
+  },
+  {
+    title: "Export Markdown",
+    description: "Export content to a Markdown file.",
+    searchTerms: ["export", "markdown", "md", "download"],
+    icon: <Download size={18} />,
+    command: ({ editor, range }) => {
+      console.log('Export command called, range:', range);
+      console.log('Content before delete:', editor.view.state.doc.textContent);
+      editor.view.dispatch(editor.view.state.tr.deleteRange(range.from, range.to));
+      console.log('Content after delete:', editor.view.state.doc.textContent);
+      console.log('JSON after delete:', editor.getJSON());
+      if (onExportMarkdown) {
+        onExportMarkdown(editor.getJSON());
+      }
+    },
+  },
 ]);
 
-export const slashCommand = Command.configure({
-  suggestion: {
-    items: () => suggestionItems,
-    render: renderItems,
-  },
-});
+  const slashCommand = Command.configure({
+    suggestion: {
+      items: () => suggestionItems,
+      render: renderItems,
+    },
+  });
+
+  return { slashCommand, suggestionItems };
+};

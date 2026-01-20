@@ -165,16 +165,21 @@ export let lastImportLog = '';
 
 turndownService.addRule('paragraph', {
   filter: 'p',
-  replacement: function (content: string) {
-    return content;
+  replacement: function (content: string, node: Element) {
+    const parent = node.parentNode;
+    if (parent && parent.nodeName === 'LI') {
+      return content;
+    } else {
+      return '\n\n' + content + '\n\n';
+    }
   }
 });
 
 turndownService.addRule('listItem', {
   filter: 'li',
   replacement: function (content: string, node: Element, options: { bulletListMarker?: string }) {
-    // Keep a single leading newline (so nested lists remain on their own lines) and normalize trailing newlines
-    content = content.replace(/^\n+/, '\n').replace(/\n+$/, '\n');
+    // Remove leading and trailing newlines to avoid extra blank lines
+    content = content.replace(/^\n+/, '').replace(/\n+$/, '');
 
     // Calculate indentation based on nesting level (case-insensitive checks)
     let depth = 0;
@@ -250,6 +255,18 @@ turndownService.addRule('listItem', {
     }
 
     return indent + prefix + content + '\n';
+  }
+});
+
+turndownService.addRule('ul', {
+  filter: 'ul',
+  replacement: function (content: string, node: Element) {
+    const parent = node.parentNode;
+    if (parent && parent.nodeName === 'LI') {
+      return '\n' + content;
+    } else {
+      return '\n\n' + content + '\n\n';
+    }
   }
 });
 
@@ -385,7 +402,7 @@ export function markdownToJson(markdown: string): JSONContent {
     for (const char of leading) {
       spaces += char === '\t' ? 4 : 1;
     }
-    return spaces > 0 ? 1 : 0;
+    return Math.floor(spaces / 2);
   }
 
   const parseListItem = (line: string, _indent: number): { type: 'bullet' | 'ordered'; text: string; start?: number } | null => {

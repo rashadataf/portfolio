@@ -109,8 +109,6 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
     const [isUploadingCover, setIsUploadingCover] = useSafeState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const importEnRef = useRef<HTMLInputElement>(null);
-    const importArRef = useRef<HTMLInputElement>(null);
 
     interface UploadResponse { url?: string; status?: number; message?: string }
 
@@ -294,7 +292,7 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
 
     const handleExportMarkdown = (content: JSONContent | undefined, lang: 'en' | 'ar') => {
         if (!content) return;
-        const markdown = jsonToMarkdown(content);
+        const markdown = jsonToMarkdown(content).replace(/\/$/, '');
         // Create a more descriptive filename using the title
         const titleSlug = lang === 'en' ? (titleEn || 'untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase() : (titleAr || 'untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
         const filename = `${titleSlug}_${lang}.md`;
@@ -307,29 +305,60 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
         URL.revokeObjectURL(url);
     };
 
-    const handleImportMarkdown = (event: React.ChangeEvent<HTMLInputElement>, lang: 'en' | 'ar') => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const markdown = e.target?.result as string;
-            console.log('Importing markdown for', lang, markdown.substring(0, 100));
-            const json = markdownToJson(markdown);
-            console.log('Converted to JSON:', json);
-            if (lang === 'en') {
+    const handleImportMarkdownEN = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.md';
+        input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const markdown = event.target?.result as string;
+                console.log('Importing markdown for EN', markdown.substring(0, 100));
+                const json = markdownToJson(markdown);
+                console.log('Converted to JSON:', json);
                 setContentEn(json);
                 setEnEditorKey(`${Date.now()}_en`);
-                if (importEnRef.current) importEnRef.current.value = '';
-            } else {
+            };
+            reader.onerror = () => {
+                console.error('Error reading file');
+            };
+            reader.readAsText(file, 'UTF-8');
+        };
+        input.click();
+    };
+
+    const handleImportMarkdownAR = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.md';
+        input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const markdown = event.target?.result as string;
+                console.log('Importing markdown for AR', markdown.substring(0, 100));
+                const json = markdownToJson(markdown);
+                console.log('Converted to JSON:', json);
                 setContentAr(json);
                 setArEditorKey(`${Date.now()}_ar`);
-                if (importArRef.current) importArRef.current.value = '';
-            }
+            };
+            reader.onerror = () => {
+                console.error('Error reading file');
+            };
+            reader.readAsText(file, 'UTF-8');
         };
-        reader.onerror = () => {
-            console.error('Error reading file');
-        };
-        reader.readAsText(file, 'UTF-8');
+        input.click();
+    };
+
+    const handleExportMarkdownEN = (content: JSONContent) => {
+        handleExportMarkdown(content, 'en');
+    };
+
+    const handleExportMarkdownAR = (content: JSONContent) => {
+        handleExportMarkdown(content, 'ar');
     };
 
     return (
@@ -393,11 +422,11 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 }
                 <Box sx={{ border: 1, borderRadius: 1, bgcolor: 'background.paper', borderColor: 'divider' }}>
                     <Typography variant="h6" sx={{ fontWeight: 'semibold', borderBottom: 2, borderColor: 'divider', p: 4, bgcolor: 'background.default' }}>Content (English)</Typography>
-                    <Editor key={'en'} editorKey={enEditorKey} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} />
+                    <Editor key={'en'} editorKey={enEditorKey} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} onImportMarkdown={handleImportMarkdownEN} onExportMarkdown={handleExportMarkdownEN} />
                 </Box>
                 <Box sx={{ border: 1, borderRadius: 1, bgcolor: 'background.paper', borderColor: 'divider' }}>
                     <Typography variant="h6" sx={{ fontWeight: 'semibold', borderBottom: 2, borderColor: 'divider', p: 4, bgcolor: 'background.default' }}>Content (Arabic)</Typography>
-                    <Editor key={'ar'} editorKey={arEditorKey} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
+                    <Editor key={'ar'} editorKey={arEditorKey} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} onImportMarkdown={handleImportMarkdownAR} onExportMarkdown={handleExportMarkdownAR} />
                 </Box>
 
                 {/* Publish celebration modal */}
@@ -422,32 +451,6 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                             <Button variant="contained" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(true)}>
                                 {loading ? 'Updating...' : (isUploadingCover ? 'Uploading image...' : 'Publish')}
                             </Button>
-                            <Button variant="text" onClick={() => handleExportMarkdown(contentEn, 'en')}>
-                                Export EN Markdown
-                            </Button>
-                            <Button variant="text" onClick={() => handleExportMarkdown(contentAr, 'ar')}>
-                                Export AR Markdown
-                            </Button>
-                            <Button variant="text" component="label">
-                                Import EN Markdown
-                                <input
-                                    ref={importEnRef}
-                                    type="file"
-                                    accept=".md"
-                                    hidden
-                                    onChange={(e) => handleImportMarkdown(e, 'en')}
-                                />
-                            </Button>
-                            <Button variant="text" component="label">
-                                Import AR Markdown
-                                <input
-                                    ref={importArRef}
-                                    type="file"
-                                    accept=".md"
-                                    hidden
-                                    onChange={(e) => handleImportMarkdown(e, 'ar')}
-                                />
-                            </Button>
                         </Box>
                     )
                 }
@@ -459,32 +462,6 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                             </Button>
                             <Button variant="contained" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(true)}>
                                 {loading ? 'Publishing...' : (isUploadingCover ? 'Uploading image...' : 'Publish')}
-                            </Button>
-                            <Button variant="text" onClick={() => handleExportMarkdown(contentEn, 'en')}>
-                                Export EN Markdown
-                            </Button>
-                            <Button variant="text" onClick={() => handleExportMarkdown(contentAr, 'ar')}>
-                                Export AR Markdown
-                            </Button>
-                            <Button variant="text" component="label">
-                                Import EN Markdown
-                                <input
-                                    ref={importEnRef}
-                                    type="file"
-                                    accept=".md"
-                                    hidden
-                                    onChange={(e) => handleImportMarkdown(e, 'en')}
-                                />
-                            </Button>
-                            <Button variant="text" component="label">
-                                Import AR Markdown
-                                <input
-                                    ref={importArRef}
-                                    type="file"
-                                    accept=".md"
-                                    hidden
-                                    onChange={(e) => handleImportMarkdown(e, 'ar')}
-                                />
                             </Button>
                         </Box>
                     )
