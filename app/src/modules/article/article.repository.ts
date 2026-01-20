@@ -39,7 +39,7 @@ export class ArticleRepository {
             }
             return null;
         } catch (error) {
-            console.error('Error querying article by slugs:', error);
+            console.error('Error in findArticleBySlug:', error);
             throw error;
         }
     }

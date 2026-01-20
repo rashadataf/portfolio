@@ -7,8 +7,9 @@ import dynamic from 'next/dynamic';
 import { JSONContent } from "novel";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { ArticleStatus, SaveStatus } from '@/types';
-import { createArticle, getArticleById, updateArticle, uploadImage } from '@/modules/article/article.controller';
+import { jsonToMarkdown, markdownToJson } from "@/lib/markdown";
 import { CreateArticleDTO } from '@/modules/article/article.dto';
+import { createArticle, getArticleById, updateArticle, uploadImage } from '@/modules/article/article.controller';
 import { Loader } from '@/components//Loader';
 import PublishCelebration from '@/components/PublishCelebration';
 import TextField from '@mui/material/TextField';
@@ -67,6 +68,26 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
     const [enEditorKey, setEnEditorKey] = useSafeState('en');
     const [arEditorKey, setArEditorKey] = useSafeState('ar');
 
+    // Track if article is published and if user has modified it
+    const [isPublished, setIsPublished] = useSafeState(false);
+    const [hasModified, setHasModified] = useSafeState(false);
+
+    // Store initial values for comparison
+    const initialValuesRef = useRef({
+        titleEn: '',
+        titleAr: '',
+        author: '',
+        keywordsEn: '',
+        keywordsAr: '',
+        descriptionEn: '',
+        descriptionAr: '',
+        contentEn: undefined as JSONContent | undefined,
+        contentAr: undefined as JSONContent | undefined,
+        textEn: '',
+        textAr: '',
+        coverImageUrl: '',
+    });
+
     // Autosave state
     const [currentArticleId, setCurrentArticleId] = useSafeState<string | null>(articleId || null);
     const [saveStatus, setSaveStatus] = useSafeState<SaveStatus>(SaveStatus.IDLE);
@@ -89,11 +110,27 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                         setKeywordsAr(article.keywordsAr?.join(", ") || "");
                         setContentEn(article.contentEn || null);
                         setContentAr(article.contentAr || null);
-                        setCoverImageUrl(article.coverImage);
+                        setCoverImageUrl(article.coverImage || '');
                         setDescriptionEn(article.descriptionEn || "");
                         setDescriptionAr(article.descriptionAr || "");
                         setEnEditorKey(`${articleId}_en`);
                         setArEditorKey(`${articleId}_ar`);
+                        setIsPublished(article.status === ArticleStatus.PUBLISHED);
+                        // Set initial values for comparison
+                        initialValuesRef.current = {
+                            titleEn: article.titleEn || "",
+                            titleAr: article.titleAr || "",
+                            author: article.author || "",
+                            keywordsEn: article.keywordsEn?.join(", ") || "",
+                            keywordsAr: article.keywordsAr?.join(", ") || "",
+                            descriptionEn: article.descriptionEn || "",
+                            descriptionAr: article.descriptionAr || "",
+                            contentEn: article.contentEn || undefined,
+                            contentAr: article.contentAr || undefined,
+                            textEn: '', // Will be set from content
+                            textAr: '',
+                            coverImageUrl: article.coverImage || '',
+                        };
                     }
                 } catch (error) {
                     console.error("Error fetching article:", error);
@@ -102,7 +139,7 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
 
             fetchArticle();
         },
-        [articleId, setAuthor, setContentAr, setContentEn, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn, setDescriptionEn, setDescriptionAr, setEnEditorKey, setArEditorKey]
+        [articleId, setAuthor, setContentAr, setContentEn, setCoverImageUrl, setKeywordsAr, setKeywordsEn, setTitleAr, setTitleEn, setDescriptionEn, setDescriptionAr, setEnEditorKey, setArEditorKey, setIsPublished]
     );
 
     const [isUploadingCover, setIsUploadingCover] = useSafeState(false);
@@ -156,8 +193,8 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
         setLoading(true);
         try {
             const articlePayload: CreateArticleDTO = {
-                titleEn,
-                titleAr,
+                titleEn: titleEn.trim() || "Untitled",
+                titleAr: titleAr.trim() || "غير معنون",
                 author,
                 descriptionEn,
                 descriptionAr,
@@ -168,8 +205,8 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 contentAr: JSON.parse(JSON.stringify(contentAr)),
                 contentSearchEn: prepareTextForTSVector(textEn),
                 contentSearchAr: prepareTextForTSVector(textAr),
-                slugEn: generateSlug(titleEn),
-                slugAr: generateSlug(titleAr),
+                slugEn: generateSlug(titleEn.trim() || "Untitled"),
+                slugAr: generateSlug(titleAr.trim() || "غير معنون"),
                 coverImage: coverImageUrl || undefined,
             };
 
@@ -184,6 +221,7 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                     setPublishedUrl(absoluteUrl);
                     setPublishedTitle(res.article.titleEn || titleEn);
                     setShowPublishModal(true);
+                    setHasModified(false); // Reset modification flag after publishing
                 } else if (!publish) {
                     router.push('/admin/articles');
                 }
@@ -202,6 +240,7 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                     setPublishedUrl(absoluteUrl);
                     setPublishedTitle(res.article.titleEn || titleEn);
                     setShowPublishModal(true);
+                    setHasModified(false); // Reset modification flag after publishing
                 } else if (!publish) {
                     router.push('/admin/articles');
                 }
@@ -221,11 +260,14 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
 
     // Autosave: debounce changes and save as draft
     const saveDraft = async () => {
+        // Ensure hasModified is set when saving starts
+        setHasModified(true);
+
         try {
             setSaveStatus(SaveStatus.SAVING);
             const articlePayload: CreateArticleDTO = {
-                titleEn,
-                titleAr,
+                titleEn: titleEn.trim() || "Untitled",
+                titleAr: titleAr.trim() || "غير معنون",
                 author,
                 descriptionEn,
                 descriptionAr,
@@ -236,9 +278,9 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 contentAr: contentAr ? JSON.parse(JSON.stringify(contentAr)) : ({ type: 'doc', content: [] } as unknown as JSONContent),
                 contentSearchEn: prepareTextForTSVector(textEn),
                 contentSearchAr: prepareTextForTSVector(textAr),
-                slugEn: generateSlug(titleEn),
-                slugAr: generateSlug(titleAr),
-                coverImage: coverImageUrl || undefined,
+                slugEn: generateSlug(titleEn.trim() || "Untitled"),
+                slugAr: generateSlug(titleAr.trim() || "غير معنون"),
+                // Don't include coverImage in auto-save to preserve existing
             };
 
             if (currentArticleId) {
@@ -266,10 +308,36 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
 
     const isMountedRef = useRef(false);
 
+    // Track modifications for published articles
+    useEffect(
+        () => {
+            if (!isMountedRef.current || !isPublished) return;
+            const modified =
+                titleEn !== initialValuesRef.current.titleEn ||
+                titleAr !== initialValuesRef.current.titleAr ||
+                author !== initialValuesRef.current.author ||
+                keywordsEn !== initialValuesRef.current.keywordsEn ||
+                keywordsAr !== initialValuesRef.current.keywordsAr ||
+                descriptionEn !== initialValuesRef.current.descriptionEn ||
+                descriptionAr !== initialValuesRef.current.descriptionAr ||
+                JSON.stringify(contentEn) !== JSON.stringify(initialValuesRef.current.contentEn) ||
+                JSON.stringify(contentAr) !== JSON.stringify(initialValuesRef.current.contentAr) ||
+                textEn !== initialValuesRef.current.textEn ||
+                textAr !== initialValuesRef.current.textAr ||
+                coverImageUrl !== initialValuesRef.current.coverImageUrl;
+            setHasModified(modified);
+        },
+        [titleEn, titleAr, author, keywordsEn, keywordsAr, descriptionEn, descriptionAr, contentEn, contentAr, textEn, textAr, coverImageUrl, isPublished, setHasModified]);
+
     useEffect(() => {
         // Skip autosave on first mount
         if (!isMountedRef.current) {
             isMountedRef.current = true;
+            return;
+        }
+
+        // For published articles, only autosave if user has made modifications
+        if (isPublished && !hasModified) {
             return;
         }
 
@@ -286,13 +354,101 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 window.clearTimeout(autosaveTimer.current);
             }
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [titleEn, titleAr, author, keywordsEn, keywordsAr, descriptionEn, descriptionAr, contentEn, contentAr, textEn, textAr, coverImageUrl]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [titleEn, titleAr, author, keywordsEn, keywordsAr, descriptionEn, descriptionAr, contentEn, contentAr, textEn, textAr, coverImageUrl, isPublished, hasModified]);
 
+    // Alert on leaving page if published article has been modified
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isPublished && hasModified) {
+                e.preventDefault();
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [isPublished, hasModified]);
+
+    const handleExportMarkdown = (content: JSONContent | undefined, lang: 'en' | 'ar') => {
+        if (!content) return;
+        const markdown = jsonToMarkdown(content).replace(/\/$/, '');
+        // Create a more descriptive filename using the title
+        const titleSlug = lang === 'en' ? (titleEn || 'untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase() : (titleAr || 'untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const filename = `${titleSlug}_${lang}.md`;
+        const blob = new Blob([markdown], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImportMarkdownEN = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.md';
+        input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const markdown = event.target?.result as string;
+                const json = markdownToJson(markdown);
+                setContentEn(json);
+                setEnEditorKey(`${Date.now()}_en`);
+            };
+            reader.onerror = () => {
+                console.error('Error reading file');
+            };
+            reader.readAsText(file, 'UTF-8');
+        };
+        input.click();
+    };
+
+    const handleImportMarkdownAR = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.md';
+        input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const markdown = event.target?.result as string;
+                const json = markdownToJson(markdown);
+                setContentAr(json);
+                setArEditorKey(`${Date.now()}_ar`);
+            };
+            reader.onerror = () => {
+                console.error('Error reading file');
+            };
+            reader.readAsText(file, 'UTF-8');
+        };
+        input.click();
+    };
+
+    const handleExportMarkdownEN = (content: JSONContent) => {
+        handleExportMarkdown(content, 'en');
+    };
+
+    const handleExportMarkdownAR = (content: JSONContent) => {
+        handleExportMarkdown(content, 'ar');
+    };
 
     return (
         <Container id="new-article" aria-labelledby="new-article-header" maxWidth="md" sx={{ py: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography id="new-article-header" variant="h1" sx={{ textAlign: 'center', mb: 2 }}>New Article</Typography>
+
+            {articleId && !isPublished && (
+                <Box sx={{ mb: 2, p: 2, border: 1, borderColor: 'warning.main', borderRadius: 1, bgcolor: 'warning.light', width: '100%', maxWidth: 'md' }}>
+                    <Typography variant="body2" sx={{ color: 'warning.contrastText', fontWeight: 'bold' }}>
+                        This article is a draft and has not been published yet.
+                    </Typography>
+                </Box>
+            )}
 
             <Typography variant="caption" sx={{ mb: 4, color: 'text.secondary' }}>
                 {saveStatus === SaveStatus.SAVING && 'Saving...'}
@@ -320,6 +476,11 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                             <Button variant="outlined" onClick={handleFileButtonClick} disabled={isUploadingCover}>
                                 {isUploadingCover ? 'Uploading...' : 'Change Cover Image'}
                             </Button>
+                            {coverImageUrl && (
+                                <Button variant="outlined" color="error" onClick={() => { setCoverImageUrl(''); setCoverImage(null); }}>
+                                    Remove Cover Image
+                                </Button>
+                            )}
                             <input
                                 ref={fileInputRef}
                                 type="file"
@@ -334,6 +495,11 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                             <Button variant="outlined" onClick={handleFileButtonClick} disabled={isUploadingCover}>
                                 {isUploadingCover ? 'Uploading...' : 'Upload Cover Image'}
                             </Button>
+                            {coverImageUrl && (
+                                <Button variant="outlined" color="error" onClick={() => { setCoverImageUrl(''); setCoverImage(null); }}>
+                                    Remove Cover Image
+                                </Button>
+                            )}
                             <input
                                 ref={fileInputRef}
                                 type="file"
@@ -351,11 +517,11 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 }
                 <Box sx={{ border: 1, borderRadius: 1, bgcolor: 'background.paper', borderColor: 'divider' }}>
                     <Typography variant="h6" sx={{ fontWeight: 'semibold', borderBottom: 2, borderColor: 'divider', p: 4, bgcolor: 'background.default' }}>Content (English)</Typography>
-                    <Editor key={'en'} editorKey={enEditorKey} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} />
+                    <Editor key={'en'} editorKey={enEditorKey} initialValue={contentEn} onChange={setContentEn} onTextChange={setTextEn} dir='ltr' editable={true} onImportMarkdown={handleImportMarkdownEN} onExportMarkdown={handleExportMarkdownEN} />
                 </Box>
                 <Box sx={{ border: 1, borderRadius: 1, bgcolor: 'background.paper', borderColor: 'divider' }}>
                     <Typography variant="h6" sx={{ fontWeight: 'semibold', borderBottom: 2, borderColor: 'divider', p: 4, bgcolor: 'background.default' }}>Content (Arabic)</Typography>
-                    <Editor key={'ar'} editorKey={arEditorKey} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} />
+                    <Editor key={'ar'} editorKey={arEditorKey} initialValue={contentAr} onChange={setContentAr} onTextChange={setTextAr} dir='rtl' editable={true} onImportMarkdown={handleImportMarkdownAR} onExportMarkdown={handleExportMarkdownAR} />
                 </Box>
 
                 {/* Publish celebration modal */}
@@ -373,7 +539,7 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 )}
                 {
                     articleId && (
-                        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                        <Box sx={{ display: 'flex', gap: 2, mt: 4, flexWrap: 'wrap' }}>
                             <Button variant="outlined" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(false)}>
                                 {loading ? 'Updating...' : (isUploadingCover ? 'Uploading image...' : 'Save as Draft')}
                             </Button>
@@ -385,7 +551,7 @@ export const ArticlePage = ({ articleId }: ArticlePageProps) => {
                 }
                 {
                     !articleId && (
-                        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                        <Box sx={{ display: 'flex', gap: 2, mt: 4, flexWrap: 'wrap' }}>
                             <Button variant="outlined" disabled={loading || isUploadingCover} onClick={() => handleSaveOrUpdate(false)}>
                                 {loading ? 'Saving...' : (isUploadingCover ? 'Uploading image...' : 'Save as Draft')}
                             </Button>

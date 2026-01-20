@@ -17,17 +17,6 @@ const PopoverContent = React.forwardRef<
 >(({ className, align = "center", sideOffset = 4, 'data-menu-name': menuName, children, ...props }, ref) => {
   const paperRef = React.useRef<HTMLDivElement | null>(null);
 
-  React.useEffect(() => {
-    if (process.env.NODE_ENV !== 'production' && paperRef.current) {
-      try {
-        const cs = window.getComputedStyle(paperRef.current);
-        console.log('Popover mounted', { zIndex: cs.zIndex, transform: cs.transform, position: cs.position });
-      } catch {
-        // ignore on SSR
-      }
-    }
-  }, []);
-
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content

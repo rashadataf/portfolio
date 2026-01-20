@@ -10,6 +10,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { Button } from '@/components/UI/Button';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function AllArticles() {
     const [articles, setArticles] = useSafeState<Article[]>([]);
@@ -33,8 +34,11 @@ export default function AllArticles() {
         <Box sx={{ maxWidth: '1200px', mx: 'auto', py: 4 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                 <Typography variant="h5">All Articles</Typography>
-                <Button onClick={() => {}} variant="default" size="sm" asChild>
-                    <Link href="/admin/articles/new">+ New Article</Link>
+                <Button onClick={() => {}} variant="default" size="default" sx={{ px: 3, py: 1.5, fontWeight: 'bold' }} asChild>
+                    <Link href="/admin/articles/new" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+                        <AddIcon sx={{ mr: 1 }} />
+                        New Article
+                    </Link>
                 </Button>
             </Stack>
 

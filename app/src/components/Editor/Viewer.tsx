@@ -30,6 +30,15 @@ export const Viewer = ({ initialValue, dir = 'ltr' }: EditorProp) => {
           attributes: {
             class: `prose prose-lg dark:prose-invert prose-headings:font-title font-default max-w-full`,
           },
+          handleDOMEvents: {
+            click: (view, event) => {
+              const target = event.target as HTMLImageElement;
+              if (target.tagName === 'IMG') {
+                // Simple lightbox: open in new tab or modal
+                window.open(target.src, '_blank');
+              }
+            },
+          },
         }}
       >
       </EditorContent>

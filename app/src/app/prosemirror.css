@@ -31,8 +31,8 @@
 
 /* Image load / lazy fade-in */
 .prose img {
-  opacity: 0;
-  transform: translateY(6px);
+  opacity: 1;
+  transform: none;
   transition: opacity 300ms ease, transform 300ms ease;
   display: inline-block;
   max-width: 100%;
@@ -476,14 +476,18 @@ ul.task-list[data-type="taskList"] {
 .tiptap-link {
   color: hsl(var(--primary));
   text-decoration: underline;
-  text-decoration-offset: 3px;
-  text-underline-offset: 3px;
-  transition: color 0.2s ease-in-out;
+  text-decoration-color: hsl(var(--primary) / 0.4);
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: all 0.2s ease-in-out;
   cursor: pointer;
+  font-weight: 500;
 }
 
 .tiptap-link:hover {
   color: hsl(var(--primary) / 0.8);
+  text-decoration-color: hsl(var(--primary) / 0.6);
+  text-decoration-thickness: 2px;
 }
 
 /* Image styling */
@@ -492,6 +496,40 @@ ul.task-list[data-type="taskList"] {
   border: 1px solid hsl(var(--border));
   max-width: 100%;
   height: auto;
+  display: block;
+  margin: 1rem auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tiptap-image:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive image sizing for different screen sizes */
+@media (min-width: 640px) {
+  .tiptap-image {
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 768px) {
+  .tiptap-image {
+    max-width: 80%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tiptap-image {
+    max-width: 70%;
+  }
+}
+
+@media (min-width: 1280px) {
+  .tiptap-image {
+    max-width: 60%;
+  }
 }
 
 .tiptap-image-loading {
@@ -538,17 +576,61 @@ ul.task-list[data-type="taskList"] {
 /* Code block styling */
 .code-block {
   border-radius: 6px;
-  background-color: hsl(var(--muted));
-  color: hsl(var(--muted-foreground));
-  border: 1px solid hsl(var(--border));
-  padding: 1.25rem;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
-  font-weight: 500;
-  text-align: left;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-x: auto;
-  direction: ltr;
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  padding: 1rem !important;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  text-align: left !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  overflow-x: auto !important;
+  direction: ltr !important;
+  margin: 1rem 0 !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
+/* Ensure code blocks work within prose content */
+.prose .code-block,
+.prose pre,
+.prose pre code {
+  border-radius: 6px !important;
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  padding: 1rem !important;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  text-align: left !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  overflow-x: auto !important;
+  direction: ltr !important;
+  margin: 1rem 0 !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
+/* Dark theme support for code blocks */
+.dark .code-block,
+.dark .prose .code-block,
+.dark .prose pre,
+.dark .prose pre code {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border-color: hsl(var(--border)) !important;
 }
 
 /* Inline code styling */
@@ -560,5 +642,70 @@ ul.task-list[data-type="taskList"] {
   font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
   font-size: 0.875rem;
   font-weight: 400;
+}
+
+/* Add after existing prose styles */
+.prose {
+  font-family: 'Inter', 'Noto Sans Arabic', system-ui, sans-serif; /* Modern font stack */
+  line-height: 1.7; /* Improved readability */
+  color: var(--text-primary);
+}
+
+.prose h1, .prose h2, .prose h3 {
+  font-weight: 700;
+  letter-spacing: -0.02em; /* Tighter spacing for elegance */
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose p {
+  margin-bottom: 1.5rem;
+}
+
+.prose ul, .prose ol {
+  padding-left: 1.5rem;
+}
+
+.prose blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 1rem;
+  font-style: italic;
+  background: rgba(var(--primary-rgb), 0.05);
+  border-radius: 4px;
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.prose a:hover {
+  color: var(--primary);
+  transition: color 0.3s ease;
+}
+
+.prose img {
+  transition: transform 0.3s ease;
+}
+
+.prose img:hover {
+  transform: scale(1.05);
+}
+
+.prose figcaption {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+/* Responsive font scaling */
+@media (max-width: 600px) {
+  .prose { font-size: 1rem; }
+  .prose h1 { font-size: 2rem; }
 }
 

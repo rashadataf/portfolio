@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { useEditor } from "novel";
 import * as Popover from "@radix-ui/react-popover";
 import Button from '@mui/material/Button';
@@ -23,12 +23,6 @@ export const FontSizeSelector = ({ onOpenChange }: { onOpenChange: (o: boolean) 
     },
     [onOpenChange, setOpen]
   );
-
-  useEffect(() => {
-    if (open && process.env.NODE_ENV !== 'production') {
-      console.log('Popover mounted');
-    }
-  }, [open]);
 
   if (!editor) return null;
 

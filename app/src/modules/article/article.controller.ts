@@ -1,5 +1,5 @@
 "use server";
-import fs from "fs/promises";
+import fs from "fs";
 import path from "path";
 import { ArticleService } from "@/modules/article/article.service";
 import { CreateArticleDTO, UpdateArticleDTO } from "@/modules/article/article.dto";
@@ -133,8 +133,17 @@ export async function updateArticle(id: string, data: UpdateArticleDTO, coverIma
                 coverImageUrl = uploadResponse.url;
             }
         }
-        const articleData = { ...data, coverImage: coverImageUrl };
-        const updatedArticle = await articleService.updateArticle(id, articleData);
+
+        // If no new cover image file, remove coverImage from data to preserve existing, unless it's '' to delete
+        if (!coverImage) {
+            if (data.coverImage !== '') {
+                delete data.coverImage;
+            }
+        } else {
+            data.coverImage = coverImageUrl;
+        }
+
+        const updatedArticle = await articleService.updateArticle(id, data);
         if (!updatedArticle) {
             return { message: 'Article not found', status: 404 };
         }
@@ -176,10 +185,10 @@ export async function uploadImage(file: File) {
         // Store in "uploads" (not inside "public")
         const uploadPath = path.join(process.cwd(), "public", "uploads", imageFileName);
 
-        await fs.mkdir(path.dirname(uploadPath), { recursive: true });
+        fs.mkdirSync(path.dirname(uploadPath), { recursive: true });
 
         const buffer = await file.arrayBuffer();
-        await fs.writeFile(uploadPath, Buffer.from(buffer));
+        fs.writeFileSync(uploadPath, Buffer.from(buffer));
 
         // New API route for serving images
         const imageUrl = `/api/files/${imageFileName}`;

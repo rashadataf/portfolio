@@ -18,13 +18,11 @@ import { LinkSelector } from "@/components/Editor/Selectors/linkSelector";
 import { ColorSelector } from "@/components/Editor/Selectors/colorSelector";
 import { TextButtons } from "@/components/Editor/Selectors/textButtons";
 import { FontSizeSelector } from "@/components/Editor/Selectors/fontSizeSelector";
-import { slashCommand, suggestionItems } from "@/components/Editor/slashCommand";
+import { createSlashCommand } from "@/components/Editor/slashCommand";
 import { uploadFn } from "@/components/Editor/imageUpload";
 import { Separator } from "@/components/UI/Separator";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import Paper from '@mui/material/Paper';
-
-const extensions = [...defaultExtensions, slashCommand];
 
 interface EditorProp {
   initialValue: JSONContent | undefined;
@@ -33,11 +31,17 @@ interface EditorProp {
   dir: "ltr" | "rtl";
   editable: boolean;
   editorKey: string;
+  onImportMarkdown?: () => void;
+  onExportMarkdown?: (content: JSONContent) => void;
 }
-export const Editor = ({ initialValue, onChange, onTextChange, dir = "ltr", editable, editorKey }: EditorProp) => {
+export const Editor = ({ initialValue, onChange, onTextChange, dir = "ltr", editable, editorKey, onImportMarkdown, onExportMarkdown }: EditorProp) => {
   const [openNode, setOpenNode] = useSafeState(false);
   const [openColor, setOpenColor] = useSafeState(false);
   const [openLink, setOpenLink] = useSafeState(false);
+
+  const { slashCommand, suggestionItems } = createSlashCommand(onImportMarkdown, onExportMarkdown);
+
+  const extensions = [...defaultExtensions, slashCommand];
 
   return (
     <Paper elevation={2} sx={{ p: 2, bgcolor: 'background.paper' }}>
