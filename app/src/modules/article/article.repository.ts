@@ -3,6 +3,22 @@ import { Article, ArticleEntity } from '@/modules/article/article.entity';
 import { CreateArticleDTO, UpdateArticleDTO } from '@/modules/article/article.dto';
 import { toCamelCase, toSnakeCase } from '@/lib/utils';
 import { ArticleStatus } from '@/types';
+import fs from 'fs';
+import path from 'path';
+
+const LOG_FILE = path.join(process.cwd(), 'debug.log');
+
+function writeDebugLog(message: string, data?: any) {
+    const timestamp = new Date().toISOString();
+    const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n`;
+    try {
+        fs.appendFileSync(LOG_FILE, logEntry);
+    } catch (error) {
+        // Fallback to console if file writing fails
+        console.error('Failed to write to log file:', error);
+        console.error(message, data);
+    }
+}
 
 export class ArticleRepository {
 
@@ -30,16 +46,21 @@ export class ArticleRepository {
 
     async findArticleBySlug(slug: string): Promise<Article | null> {
         try {
+            writeDebugLog('findArticleBySlug called with slug', { slug });
             const { rows } = await dbService.query(
                 `SELECT * FROM ${ArticleEntity.tableName} WHERE slug_en = $1 OR slug_ar = $1`,
                 [slug]
             );
+            writeDebugLog('Query result rows count', { count: rows.length });
             if (rows.length) {
-                return toCamelCase<Article>(rows[0]);
+                const article = toCamelCase<Article>(rows[0]);
+                writeDebugLog('Article found', { id: article.id, titleEn: article.titleEn, status: article.status });
+                return article;
             }
+            writeDebugLog('No article found for slug', { slug });
             return null;
         } catch (error) {
-            console.error('Error querying article by slugs:', error);
+            writeDebugLog('Error in findArticleBySlug', { error: error instanceof Error ? error.message : String(error) });
             throw error;
         }
     }

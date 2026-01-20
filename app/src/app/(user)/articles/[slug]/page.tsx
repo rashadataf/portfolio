@@ -2,6 +2,22 @@ import dynamic from "next/dynamic";
 import { Loader } from "@/components/Loader";
 import { getAllArticles, getArticleBySlug } from "@/modules/article/article.controller";
 import { Metadata } from "next";
+import fs from 'fs';
+import path from 'path';
+
+const LOG_FILE = path.join(process.cwd(), 'debug.log');
+
+function writeDebugLog(message: string, data?: any) {
+    const timestamp = new Date().toISOString();
+    const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n`;
+    try {
+        fs.appendFileSync(LOG_FILE, logEntry);
+    } catch (error) {
+        // Fallback to console if file writing fails
+        console.error('Failed to write to log file:', error);
+        console.error(message, data);
+    }
+}
 
 export const revalidate = 60
 
@@ -88,13 +104,21 @@ export default async function ArticleDetailPage({
     params,
     searchParams
 }: Props) {
-    const { slug } = await params;
-    const lang = (await searchParams)?.lang === 'ar' ? 'ar' : 'en';
-    const { article } = await getArticleBySlug(slug);
+    try {
+        const { slug } = await params;
+        const lang = (await searchParams)?.lang === 'ar' ? 'ar' : 'en';
+        writeDebugLog('Fetching article with slug', { slug, lang });
+        const { article, status, message, error } = await getArticleBySlug(slug);
+        writeDebugLog('Article fetch result', { status, message, hasArticle: !!article, error: error instanceof Error ? error.message : String(error) });
 
-    if (!article) {
-        return <div className="text-center text-gray-500">Article not found</div>;
+        if (!article) {
+            writeDebugLog('Article not found for slug', { slug });
+            return <div className="text-center text-gray-500">Article not found</div>;
+        }
+
+        return <ArticleDetailsComponent article={article} lang={lang} />
+    } catch (error) {
+        writeDebugLog('Error in ArticleDetailPage', { error: error instanceof Error ? error.message : String(error) });
+        throw error; // Re-throw to let Next.js handle the 500
     }
-
-    return <ArticleDetailsComponent article={article} lang={lang} />
 };
