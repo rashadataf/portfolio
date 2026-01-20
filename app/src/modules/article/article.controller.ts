@@ -133,8 +133,17 @@ export async function updateArticle(id: string, data: UpdateArticleDTO, coverIma
                 coverImageUrl = uploadResponse.url;
             }
         }
-        const articleData = { ...data, coverImage: coverImageUrl };
-        const updatedArticle = await articleService.updateArticle(id, articleData);
+
+        // If no new cover image file, remove coverImage from data to preserve existing, unless it's '' to delete
+        if (!coverImage) {
+            if (data.coverImage !== '') {
+                delete data.coverImage;
+            }
+        } else {
+            data.coverImage = coverImageUrl;
+        }
+
+        const updatedArticle = await articleService.updateArticle(id, data);
         if (!updatedArticle) {
             return { message: 'Article not found', status: 404 };
         }

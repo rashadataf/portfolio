@@ -98,9 +98,14 @@ export const AdminArticleCard = ({ article, onActionComplete }: ArticleCardProps
         <Card sx={{ p: 2 }}>
             <CardContent sx={{ '&:last-child': { pb: 1 } }}>
                 <Link href={`/admin/articles/${article.id}`}>
-                    <Typography variant="h6" component="div" sx={{ textDecoration: 'none' }}>{article.titleEn}</Typography>
+                    <Typography variant="h6" component="div" sx={{ textDecoration: 'none', color: 'text.primary' }}>{article.titleEn}</Typography>
                 </Link>
                 <Typography variant="body2" color="text.secondary">By {article.author}</Typography>
+                {article.status !== ArticleStatus.PUBLISHED && (
+                    <Typography variant="body2" sx={{ color: 'warning.main', fontWeight: 'bold' }}>
+                        Status: {article.status === ArticleStatus.DRAFT ? 'Draft' : 'Archived'}
+                    </Typography>
+                )}
             </CardContent>
 
             <CardActions sx={{ pt: 0 }}>

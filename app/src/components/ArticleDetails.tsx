@@ -29,12 +29,16 @@ export const ArticleDetails = ({ article, lang }: Props) => {
     const [maxScrollDepth, setMaxScrollDepth] = useSafeState(0);
     const [progress, setProgress] = useSafeState(0);
     const [drawerOpen, setDrawerOpen] = useSafeState(false);
+    const [isSwitchingLang, setIsSwitchingLang] = useSafeState(false);
 
     const handleLanguageToggle = () => {
+        setIsSwitchingLang(true);
         const newLang = lang === 'ar' ? 'en' : 'ar';
         const slug = newLang === 'ar' ? article.slugAr : article.slugEn;
         trackClickEvent('language_toggle', `toggle_to_${newLang}`);
         router.push(`/articles/${slug}?lang=${newLang}`);
+        // Note: since it's client-side navigation, the loading will be brief
+        setTimeout(() => setIsSwitchingLang(false), 500); // Fallback
     };
 
     const isArabic = lang === "ar";
@@ -159,8 +163,9 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                             onClick={handleLanguageToggle}
                             variant="contained"
                             sx={{ px: 5, py: 2 }}
+                            disabled={isSwitchingLang}
                         >
-                            {isArabic ? "View in English" : "عرض باللغة العربية"}
+                            {isSwitchingLang ? "Switching..." : (isArabic ? "View in English" : "عرض باللغة العربية")}
                         </Button>
                     </Box>
 

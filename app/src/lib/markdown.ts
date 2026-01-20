@@ -579,8 +579,6 @@ export function markdownToJson(markdown: string): JSONContent {
   flushParagraph();
   flushLists();
 
-  console.log('Parsed JSONContent:', JSON.stringify({ type: 'doc', content }, null, 2));
-
   return {
     type: 'doc',
     content: content.length > 0 ? content : [{ type: 'paragraph', content: [{ type: 'text', text: '' }] }]

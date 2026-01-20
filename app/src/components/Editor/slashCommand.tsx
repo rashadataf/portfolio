@@ -162,11 +162,7 @@ export const createSlashCommand = (onImportMarkdown?: () => void, onExportMarkdo
     searchTerms: ["export", "markdown", "md", "download"],
     icon: <Download size={18} />,
     command: ({ editor, range }) => {
-      console.log('Export command called, range:', range);
-      console.log('Content before delete:', editor.view.state.doc.textContent);
       editor.view.dispatch(editor.view.state.tr.deleteRange(range.from, range.to));
-      console.log('Content after delete:', editor.view.state.doc.textContent);
-      console.log('JSON after delete:', editor.getJSON());
       if (onExportMarkdown) {
         onExportMarkdown(editor.getJSON());
       }
