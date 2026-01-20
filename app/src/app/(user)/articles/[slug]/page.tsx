@@ -1,4 +1,4 @@
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import { Loader } from "@/components/Loader";
 import { getAllArticles, getArticleBySlug } from "@/modules/article/article.controller";
 import { Metadata } from "next";
@@ -22,6 +22,7 @@ function writeDebugLog(message: string, data?: any) {
 export const revalidate = 60
 
 export const dynamicParams = true
+export const dynamic = 'force-dynamic'
 
 export const viewport = {
     width: 'device-width',
@@ -93,7 +94,7 @@ export async function generateMetadata({
     };
 }
 
-const ArticleDetailsComponent = dynamic(() =>
+const ArticleDetailsComponent = dynamicImport(() =>
     import('@/components/ArticleDetails').then((mod) => mod.ArticleDetails),
     {
         loading: () => <Loader />,
