@@ -155,7 +155,17 @@ export const ArticleDetails = ({ article, lang }: Props) => {
                     )}
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 6, gap: 4 }} dir={dir}>
-                        <Typography id="article-title" variant="h1" sx={{ fontWeight: 'extrabold', lineHeight: 'tight', letterSpacing: 'tight', color: 'text.primary' }}>
+                        <Typography 
+                            id="article-title" 
+                            variant="h1" 
+                            sx={{ 
+                                fontWeight: 'bold', 
+                                lineHeight: 'tight', 
+                                letterSpacing: 'tight', 
+                                color: 'text.primary',
+                                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem', lg: '3.5rem' }
+                            }}
+                        >
                             {isArabic ? article.titleAr : article.titleEn}
                         </Typography>
                         <Typography variant="h6" sx={{ color: 'text.secondary' }}>By {article.author}</Typography>

@@ -37,7 +37,18 @@ export const Navbar = () => {
                 <Toolbar disableGutters sx={{ minHeight: 64, display: 'flex', alignItems: 'center' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
                         <Link href="/" aria-label="Go to Home Page" style={{ textDecoration: 'none' }}>
-                            <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>
+                            <Typography 
+                                variant="h6" 
+                                component="span" 
+                                sx={{ 
+                                    fontWeight: 700,
+                                    color: 'text.primary',
+                                    '&:hover': { 
+                                        color: 'primary.main',
+                                        textDecoration: 'none'
+                                    }
+                                }}
+                            >
                                 {`"<Rashad Ataf>"`}
                             </Typography>
                         </Link>

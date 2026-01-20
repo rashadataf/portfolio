@@ -585,13 +585,16 @@ ul.task-list[data-type="taskList"] {
   font-weight: 400 !important;
   line-height: 1.5 !important;
   text-align: left !important;
-  white-space: pre !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
   overflow-x: auto !important;
   direction: ltr !important;
   margin: 1rem 0 !important;
   display: block !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  max-width: 100% !important;
 }
 
 /* Ensure code blocks work within prose content */
@@ -608,13 +611,16 @@ ul.task-list[data-type="taskList"] {
   font-weight: 400 !important;
   line-height: 1.5 !important;
   text-align: left !important;
-  white-space: pre !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
   overflow-x: auto !important;
   direction: ltr !important;
   margin: 1rem 0 !important;
   display: block !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  max-width: 100% !important;
 }
 
 /* Dark theme support for code blocks */

@@ -8,20 +8,6 @@ import { Article } from "@/modules/article/article.entity";
 
 const articleService = new ArticleService();
 
-const LOG_FILE = path.join(process.cwd(), 'debug.log');
-
-function writeDebugLog(message: string, data?: any) {
-    const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] ${message}${data ? '\n' + JSON.stringify(data, null, 2) : ''}\n`;
-    try {
-        fs.appendFileSync(LOG_FILE, logEntry);
-    } catch (error) {
-        // Fallback to console if file writing fails
-        console.error('Failed to write to log file:', error);
-        console.error(message, data);
-    }
-}
-
 export async function serachPublishedArticles(query: string) {
     try {
         if (!query) {
@@ -96,25 +82,20 @@ export async function getArticleById(id: string): Promise<{ article?: Article, m
 
 export async function getArticleBySlug(slug: string): Promise<{ article?: Article, message?: string, error?: unknown, status: number }> {
     try {
-        writeDebugLog('getArticleBySlug called with slug', { slug });
         if (!slug) {
-            writeDebugLog('Slug is required');
             return { message: 'Slug is required', status: 400 };
         }
 
         const decodedSlug = decodeURIComponent(slug);
-        writeDebugLog('Decoded slug', { decodedSlug });
         const article = await articleService.getArticleBySlugs(decodedSlug);
-        writeDebugLog('Article from service', { found: !!article });
 
         if (!article) {
-            writeDebugLog('Article not found for slug', { decodedSlug });
             return { message: 'Article not found', status: 404 };
         }
 
         return { article, status: 200 };
     } catch (error) {
-        writeDebugLog('Error fetching article by slug', { error: error instanceof Error ? error.message : String(error) });
+        console.error('Error fetching article by slug:', error);
         return { message: 'Error fetching article', error, status: 500 };
     }
 }
