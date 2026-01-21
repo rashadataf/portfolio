@@ -88,4 +88,4 @@ config:
   portfolio-infra:TRAEFIK_METRICS_PORT: "4318"
   portfolio-infra:ENV_TYPE: production
   portfolio-infra:PROTOCOL: https
-  portfolio-infra:PORTFOLIO_IMAGE_TAG: v1.1.0
+  portfolio-infra:PORTFOLIO_IMAGE_TAG: v1.2.0
