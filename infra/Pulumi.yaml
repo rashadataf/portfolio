@@ -182,22 +182,25 @@ variables:
     APP_NETWORK_NAME: "${pulumi.project}-network",
   }
 
-resources:
-  {
+resources: {
     appNetwork:
       { type: "docker:Network", properties: { name: "${APP_NETWORK_NAME}" } },
 
     traefikData:
-      { type: "docker:Volume", properties: { name: "traefik-data" } },
-    createAcmeFile:
       {
-        type: "command:local:Command",
-        properties:
-          {
-            create: "mkdir -p traefik-data && touch traefik-data/acme.json && chmod 600 traefik-data/acme.json",
-            delete: "rm -rf traefik-data",
-          },
+        type: "docker:Volume",
+        properties: { name: "traefik-data" },
+        options: { protect: true },
       },
+    # createAcmeFile:
+    #   {
+    #     type: "command:local:Command",
+    #     properties:
+    #       {
+    #         create: "mkdir -p traefik-data && touch traefik-data/acme.json && chmod 600 traefik-data/acme.json",
+    #         delete: "rm -rf traefik-data",
+    #       },
+    #   },
     postgresDataVolume:
       {
         type: "docker:Volume",
@@ -249,8 +252,7 @@ resources:
       { type: "docker:Volume", properties: { name: "portfolio_next_build" } },
     traefikImage:
       { type: "docker:RemoteImage", properties: { name: "traefik:v2.11" } },
-    traefik:
-      {
+    traefik: {
         type: "docker:Container",
         properties:
           {
@@ -282,24 +284,28 @@ resources:
                 "TRAEFIK_API_DASHBOARD=true",
                 "TRAEFIK_API_INSECURE=true",
               ],
-            mounts:
-              [
+            mounts: [
                 {
                   type: "bind",
                   source: "/var/run/docker.sock",
                   target: "/var/run/docker.sock",
                   readOnly: true,
                 },
+                # {
+                #   type: "bind",
+                #   source: "${pulumi.cwd}/traefik-data",
+                #   target: "/data",
+                # },
                 {
-                  type: "bind",
-                  source: "${pulumi.cwd}/traefik-data",
+                  type: "volume",
+                  source: "${traefikData.name}",
                   target: "/data",
                 },
               ],
             networksAdvanced:
               [{ name: "${APP_NETWORK_NAME}", aliases: ["${TRAEFIK_ALIAS}"] }],
           },
-        options: { dependsOn: ["${createAcmeFile}"] },
+        # options: { dependsOn: ["${createAcmeFile}"] },
       },
 
     portfolioImage:

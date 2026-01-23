@@ -87,10 +87,10 @@ resources: {
                   label: "traefik.http.routers.hello-world-react.tls",
                   value: "${ENABLE_TLS}",
                 },
-                {
-                  label: "traefik.http.routers.hello-world-react.tls.certresolver",
-                  value: "letsencrypt",
-                },
+                # { uncomment in standalone deployment
+                #   label: "traefik.http.routers.hello-world-react.tls.certresolver",
+                #   value: "letsencrypt",
+                # },
 
                 # Router for www subdomain
                 {
@@ -109,10 +109,10 @@ resources: {
                   label: "traefik.http.routers.hello-world-react-www.tls",
                   value: "${ENABLE_TLS}",
                 },
-                {
-                  label: "traefik.http.routers.hello-world-react-www.tls.certresolver",
-                  value: "letsencrypt",
-                },
+                # { uncomment in standalone deployment
+                #   label: "traefik.http.routers.hello-world-react-www.tls.certresolver",
+                #   value: "letsencrypt",
+                # },
               ],
           },
         # options: { dependsOn: ["${traefik}"] },
