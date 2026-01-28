@@ -19,7 +19,9 @@ export async function getProfile(slug: string = 'main') {
 export async function updateProfile(slug: string, data: UpdateProfileDTO) {
     try {
         const profile = await profileService.updateProfile(slug, data);
+        // Revalidate the pages that depend on profile data
         revalidatePath('/');
+        revalidatePath('/about');
         return { success: true, data: profile };
     } catch (error) {
         console.error('Failed to update profile:', error);

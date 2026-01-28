@@ -18,16 +18,16 @@ export default function TemplateLayout({
     children: React.ReactNode
 }) {
     return (
-        <ThemeProvider>
-            <Navbar />
-            <Box component="main" sx={{ flex: '1 1 auto', py: 4 }}>
-                <Container maxWidth="lg">
-                    <AppRouterCacheProvider>
+        <AppRouterCacheProvider>
+            <ThemeProvider>
+                <Navbar />
+                <Box component="main" sx={{ flex: '1 1 auto', py: 4 }}>
+                    <Container maxWidth="lg">
                         {children}
-                    </AppRouterCacheProvider>
-                </Container>
-            </Box>
-            <Footer />
-        </ThemeProvider>
+                    </Container>
+                </Box>
+                <Footer />
+            </ThemeProvider>
+        </AppRouterCacheProvider>
     )
 }

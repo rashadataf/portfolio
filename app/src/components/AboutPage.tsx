@@ -53,9 +53,20 @@ export const AboutPage = ({ skills = [], experiences = [], educations = [], prof
                     <Box sx={{ flex: '1 1 66%' }}>
                         <Paper elevation={2} sx={{ p: 3, borderRadius: 3 }}>
                             {profile?.aboutEn ? (
-                                <div
-                                    dangerouslySetInnerHTML={{ __html: profile.aboutEn }}
-                                />
+                                // Render plain text safely: split into paragraphs on blank lines and preserve single-line breaks with <br />
+                                profile.aboutEn.split(/\n\s*\n/).map((para, i) => {
+                                    const lines = para.split(/\n/);
+                                    return (
+                                        <Typography key={i} variant="body1" sx={{ lineHeight: 1.8, mb: 2 }}>
+                                            {lines.map((line, idx) => (
+                                                <span key={idx}>
+                                                    {line}
+                                                    {idx !== lines.length - 1 && <br />}
+                                                </span>
+                                            ))}
+                                        </Typography>
+                                    );
+                                })
                             ) : (
                                 <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
                                     Embarking on my programming journey in 2010,
