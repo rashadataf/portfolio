@@ -182,7 +182,8 @@ variables:
     APP_NETWORK_NAME: "${pulumi.project}-network",
   }
 
-resources: {
+resources:
+  {
     appNetwork:
       { type: "docker:Network", properties: { name: "${APP_NETWORK_NAME}" } },
 
@@ -192,15 +193,6 @@ resources: {
         properties: { name: "traefik-data" },
         options: { protect: true },
       },
-    # createAcmeFile:
-    #   {
-    #     type: "command:local:Command",
-    #     properties:
-    #       {
-    #         create: "mkdir -p traefik-data && touch traefik-data/acme.json && chmod 600 traefik-data/acme.json",
-    #         delete: "rm -rf traefik-data",
-    #       },
-    #   },
     postgresDataVolume:
       {
         type: "docker:Volume",
@@ -252,50 +244,42 @@ resources: {
       { type: "docker:Volume", properties: { name: "portfolio_next_build" } },
     traefikImage:
       { type: "docker:RemoteImage", properties: { name: "traefik:v2.11" } },
-    traefik: {
+    traefik:
+      {
         type: "docker:Container",
         properties:
           {
             name: "${pulumi.project}-traefik-${pulumi.stack}",
             image: "${traefikImage.imageId}",
             restart: "always",
-            ports: [
+            ports:
+              [
                 { internal: "${HTTP_PORT}", external: "${HTTP_PORT}" },
                 { internal: "${HTTPS_PORT}", external: "${HTTPS_PORT}" },
-                # Add Traefik API port for debugging
                 { internal: 8080, external: 8080 },
               ],
-            envs: [
-                "TRAEFIK_LOG_LEVEL=DEBUG", # Changed to DEBUG for troubleshooting
+            envs:
+              [
+                "TRAEFIK_LOG_LEVEL=DEBUG",
                 "TRAEFIK_PROVIDERS_DOCKER=true",
                 "TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false",
                 "TRAEFIK_PROVIDERS_DOCKER_NETWORK=${APP_NETWORK_NAME}",
-
-                # Entrypoints
                 "TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:${HTTP_PORT}",
                 "TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:${HTTPS_PORT}",
-
-                # ACME resolver (Let's Encrypt)
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ADMIN_EMAIL}",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/data/acme.json",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
-
-                # Enable API and Dashboard for debugging
                 "TRAEFIK_API_DASHBOARD=true",
                 "TRAEFIK_API_INSECURE=true",
               ],
-            mounts: [
+            mounts:
+              [
                 {
                   type: "bind",
                   source: "/var/run/docker.sock",
                   target: "/var/run/docker.sock",
                   readOnly: true,
                 },
-                # {
-                #   type: "bind",
-                #   source: "${pulumi.cwd}/traefik-data",
-                #   target: "/data",
-                # },
                 {
                   type: "volume",
                   source: "${traefikData.name}",
@@ -305,22 +289,20 @@ resources: {
             networksAdvanced:
               [{ name: "${APP_NETWORK_NAME}", aliases: ["${TRAEFIK_ALIAS}"] }],
           },
-        # options: { dependsOn: ["${createAcmeFile}"] },
       },
 
     portfolioImage:
       {
-        type: "docker:RemoteImage",
+        type: "docker-build:Image",
         properties:
           {
-            name: "${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}",
-            build:
-              {
-                context: "${PORTFOLIO_BUILD_CONTEXT}",
-                buildArgs:
-                  { "PORTFOLIO_WORKDIR_PATH": "${PORTFOLIO_WORKDIR_PATH}" },
-                target: "${PORTFOLIO_BUILD_PHASE_TARGET}",
-              },
+            context: { location: "${PORTFOLIO_BUILD_CONTEXT}" },
+            buildArgs:
+              { "PORTFOLIO_WORKDIR_PATH": "${PORTFOLIO_WORKDIR_PATH}" },
+            target: "${PORTFOLIO_BUILD_PHASE_TARGET}",
+            tags: ["${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}"],
+            push: false,
+            exports: [{ docker: {} }],
           },
       },
 
@@ -330,7 +312,7 @@ resources: {
         properties:
           {
             name: "${FRONTEND_CONTAINER_NAME}",
-            image: "${portfolioImage.imageId}",
+            image: "${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}",
             restart: "always",
             envs:
               [
@@ -346,8 +328,8 @@ resources: {
                 "AUTH_BASE_PATH=${AUTH_BASE_PATH}",
                 "AUTH_URL=${AUTH_URL}",
               ],
-            mounts: [
-                # Add volume for persistent uploads
+            mounts:
+              [
                 {
                   type: "bind",
                   source: "${pulumi.cwd}/../app",
@@ -365,14 +347,13 @@ resources: {
                 },
               ],
             networksAdvanced: [{ name: "${APP_NETWORK_NAME}" }],
-            labels: [
+            labels:
+              [
                 { label: "traefik.enable", value: "true" },
                 {
                   label: "traefik.http.services.portfolio.loadbalancer.server.port",
                   value: "${APP_PORT}",
                 },
-
-                # Main router for apex domain
                 {
                   label: "traefik.http.routers.portfolio.entrypoints",
                   value: "${ROUTER_ENTRYPOINT}",
@@ -393,8 +374,6 @@ resources: {
                   label: "traefik.http.routers.portfolio.tls.certresolver",
                   value: "letsencrypt",
                 },
-
-                # Router for www subdomain
                 {
                   label: "traefik.http.routers.portfolio-www.entrypoints",
                   value: "${ROUTER_ENTRYPOINT}",
@@ -417,7 +396,11 @@ resources: {
                 },
               ],
           },
-        options: { dependsOn: ["${postgresContainer}", "${traefik}"] },
+        options:
+          {
+            dependsOn:
+              ["${postgresContainer}", "${traefik}", "${portfolioImage}"],
+          },
       },
     observability:
       {
