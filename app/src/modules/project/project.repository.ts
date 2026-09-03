@@ -59,8 +59,9 @@ export class ProjectRepository {
         const offset = (page - 1) * limit;
 
         // Count total matching rows in the same query window to keep it consistent
+        // (spread to a copy — the values array is reused for pagination params below)
         const countQuery = `SELECT COUNT(*)::int AS total FROM ${ProjectEntity.tableName} ${whereClause}`;
-        const countResult = await dbService.query(countQuery, values);
+        const countResult = await dbService.query(countQuery, [...values]);
         const total = (countResult.rows[0] as { total: number }).total;
 
         const query = `

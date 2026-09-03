@@ -71,8 +71,13 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
             createTheme({
                 palette: {
                     mode: theme === THEME_VALUES.DARK ? 'dark' : 'light',
+                    // Dark mode primary must meet WCAG AA (4.5:1) in both usages:
+                    //   - purple TEXT on the dark background (#1a1a1a) → needs a
+                    //     light shade: #BA68C8 (4.9:1)
+                    //   - white text on purple CONTAINED buttons → needs a dark
+                    //     shade, set via the MuiButton override below: #8E24AA (7:1)
                     primary: { 
-                        main: theme === THEME_VALUES.DARK ? '#9c27b0' : '#6B21A8' 
+                        main: theme === THEME_VALUES.DARK ? '#BA68C8' : '#6B21A8' 
                     },
                     secondary: { 
                         main: theme === THEME_VALUES.DARK ? '#00e5ff' : '#00BFA6' 
@@ -90,6 +95,15 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
                     MuiButton: {
                         defaultProps: {
                             disableElevation: true,
+                        },
+                        styleOverrides: {
+                            // Contained buttons render white text on the primary
+                            // color — use a darker purple in dark mode so the
+                            // white text meets WCAG AA (main #BA68C8 is only 3.55:1)
+                            contained: theme === THEME_VALUES.DARK ? {
+                                backgroundColor: '#8E24AA',
+                                '&:hover': { backgroundColor: '#7B1FA2' },
+                            } : undefined,
                         },
                     },
                     MuiIconButton: {

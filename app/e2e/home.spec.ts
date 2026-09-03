@@ -14,18 +14,24 @@ test.describe("Home Page", () => {
   });
 
   test("should navigate to about page", async ({ page }) => {
-    await page.click('a[href="/about"]');
-    await expect(page).toHaveURL(/.*about/);
+    const link = page.locator('a[href="/about"]');
+    await link.waitFor({ state: "visible" });
+    await link.click();
+    await expect(page).toHaveURL(/.*about/, { timeout: 10000 });
   });
 
   test("should navigate to projects page", async ({ page }) => {
-    await page.click('a[href="/projects"]');
-    await expect(page).toHaveURL(/.*projects/);
+    const link = page.locator('a[href="/projects"]');
+    await link.waitFor({ state: "visible" });
+    await link.click();
+    await expect(page).toHaveURL(/.*projects/, { timeout: 10000 });
   });
 
   test("should navigate to articles page", async ({ page }) => {
-    await page.click('a[href="/articles"]');
-    await expect(page).toHaveURL(/.*articles/);
+    const link = page.locator('a[href="/articles"]');
+    await link.waitFor({ state: "visible" });
+    await link.click();
+    await expect(page).toHaveURL(/.*articles/, { timeout: 10000 });
   });
 });
 

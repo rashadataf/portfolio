@@ -16,13 +16,14 @@ module.exports = {
     "!src/**/*.d.ts",
     "!src/**/*.stories.tsx",
   ],
-  // Lower thresholds for now - will increase as we add more tests
+  // Ratcheted thresholds — just below current coverage so any regression
+  // fails CI. Raise these as more tests are added (never lower them).
   coverageThreshold: {
     global: {
       branches: 10,
-      functions: 10,
-      lines: 10,
-      statements: 10,
+      functions: 13,
+      lines: 17,
+      statements: 17,
     },
   },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],

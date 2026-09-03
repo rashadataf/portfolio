@@ -33,7 +33,20 @@ export class MigrationService {
     const adminEmail = process.env.ADMIN_EMAIL || '';
     const adminPassword = process.env.ADMIN_PASSWORD || '';
 
+    if (!adminEmail || !adminPassword) {
+      console.warn('ADMIN_EMAIL/ADMIN_PASSWORD not set — skipping admin creation');
+      return;
+    }
+
+    // Idempotent: only insert when the admin doesn't already exist.
+    // A blind INSERT crashes every boot after the first one
+    // (duplicate key on users_email_key).
     const userController = new UserController();
+    const existing = await userController.getUserByEmail(adminEmail);
+    if (existing) {
+      return;
+    }
+
     await userController.createUser({
       email: adminEmail,
       password: adminPassword,

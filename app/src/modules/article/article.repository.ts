@@ -69,8 +69,9 @@ export class ArticleRepository {
         const offset = (page - 1) * limit;
 
         // Count total matching rows with the same filters for pagination metadata
+        // (spread to a copy — the values array is reused for pagination params below)
         const countQuery = `SELECT COUNT(*)::int AS total FROM ${ArticleEntity.tableName} ${whereClause}`;
-        const countResult = await dbService.query(countQuery, values);
+        const countResult = await dbService.query(countQuery, [...values]);
         const total = (countResult.rows[0] as { total: number }).total;
 
         const sqlQuery = `
