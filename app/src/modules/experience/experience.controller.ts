@@ -1,7 +1,7 @@
 'use server';
 
 import { ExperienceService } from './experience.service';
-import { CreateExperienceDTO, UpdateExperienceDTO } from './experience.dto';
+import { type CreateExperienceDTO, type UpdateExperienceDTO } from './experience.dto';
 import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/auth';
 

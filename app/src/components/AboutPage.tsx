@@ -7,10 +7,10 @@ import { Skill } from '@/components/Skill';
 import { Experience } from '@/components/Experience';
 import { Education } from '@/components/Education';
 import { Loader } from "@/components/Loader";
-import { Skill as SkillType, SkillCategory } from '@/modules/skill/skill.entity';
-import { Experience as ExperienceType } from '@/modules/experience/experience.entity';
-import { Education as EducationType } from '@/modules/education/education.entity';
-import { Profile } from '@/modules/profile/profile.entity';
+import type { Skill as SkillType } from '@/modules/skill/skill.entity';
+import { type Experience as ExperienceType } from '@/modules/experience/experience.entity';
+import { type Education as EducationType } from '@/modules/education/education.entity';
+import { type Profile } from '@/modules/profile/profile.entity';
 import { Users, CheckCircle, Calendar, Briefcase, GraduationCap, Code } from 'lucide-react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -40,8 +40,8 @@ export const AboutPage = ({ skills = [], experiences = [], educations = [], prof
         []
     )
 
-    const proficientSkills = skills.filter(s => s.category === SkillCategory.Proficient);
-    const familiarSkills = skills.filter(s => s.category === SkillCategory.Familiar);
+    const proficientSkills = skills.filter(s => s.category === "Proficient");
+    const familiarSkills = skills.filter(s => s.category === "Familiar");
 
     return (
         <Box component="main" sx={{ color: 'text.primary', display: 'flex', flexDirection: 'column', alignItems: 'center', p: { xs: 2, md: 4 }, maxWidth: '1200px', mx: 'auto' }}>

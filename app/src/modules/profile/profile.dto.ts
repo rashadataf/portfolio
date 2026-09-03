@@ -3,6 +3,7 @@ export interface UpdateProfileDTO {
     bioEn?: string;
     bioAr?: string;
     aboutEn?: string;
+    aboutAr?: string;
     happyClients?: number;
     projectsCompleted?: number;
     yearsOfExperience?: number;

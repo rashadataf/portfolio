@@ -15,7 +15,7 @@ import {
 import { createSuggestionItems } from "novel/extensions";
 import { Command, renderItems } from "novel/extensions";
 import { uploadFn } from "@/components/Editor/imageUpload";
-import { JSONContent } from "novel";
+import { type JSONContent } from "novel";
 
 export const createSlashCommand = (onImportMarkdown?: () => void, onExportMarkdown?: (content: JSONContent) => void) => {
   const suggestionItems = createSuggestionItems([

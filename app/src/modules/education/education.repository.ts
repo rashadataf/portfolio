@@ -1,6 +1,6 @@
 import { dbService } from '@/modules/db/db.service';
-import { Education, EducationEntity } from './education.entity';
-import { CreateEducationDTO, UpdateEducationDTO } from './education.dto';
+import { type Education, EducationEntity } from './education.entity';
+import { type CreateEducationDTO, type UpdateEducationDTO } from './education.dto';
 
 interface EducationRow {
     id: number;

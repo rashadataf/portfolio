@@ -1,7 +1,7 @@
 'use server';
 
 import { EducationService } from './education.service';
-import { CreateEducationDTO, UpdateEducationDTO } from './education.dto';
+import { type CreateEducationDTO, type UpdateEducationDTO } from './education.dto';
 import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/auth';
 

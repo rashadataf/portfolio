@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Project } from '@/modules/project/project.entity';
+import { type Project } from '@/modules/project/project.entity';
 import { createProject, updateProject } from '@/modules/project/project.controller';
 import { uploadFile } from '@/modules/file/file.controller';
 import { Button } from '@/components/UI/Button';

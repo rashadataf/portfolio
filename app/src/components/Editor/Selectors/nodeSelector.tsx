@@ -12,7 +12,7 @@ import {
   Check,
   type LucideIcon,
 } from "lucide-react";
-import { EditorInstance, useEditor } from "novel";
+import { type EditorInstance, useEditor } from "novel";
 import * as Popover from "@radix-ui/react-popover";
 import Button from '@mui/material/Button';
 

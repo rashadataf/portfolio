@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
 function normalizeHostname(value: string) {
   // Accept either "example.com" or "https://example.com".
@@ -49,12 +50,46 @@ const nextConfig: NextConfig = {
     // Configure image qualities used across the app to avoid runtime warnings
     // (logs showed images requesting 60, 75 and 85)
     qualities: [60, 75, 85],
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 31536000,
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: '10mb',
+      bodySizeLimit: "10mb",
     },
+    optimizePackageImports: ["@mui/material", "@mui/icons-material", "lucide-react"],
+  },
+  // Compression
+  compress: true,
+  // Powered by header
+  poweredByHeader: false,
+  // Headers for security and performance
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-XSS-Protection", value: "1; mode=block" },
+        ],
+      },
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+    ];
   },
 };
 
-export default nextConfig;
+const bundleAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
+export default bundleAnalyzer(nextConfig);

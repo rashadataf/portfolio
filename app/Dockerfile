@@ -1,4 +1,4 @@
-FROM node:20.18.0 AS base
+FROM node:24.14.1 AS base
 
 ARG PORTFOLIO_WORKDIR_PATH
 
@@ -24,6 +24,6 @@ ENV NODE_ENV=production
 
 RUN yarn build
 
-RUN yarn install --prod --ignore-engines
+RUN yarn install --prod
 
 CMD ["yarn", "start"]

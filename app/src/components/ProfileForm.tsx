@@ -8,7 +8,7 @@ import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Profile } from '@/modules/profile/profile.entity';
+import { type Profile } from '@/modules/profile/profile.entity';
 import { updateProfile } from '@/modules/profile/profile.controller';
 import { uploadFile } from '@/modules/file/file.controller';
 import { Button } from '@/components/UI/Button';
@@ -69,6 +69,7 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
                     bioEn: formData.bioEn,
                     bioAr: formData.bioAr,
                     aboutEn: formData.aboutEn,
+                    aboutAr: formData.aboutAr,
                     happyClients: Number(formData.happyClients),
                     projectsCompleted: Number(formData.projectsCompleted),
                     yearsOfExperience: Number(formData.yearsOfExperience),
@@ -90,7 +91,7 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
                 setIsLoading(false);
             }
         },
-        [formData.aboutEn, formData.bioAr, formData.bioEn, formData.contactEmail, formData.happyClients, formData.headline, formData.heroImageUrl, formData.projectsCompleted, formData.resumeUrl, formData.yearsOfExperience, initialData.slug, router, setIsLoading]
+        [formData.aboutAr, formData.aboutEn, formData.bioAr, formData.bioEn, formData.contactEmail, formData.happyClients, formData.headline, formData.heroImageUrl, formData.projectsCompleted, formData.resumeUrl, formData.yearsOfExperience, initialData.slug, router, setIsLoading]
     );
 
     const resumeRef = useRef<HTMLInputElement | null>(null);
@@ -104,6 +105,8 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
                 <TextField label="Bio (English)" name="bioEn" value={formData.bioEn || ''} onChange={handleChange} fullWidth multiline rows={4} />
 
                 <TextField label="About Me (English)" name="aboutEn" value={formData.aboutEn || ''} onChange={handleChange} fullWidth multiline rows={6} />
+
+                <TextField label="About Me (Arabic)" name="aboutAr" value={formData.aboutAr || ''} onChange={handleChange} fullWidth multiline rows={6} slotProps={{ htmlInput: { dir: 'rtl' } }} />
 
                 <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
                     <Box sx={{ flex: '1 1 0', minWidth: 0, maxWidth: { md: '33%', xs: '100%' } }}>

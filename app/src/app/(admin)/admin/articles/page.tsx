@@ -3,7 +3,7 @@ import { useEffect, useCallback } from "react";
 import Link from "next/link";
 import { getAllArticles } from "@/modules/article/article.controller";
 import { AdminArticleCard } from "@/components/AdminArticleCard";
-import { Article } from "@/modules/article/article.entity";
+import { type Article } from "@/modules/article/article.entity";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';

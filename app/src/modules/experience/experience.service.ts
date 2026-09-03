@@ -1,6 +1,6 @@
 import { ExperienceRepository } from './experience.repository';
-import { CreateExperienceDTO, UpdateExperienceDTO } from './experience.dto';
-import { Experience } from './experience.entity';
+import { type CreateExperienceDTO, type UpdateExperienceDTO } from './experience.dto';
+import { type Experience } from './experience.entity';
 
 export class ExperienceService {
     private repository: ExperienceRepository;

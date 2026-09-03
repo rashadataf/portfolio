@@ -1,8 +1,9 @@
 import { dbService } from '@/modules/db/db.service';
-import { Article, ArticleEntity } from '@/modules/article/article.entity';
-import { CreateArticleDTO, UpdateArticleDTO } from '@/modules/article/article.dto';
+import { type Article, ArticleEntity } from '@/modules/article/article.entity';
+import { type CreateArticleDTO, type UpdateArticleDTO } from '@/modules/article/article.dto';
 import { toCamelCase, toSnakeCase } from '@/lib/utils';
-import { ArticleStatus } from '@/types';
+import type { ArticleStatus } from '@/types';
+import { ARTICLE_STATUS_VALUES } from '@/types';
 
 export class ArticleRepository {
 
@@ -11,9 +12,9 @@ export class ArticleRepository {
                     SELECT * FROM ${ArticleEntity.tableName}
                     WHERE (content_search_en @@ websearch_to_tsquery('english', $1)
                        OR content_search_ar @@ websearch_to_tsquery('arabic', $1))
-                      AND status = '${ArticleStatus.PUBLISHED}'
+                      AND status = $2
                 `;
-        const { rows } = await dbService.query(sqlQuery, params);
+        const { rows } = await dbService.query(sqlQuery, [params[0], ARTICLE_STATUS_VALUES.PUBLISHED]);
         return rows.map(row => toCamelCase<T>(row));
     }
 
@@ -44,8 +45,37 @@ export class ArticleRepository {
         }
     }
 
-    async findAll(): Promise<Article[]> {
-        const { rows } = await dbService.query(`SELECT * FROM ${ArticleEntity.tableName}`);
+    async findAll(filters?: { page?: number; limit?: number; status?: string; search?: string; lang?: string }): Promise<Article[]> {
+        const conditions: string[] = [];
+        const values: (string | number)[] = [];
+        let paramIndex = 1;
+
+        if (filters?.status) {
+            conditions.push(`status = $${paramIndex}`);
+            values.push(filters.status);
+            paramIndex++;
+        }
+
+        if (filters?.search) {
+            conditions.push(`(title_en ILIKE $${paramIndex} OR title_ar ILIKE $${paramIndex} OR content_search_en @@ websearch_to_tsquery('english', $${paramIndex}))`);
+            values.push(`%${filters.search}%`);
+            paramIndex++;
+        }
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+        const limit = filters?.limit ?? 10;
+        const offset = ((filters?.page ?? 1) - 1) * limit;
+
+        const sqlQuery = `
+            SELECT * FROM ${ArticleEntity.tableName}
+            ${whereClause}
+            ORDER BY created_at DESC
+            LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+        `;
+        values.push(limit, offset);
+
+        const { rows } = await dbService.query(sqlQuery, values);
         return rows.map(row => toCamelCase<Article>(row));
     }
 

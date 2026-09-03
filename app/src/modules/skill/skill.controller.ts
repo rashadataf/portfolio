@@ -1,7 +1,7 @@
 'use server';
 
 import { SkillService } from './skill.service';
-import { CreateSkillDTO, UpdateSkillDTO } from './skill.dto';
+import { type CreateSkillDTO, type UpdateSkillDTO } from './skill.dto';
 import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/auth';
 

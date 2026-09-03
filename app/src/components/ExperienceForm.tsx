@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Experience } from '@/modules/experience/experience.entity';
+import { type Experience } from '@/modules/experience/experience.entity';
 import { createExperience, updateExperience } from '@/modules/experience/experience.controller';
 import { Button } from '@/components/UI/Button';
 

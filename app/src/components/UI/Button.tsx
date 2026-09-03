@@ -41,7 +41,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     if (asChild) {
       return (
         <Slot>
-          <MuiButton variant={m.variant} color={m.color} size={muiSize} sx={{ ...extraSx, ...(sx as MuiButtonProps['sx']) }} ref={ref as React.Ref<HTMLButtonElement>} {...rest}>
+          <MuiButton variant={m.variant} color={m.color} size={muiSize} sx={{ ...extraSx, ...(sx) }} ref={ref as React.Ref<HTMLButtonElement>} {...rest}>
             {children}
           </MuiButton>
         </Slot>
@@ -49,7 +49,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      <MuiButton variant={m.variant} color={m.color} size={muiSize} sx={{ ...extraSx, ...(sx as MuiButtonProps['sx']) }} ref={ref as React.Ref<HTMLButtonElement>} {...rest}>
+      <MuiButton variant={m.variant} color={m.color} size={muiSize} sx={{ ...extraSx, ...(sx) }} ref={ref as React.Ref<HTMLButtonElement>} {...rest}>
         {children}
       </MuiButton>
     );

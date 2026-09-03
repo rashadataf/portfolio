@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Skill, SkillCategory } from '@/modules/skill/skill.entity';
+import type { Skill } from '@/modules/skill/skill.entity';
 import { createSkill, updateSkill } from '@/modules/skill/skill.controller';
 import { Button } from '@/components/UI/Button';
 
@@ -21,7 +21,7 @@ export const SkillForm = ({ initialData, onSuccess, onCancel }: SkillFormProps) 
     const [formData, setFormData] = useSafeState({
         name: initialData?.name || '',
         percentage: initialData?.percentage || 50,
-        category: initialData?.category || SkillCategory.Proficient,
+        category: initialData?.category || "Proficient",
         displayOrder: initialData?.displayOrder || 0,
     });
     const [isLoading, setIsLoading] = useSafeState(false);
@@ -96,7 +96,7 @@ export const SkillForm = ({ initialData, onSuccess, onCancel }: SkillFormProps) 
                     onChange={handleChange}
                     fullWidth
                 >
-                    {Object.values(SkillCategory).map((category) => (
+                    {["Proficient", "Familiar"].map((category) => (
                         <MenuItem key={category} value={category}>{category}</MenuItem>
                     ))}
                 </TextField>

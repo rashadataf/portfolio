@@ -1,4 +1,4 @@
-import { Role } from '@/types';
+import { ROLE_VALUES } from '@/types';
 import { dbService } from '@/modules/db/db.service';
 import { UserController } from '@/modules/user/user.controller';
 import { UserEntity } from '@/modules/user/user.entity';
@@ -37,7 +37,7 @@ export class MigrationService {
     await userController.createUser({
       email: adminEmail,
       password: adminPassword,
-      role: Role.Admin
+      role: ROLE_VALUES.ADMIN
     })
   }
 

@@ -1,17 +1,23 @@
 'use server';
 
 import { ProjectService } from './project.service';
-import { CreateProjectDTO, UpdateProjectDTO } from './project.dto';
+import { type CreateProjectDTO, type UpdateProjectDTO } from './project.dto';
 import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/auth';
+import { createProjectSchema, updateProjectSchema, projectQuerySchema } from '@/lib/validation';
+import { ZodError } from 'zod';
 
 const projectService = new ProjectService();
 
-export async function getAllProjects() {
+export async function getAllProjects(params?: { page?: number; limit?: number; technology?: string; search?: string }) {
     try {
-        const projects = await projectService.getAllProjects();
+        const { page, limit, ...filters } = projectQuerySchema.parse(params || {});
+        const projects = await projectService.getAllProjects({ page, limit, ...filters });
         return { success: true, data: projects };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { success: false, error: 'Invalid query parameters', details: error.message };
+        }
         console.error('Failed to fetch projects:', error);
         return { success: false, error: 'Failed to fetch projects' };
     }
@@ -20,11 +26,18 @@ export async function getAllProjects() {
 export async function createProject(data: CreateProjectDTO) {
     try {
         await isAdmin();
-        const project = await projectService.createProject(data);
+        
+        // Validate input data
+        const validatedData = createProjectSchema.parse(data);
+        
+        const project = await projectService.createProject(validatedData);
         revalidatePath('/projects');
         revalidatePath('/admin/projects');
         return { success: true, data: project };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { success: false, error: 'Validation error', details: error.message };
+        }
         console.error('Failed to create project:', error);
         return { success: false, error: 'Failed to create project' };
     }
@@ -33,11 +46,18 @@ export async function createProject(data: CreateProjectDTO) {
 export async function updateProject(id: number, data: UpdateProjectDTO) {
     try {
         await isAdmin();
-        const project = await projectService.updateProject(id, data);
+        
+        // Validate input data
+        const validatedData = updateProjectSchema.parse(data);
+        
+        const project = await projectService.updateProject(id, { ...validatedData, id });
         revalidatePath('/projects');
         revalidatePath('/admin/projects');
         return { success: true, data: project };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { success: false, error: 'Validation error', details: error.message };
+        }
         console.error('Failed to update project:', error);
         return { success: false, error: 'Failed to update project' };
     }
@@ -87,9 +107,9 @@ export async function importProjectsJson(formData: FormData) {
         // Delete existing projects
         await projectService.deleteAllProjects();
 
-        // Create new projects
+        // Create new projects with validation
         for (const project of projects) {
-            await projectService.createProject({
+            const validatedProject = createProjectSchema.parse({
                 title: project.title,
                 description: project.description,
                 imageUrl: project.imageUrl,
@@ -100,12 +120,16 @@ export async function importProjectsJson(formData: FormData) {
                 appStoreUrl: project.appStoreUrl,
                 displayOrder: 0
             });
+            await projectService.createProject(validatedProject);
         }
 
         revalidatePath('/projects');
         revalidatePath('/admin/projects');
         return { success: true };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { success: false, error: 'Validation error in imported data', details: error.message };
+        }
         console.error('Failed to import projects:', error);
         return { success: false, error: 'Failed to import projects' };
     }

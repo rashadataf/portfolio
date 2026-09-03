@@ -1,5 +1,6 @@
-import { JSONContent } from "novel";
-import { ArticleStatus } from "@/types";
+import { type JSONContent } from "novel";
+import type { ArticleStatus } from "@/types";
+import { ARTICLE_STATUS_VALUES } from "@/types";
 
 export interface Article {
     id: string;
@@ -26,7 +27,7 @@ export interface Article {
 export class ArticleEntity {
     static tableName = 'articles';
 
-    static articleStatusValues = Object.values(ArticleStatus).map(value => `'${value}'`).join(', ');
+    static articleStatusValues = Object.values(ARTICLE_STATUS_VALUES).map(value => `'${value}'`).join(', ');
 
     static createTableQuery = `
         CREATE TABLE IF NOT EXISTS ${ArticleEntity.tableName} (

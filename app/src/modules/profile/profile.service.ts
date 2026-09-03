@@ -1,6 +1,6 @@
 import { ProfileRepository } from './profile.repository';
-import { UpdateProfileDTO } from './profile.dto';
-import { Profile } from './profile.entity';
+import { type UpdateProfileDTO } from './profile.dto';
+import { type Profile } from './profile.entity';
 
 export class ProfileService {
     private repository: ProfileRepository;

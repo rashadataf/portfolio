@@ -1,5 +1,5 @@
 'use client';
-import { Dispatch, SetStateAction, useState, useCallback, useRef, useEffect } from 'react';
+import { type Dispatch, type SetStateAction, useState, useCallback, useRef, useEffect } from 'react';
 
 export function useSafeState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>]
 export function useSafeState<S = undefined>(): [S | undefined, Dispatch<SetStateAction<S | undefined>>]

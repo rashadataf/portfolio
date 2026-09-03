@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from "react";
 import { useSafeState } from "@/hooks/useSafeState.hook";
-import { Article } from "@/modules/article/article.entity";
+import { type Article } from "@/modules/article/article.entity";
 import { getDraftArticles } from "@/modules/article/article.controller";
 import { AdminArticleCard } from "@/components/AdminArticleCard";
 

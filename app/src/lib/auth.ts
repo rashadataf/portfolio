@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { CredentialsType } from "@/types";
+import { type CredentialsType } from "@/types";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -44,7 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks: {
         async session({ session, token }) {
             if (session.user && token.email) {
-                session.user.id = token.id as string;
+                session.user.id = token.id;
                 session.user.email = token.email;
                 session.user.role = token.role;
             }

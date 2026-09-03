@@ -18,7 +18,7 @@ import Tooltip from '@mui/material/Tooltip';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Skill } from '@/modules/skill/skill.entity';
+import { type Skill } from '@/modules/skill/skill.entity';
 import { deleteSkill, importSkillsJson, deleteAllSkills } from '@/modules/skill/skill.controller';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/Modal';

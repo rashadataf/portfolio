@@ -1,4 +1,4 @@
-import { SkillCategory } from "./skill.entity";
+import { type SkillCategory } from "./skill.entity";
 
 export interface CreateSkillDTO {
     name: string;

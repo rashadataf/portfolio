@@ -1,7 +1,7 @@
 import dynamicImport from "next/dynamic";
 import { Loader } from "@/components/Loader";
 import { getAllArticles, getArticleBySlug } from "@/modules/article/article.controller";
-import { Metadata } from "next";
+import { type Metadata } from "next";
 
 export const revalidate = 60
 

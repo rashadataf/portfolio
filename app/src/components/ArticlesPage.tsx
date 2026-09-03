@@ -1,8 +1,8 @@
 'use client';
-import { KeyboardEvent, ChangeEvent, useCallback, useEffect } from "react";
+import { type KeyboardEvent, type ChangeEvent, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useSafeState } from "@/hooks/useSafeState.hook";
-import { Article } from "@/modules/article/article.entity";
+import { type Article } from "@/modules/article/article.entity";
 import { getPublishedArticles, serachPublishedArticles } from "@/modules/article/article.controller";
 import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import Container from '@mui/material/Container';

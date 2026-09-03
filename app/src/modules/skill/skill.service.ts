@@ -1,6 +1,6 @@
 import { SkillRepository } from './skill.repository';
-import { CreateSkillDTO, UpdateSkillDTO } from './skill.dto';
-import { Skill } from './skill.entity';
+import { type CreateSkillDTO, type UpdateSkillDTO } from './skill.dto';
+import { type Skill } from './skill.entity';
 
 export class SkillService {
     private repository: SkillRepository;

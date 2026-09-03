@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Article } from "@/modules/article/article.entity";
+import { type Article } from "@/modules/article/article.entity";
 import { Viewer } from "@/components/Editor/Viewer";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
