@@ -3,6 +3,9 @@ import {
   updateArticleSchema,
   createProjectSchema,
   updateProjectSchema,
+  createSkillSchema,
+  createEducationSchema,
+  createExperienceSchema,
   loginSchema,
   updateProfileSchema,
 } from "@/lib/validation";
@@ -212,6 +215,99 @@ describe("Validation Schemas", () => {
       };
 
       const result = updateProfileSchema.safeParse(invalidProfile);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("createSkillSchema", () => {
+    it("validates a valid skill", () => {
+      const validSkill = {
+        name: "React",
+        percentage: 90,
+        category: "Proficient",
+        displayOrder: 1,
+      };
+
+      const result = createSkillSchema.safeParse(validSkill);
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects percentage out of range", () => {
+      const invalidSkill = {
+        name: "React",
+        percentage: 150,
+        category: "Proficient",
+      };
+
+      const result = createSkillSchema.safeParse(invalidSkill);
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects invalid category", () => {
+      const invalidSkill = {
+        name: "React",
+        percentage: 90,
+        category: "Expert",
+      };
+
+      const result = createSkillSchema.safeParse(invalidSkill);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("createEducationSchema", () => {
+    it("validates a valid education", () => {
+      const validEducation = {
+        institution: "University of Technology",
+        degree: "BSc",
+        field: "Computer Science",
+        startDate: "2015",
+        endDate: "2019",
+      };
+
+      const result = createEducationSchema.safeParse(validEducation);
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects missing institution", () => {
+      const invalidEducation = {
+        degree: "BSc",
+        field: "Computer Science",
+        startDate: "2015",
+        endDate: "2019",
+      };
+
+      const result = createEducationSchema.safeParse(invalidEducation);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("createExperienceSchema", () => {
+    it("validates a valid experience", () => {
+      const validExperience = {
+        company: "Tech Corp",
+        position: "Software Engineer",
+        location: "Remote",
+        startDate: "Jan 2020",
+        endDate: "Present",
+        responsibilities: ["Built features", "Fixed bugs"],
+      };
+
+      const result = createExperienceSchema.safeParse(validExperience);
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects empty responsibilities array", () => {
+      const invalidExperience = {
+        company: "Tech Corp",
+        position: "Software Engineer",
+        location: "Remote",
+        startDate: "Jan 2020",
+        endDate: "Present",
+        responsibilities: [],
+      };
+
+      const result = createExperienceSchema.safeParse(invalidExperience);
       expect(result.success).toBe(false);
     });
   });

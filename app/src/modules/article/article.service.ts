@@ -33,8 +33,8 @@ export class ArticleService {
         return this.articleRepository.findArticlesByStatus(ARTICLE_STATUS_VALUES.PUBLISHED);
     }
 
-    async serachPublishedArticles<T>(params: unknown[]): Promise<T[]> {
-        return this.articleRepository.serachPublishedArticles(params);
+    async searchPublishedArticles<T>(params: unknown[]): Promise<T[]> {
+        return this.articleRepository.searchPublishedArticles(params);
     }
 
 

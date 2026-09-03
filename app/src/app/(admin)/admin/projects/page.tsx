@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 export default async function ProjectsAdminPage() {
-    const { data: projects } = await getAllProjects();
+    const { data: projects } = await getAllProjects({ limit: 100 });
 
     return (
         <Box sx={{ maxWidth: '1200px', mx: 'auto', py: 4 }}>

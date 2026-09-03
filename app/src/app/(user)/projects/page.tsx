@@ -12,6 +12,6 @@ export const metadata: Metadata = {
 }
 
 export default async function Projects() {
-    const { data: projects } = await getAllProjects();
+    const { data: projects } = await getAllProjects({ limit: 100 });
     return <ProjectsPage projects={projects || []} />
 }

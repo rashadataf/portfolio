@@ -51,6 +51,41 @@ export const projectQuerySchema = z.object({
   search: z.string().optional(),
 });
 
+// Skill validation schemas
+export const createSkillSchema = z.object({
+  name: z.string().min(1, "Skill name is required").max(255),
+  percentage: z.coerce.number().int().min(0, "Percentage must be at least 0").max(100, "Percentage must be at most 100"),
+  category: z.enum(["Proficient", "Familiar"]),
+  displayOrder: z.coerce.number().int().nonnegative().default(0),
+});
+
+export const updateSkillSchema = createSkillSchema.partial();
+
+// Education validation schemas
+export const createEducationSchema = z.object({
+  institution: z.string().min(1, "Institution is required").max(255),
+  degree: z.string().min(1, "Degree is required").max(255),
+  field: z.string().min(1, "Field is required").max(255),
+  startDate: z.string().min(1, "Start date is required").max(50),
+  endDate: z.string().min(1, "End date is required").max(50),
+  displayOrder: z.coerce.number().int().nonnegative().default(0),
+});
+
+export const updateEducationSchema = createEducationSchema.partial();
+
+// Experience validation schemas
+export const createExperienceSchema = z.object({
+  company: z.string().min(1, "Company is required").max(255),
+  position: z.string().min(1, "Position is required").max(255),
+  location: z.string().min(1, "Location is required").max(255),
+  startDate: z.string().min(1, "Start date is required").max(50),
+  endDate: z.string().min(1, "End date is required").max(50),
+  responsibilities: z.array(z.string().min(1)).min(1, "At least one responsibility is required"),
+  displayOrder: z.coerce.number().int().nonnegative().default(0),
+});
+
+export const updateExperienceSchema = createExperienceSchema.partial();
+
 // Profile validation schemas
 export const updateProfileSchema = z.object({
   headline: z.string().max(255).optional(),
@@ -102,6 +137,15 @@ export type ArticleQueryInput = z.infer<typeof articleQuerySchema>;
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 export type ProjectQueryInput = z.infer<typeof projectQuerySchema>;
+
+export type CreateSkillInput = z.infer<typeof createSkillSchema>;
+export type UpdateSkillInput = z.infer<typeof updateSkillSchema>;
+
+export type CreateEducationInput = z.infer<typeof createEducationSchema>;
+export type UpdateEducationInput = z.infer<typeof updateEducationSchema>;
+
+export type CreateExperienceInput = z.infer<typeof createExperienceSchema>;
+export type UpdateExperienceInput = z.infer<typeof updateExperienceSchema>;
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 

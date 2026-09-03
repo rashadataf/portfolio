@@ -17,7 +17,7 @@ export default function AllArticles() {
 
     const fetchArticles = useCallback(
         async () => {
-            const { articles } = await getAllArticles();
+            const { articles } = await getAllArticles({ limit: 100 });
             setArticles(articles || []);
         },
         [setArticles]

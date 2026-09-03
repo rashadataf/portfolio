@@ -14,7 +14,7 @@ export const viewport = {
 };
 
 export async function generateStaticParams() {
-    const { articles } = await getAllArticles();
+    const { articles } = await getAllArticles({ limit: 100 });
     if (!articles) return [];
     return articles.map((article) => ({
         id: String(article.id),

@@ -9,7 +9,7 @@ export class ProjectService {
         this.repository = new ProjectRepository();
     }
 
-    async getAllProjects(filters?: { page?: number; limit?: number; technology?: string; search?: string }): Promise<Project[]> {
+    async getAllProjects(filters?: { page?: number; limit?: number; technology?: string; search?: string }): Promise<{ projects: Project[]; total: number; page: number; limit: number; totalPages: number }> {
         return await this.repository.getAllProjects(filters);
     }
 

@@ -3,7 +3,7 @@ import { type KeyboardEvent, type ChangeEvent, useCallback, useEffect } from "re
 import Link from "next/link";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import { type Article } from "@/modules/article/article.entity";
-import { getPublishedArticles, serachPublishedArticles } from "@/modules/article/article.controller";
+import { getPublishedArticles, searchPublishedArticles } from "@/modules/article/article.controller";
 import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -72,7 +72,7 @@ export const ArticlesPage = () => {
         if (!searchQuery.trim().length) return;
 
         try {
-            const searchResult = await serachPublishedArticles(searchQuery);
+            const searchResult = await searchPublishedArticles(searchQuery);
             setArticles(searchResult.articles ?? []);
             setSearchPerformed(true);
         } catch (error) {

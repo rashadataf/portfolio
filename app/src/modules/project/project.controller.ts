@@ -5,15 +5,15 @@ import { type CreateProjectDTO, type UpdateProjectDTO } from './project.dto';
 import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/auth';
 import { createProjectSchema, updateProjectSchema, projectQuerySchema } from '@/lib/validation';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 
 const projectService = new ProjectService();
 
 export async function getAllProjects(params?: { page?: number; limit?: number; technology?: string; search?: string }) {
     try {
         const { page, limit, ...filters } = projectQuerySchema.parse(params || {});
-        const projects = await projectService.getAllProjects({ page, limit, ...filters });
-        return { success: true, data: projects };
+        const { projects, total, totalPages } = await projectService.getAllProjects({ page, limit, ...filters });
+        return { success: true, data: projects, pagination: { page, limit, total, totalPages } };
     } catch (error) {
         if (error instanceof ZodError) {
             return { success: false, error: 'Invalid query parameters', details: error.message };
@@ -104,12 +104,19 @@ export async function importProjectsJson(formData: FormData) {
             return { success: false, error: 'Invalid JSON format: expected an array' };
         }
 
-        // Delete existing projects
-        await projectService.deleteAllProjects();
-
-        // Create new projects with validation
-        for (const project of projects) {
-            const validatedProject = createProjectSchema.parse({
+        // Validate the ENTIRE array BEFORE deleting existing data,
+        // so a bad entry can't wipe the table and leave it half-imported
+        const validatedProjects = z.array(createProjectSchema).parse(
+            projects.map((project: {
+                title: string;
+                description: string;
+                imageUrl: string;
+                technologies: string[];
+                liveUrl?: string;
+                sourceCodeUrl?: string;
+                playStoreUrl?: string;
+                appStoreUrl?: string;
+            }) => ({
                 title: project.title,
                 description: project.description,
                 imageUrl: project.imageUrl,
@@ -118,9 +125,16 @@ export async function importProjectsJson(formData: FormData) {
                 sourceCodeUrl: project.sourceCodeUrl,
                 playStoreUrl: project.playStoreUrl,
                 appStoreUrl: project.appStoreUrl,
-                displayOrder: 0
-            });
-            await projectService.createProject(validatedProject);
+                displayOrder: 0,
+            }))
+        );
+
+        // Delete existing projects only after all entries passed validation
+        await projectService.deleteAllProjects();
+
+        // Create new projects
+        for (const project of validatedProjects) {
+            await projectService.createProject(project);
         }
 
         revalidatePath('/projects');

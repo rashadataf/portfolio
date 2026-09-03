@@ -35,7 +35,7 @@ export class ProjectRepository {
         };
     }
 
-    async getAllProjects(filters?: { page?: number; limit?: number; technology?: string; search?: string }): Promise<Project[]> {
+    async getAllProjects(filters?: { page?: number; limit?: number; technology?: string; search?: string }): Promise<{ projects: Project[]; total: number; page: number; limit: number; totalPages: number }> {
         const conditions: string[] = [];
         const values: (string | number)[] = [];
         let paramIndex = 1;
@@ -55,7 +55,13 @@ export class ProjectRepository {
         const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
         const limit = filters?.limit ?? 10;
-        const offset = ((filters?.page ?? 1) - 1) * limit;
+        const page = filters?.page ?? 1;
+        const offset = (page - 1) * limit;
+
+        // Count total matching rows in the same query window to keep it consistent
+        const countQuery = `SELECT COUNT(*)::int AS total FROM ${ProjectEntity.tableName} ${whereClause}`;
+        const countResult = await dbService.query(countQuery, values);
+        const total = (countResult.rows[0] as { total: number }).total;
 
         const query = `
             SELECT * FROM ${ProjectEntity.tableName}
@@ -66,7 +72,15 @@ export class ProjectRepository {
         values.push(limit, offset);
 
         const result = await dbService.query(query, values);
-        return result.rows.map((row) => this.mapToEntity(row as ProjectRow));
+        const projects = result.rows.map((row) => this.mapToEntity(row as ProjectRow));
+
+        return {
+            projects,
+            total,
+            page,
+            limit,
+            totalPages: Math.max(1, Math.ceil(total / limit)),
+        };
     }
 
     async getProjectById(id: number): Promise<Project | null> {

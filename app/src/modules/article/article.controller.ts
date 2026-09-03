@@ -10,13 +10,13 @@ import { ZodError } from "zod";
 
 const articleService = new ArticleService();
 
-export async function serachPublishedArticles(query: string) {
+export async function searchPublishedArticles(query: string) {
     try {
         if (!query) {
             return { articles: [], status: 200 };
         }
 
-        const articles = await articleService.serachPublishedArticles<Article>([query]);
+        const articles = await articleService.searchPublishedArticles<Article>([query]);
         return { articles, status: 200 };
     } catch (error) {
         console.error('Error fetching articles by query:', error);
@@ -27,8 +27,8 @@ export async function serachPublishedArticles(query: string) {
 export async function getAllArticles(params?: { page?: number; limit?: number; status?: string; search?: string; lang?: string }) {
     try {
         const { page, limit, ...filters } = articleQuerySchema.parse(params || {});
-        const articles = await articleService.getAllArticles({ page, limit, ...filters });
-        return { articles, status: 200 };
+        const { articles, total, totalPages } = await articleService.getAllArticles({ page, limit, ...filters });
+        return { articles, pagination: { page, limit, total, totalPages }, status: 200 };
     } catch (error) {
         if (error instanceof ZodError) {
             return { message: 'Invalid query parameters', error: error.message, status: 400 };

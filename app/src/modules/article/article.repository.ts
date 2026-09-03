@@ -7,7 +7,7 @@ import { ARTICLE_STATUS_VALUES } from '@/types';
 
 export class ArticleRepository {
 
-    async serachPublishedArticles<T>(params: unknown[]): Promise<T[]> {
+    async searchPublishedArticles<T>(params: unknown[]): Promise<T[]> {
         const sqlQuery = `
                     SELECT * FROM ${ArticleEntity.tableName}
                     WHERE (content_search_en @@ websearch_to_tsquery('english', $1)
@@ -45,7 +45,7 @@ export class ArticleRepository {
         }
     }
 
-    async findAll(filters?: { page?: number; limit?: number; status?: string; search?: string; lang?: string }): Promise<Article[]> {
+    async findAll(filters?: { page?: number; limit?: number; status?: string; search?: string; lang?: string }): Promise<{ articles: Article[]; total: number; page: number; limit: number; totalPages: number }> {
         const conditions: string[] = [];
         const values: (string | number)[] = [];
         let paramIndex = 1;
@@ -65,7 +65,13 @@ export class ArticleRepository {
         const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
         const limit = filters?.limit ?? 10;
-        const offset = ((filters?.page ?? 1) - 1) * limit;
+        const page = filters?.page ?? 1;
+        const offset = (page - 1) * limit;
+
+        // Count total matching rows with the same filters for pagination metadata
+        const countQuery = `SELECT COUNT(*)::int AS total FROM ${ArticleEntity.tableName} ${whereClause}`;
+        const countResult = await dbService.query(countQuery, values);
+        const total = (countResult.rows[0] as { total: number }).total;
 
         const sqlQuery = `
             SELECT * FROM ${ArticleEntity.tableName}
@@ -76,7 +82,15 @@ export class ArticleRepository {
         values.push(limit, offset);
 
         const { rows } = await dbService.query(sqlQuery, values);
-        return rows.map(row => toCamelCase<Article>(row));
+        const articles = rows.map(row => toCamelCase<Article>(row));
+
+        return {
+            articles,
+            total,
+            page,
+            limit,
+            totalPages: Math.max(1, Math.ceil(total / limit)),
+        };
     }
 
     async findArticlesByStatus(status: ArticleStatus): Promise<Article[]> {
