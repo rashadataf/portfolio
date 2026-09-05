@@ -1,220 +1,223 @@
+# CI/CD Pipeline for VPS-hosted Portfolio
+#
+# Flow:
+#   1. Push to any branch → CI runs (lint, typecheck, unit tests, build)
+#   2. Merge to main → CI runs + Docker image built & pushed to GHCR
+#   3. Create tag (v1.0.0) → CI runs + image pushed + deploy to VPS via self-hosted runner
+#
+# The VPS has a self-hosted GitHub Actions runner installed.
+# Pulumi state is stored locally on the VPS (no cloud backend needed).
+# All secrets live in Pulumi.prod.yaml (encrypted, committed to repo).
+
 name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
+    tags: ['v*']
   pull_request:
-    branches: [main, develop]
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
-  NODE_VERSION: "24.x"
-  YARN_VERSION: "1.22.x"
+  NODE_VERSION: '22.18.0'
+
+permissions:
+  contents: write   # for GitHub Releases
+  packages: write   # for GHCR
 
 jobs:
-  lint-and-type-check:
+  # ============================================================
+  # CI: Lint + Type Check (runs on every push/PR)
+  # ============================================================
+  lint-and-typecheck:
     name: Lint & Type Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
+          cache: 'yarn'
           cache-dependency-path: app/yarn.lock
 
-      - name: Install dependencies
-        run: cd app && yarn install --frozen-lockfile
+      - run: cd app && yarn install --frozen-lockfile
+      - run: cd app && yarn lint
+      - run: cd app && yarn type-check
 
-      - name: Run ESLint
-        run: cd app && yarn lint
-
-      - name: Run TypeScript type check
-        run: cd app && yarn type-check
-
+  # ============================================================
+  # CI: Unit Tests (runs on every push/PR)
+  # ============================================================
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: portfolio_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/portfolio_test
+      NODE_ENV: test
+      AUTH_SECRET: test-secret-at-least-32-characters-long
+      AUTH_TRUST_HOST: 'true'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
+          cache: 'yarn'
           cache-dependency-path: app/yarn.lock
 
-      - name: Install dependencies
-        run: cd app && yarn install --frozen-lockfile
+      - run: cd app && yarn install --frozen-lockfile
+      - run: cd app && yarn test --ci --coverage
 
-      - name: Run unit tests
-        run: cd app && yarn test --ci --coverage
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v4
         with:
-          directory: ./app/coverage
-          flags: unittests
+          files: app/coverage/lcov.info
+          flags: unit
           fail_ci_if_error: false
 
-  e2e-tests:
-    name: E2E Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-          cache-dependency-path: app/yarn.lock
-
-      - name: Install dependencies
-        run: cd app && yarn install --frozen-lockfile
-
-      - name: Install Playwright browsers
-        run: cd app && npx playwright install --with-deps chromium
-
-      - name: Build application
-        run: cd app && yarn build
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          DOMAIN_NAME: localhost
-          PROTOCOL: http
-
-      - name: Run E2E tests
-        run: cd app && yarn test:e2e
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          DOMAIN_NAME: localhost
-          PROTOCOL: http
-
-      - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: app/playwright-report/
-          retention-days: 7
-
+  # ============================================================
+  # CI: Build (runs on every push/PR)
+  # ============================================================
   build:
-    name: Build Application
+    name: Build
     runs-on: ubuntu-latest
-    needs: [lint-and-type-check, unit-tests, e2e-tests]
+    timeout-minutes: 15
+    needs: [lint-and-typecheck, unit-tests]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
+          cache: 'yarn'
           cache-dependency-path: app/yarn.lock
 
-      - name: Install dependencies
-        run: cd app && yarn install --frozen-lockfile
-
-      - name: Build application
-        run: cd app && yarn build
+      - run: cd app && yarn install --frozen-lockfile
+      - run: cd app && yarn build
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-          PROTOCOL: https
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+          AUTH_SECRET: test-secret-at-least-32-characters-long
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: nextjs-build
-          path: app/.next/
-          retention-days: 1
-
-  docker-build:
-    name: Build Docker Image
+  # ============================================================
+  # CD: Build & Push Docker Image to GHCR (main + tags only)
+  # ============================================================
+  docker-publish:
+    name: Publish Docker Image
     runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    timeout-minutes: 20
+    needs: [build]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata for Docker
-        id: meta
+      - id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}/portfolio
           tags: |
-            type=ref,event=branch
-            type=sha,prefix=
             type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v5
         with:
           context: ./app
+          file: ./app/Dockerfile
+          target: production
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            PORTFOLIO_WORKDIR_PATH=/portfolio/app
 
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: docker-build
-    if: github.ref == 'refs/heads/develop'
-    environment: staging
-    steps:
-      - name: Deploy to staging
-        run: |
-          echo "Deploying to staging environment..."
-          # Add your staging deployment commands here
-          # Example: kubectl apply -f k8s/staging/
-          # Or: pulumi up --stack staging
-
-  deploy-production:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: docker-build
-    if: github.ref == 'refs/heads/main'
+  # ============================================================
+  # CD: Deploy to VPS (on version tag only)
+  # ============================================================
+  # Runs on the self-hosted runner installed on your VPS.
+  # Pulumi state is stored locally on the VPS (file backend).
+  # Secrets are in Pulumi.prod.yaml (encrypted, committed to repo).
+  # The runner needs: docker, pulumi CLI, access to /var/run/docker.sock
+  deploy:
+    name: Deploy to VPS
+    runs-on: [self-hosted, linux, vps]
+    timeout-minutes: 25
+    needs: [docker-publish]
+    if: startsWith(github.ref, 'refs/tags/v')
     environment: production
     steps:
-      - name: Deploy to production
-        run: |
-          echo "Deploying to production environment..."
-          # Add your production deployment commands here
-          # Example: kubectl apply -f k8s/production/
-          # Or: pulumi up --stack production
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+      - uses: actions/checkout@v4
 
-  notify:
-    name: Notify
-    runs-on: ubuntu-latest
-    needs: [deploy-staging, deploy-production]
-    if: always()
-    steps:
-      - name: Send notification
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull latest image
+        run: docker pull ghcr.io/${{ github.repository }}/portfolio:latest
+
+      - name: Install Pulumi
+        uses: pulumi/actions@v5
+        with:
+          version: '3.150.0'
+
+      - name: Deploy with Pulumi
+        working-directory: ./infra
         run: |
-          echo "Pipeline completed with status: ${{ job.status }}"
-          # Add Slack/Discord/Email notification here
+          # Use local backend (state stored on VPS filesystem, no cloud needed)
+          export PULUMI_BACKEND_URL=file://~
+
+          # Select the prod stack (config is in Pulumi.prod.yaml)
+          pulumi stack select prod || pulumi stack init prod
+
+          # Update the image tag to the version being deployed
+          pulumi config set PORTFOLIO_IMAGE_TAG ${{ github.ref_name }}
+
+          # Preview first (shows what will change)
+          pulumi preview
+
+          # Apply changes
+          pulumi up --yes
+
+      - name: Verify deployment
+        run: |
+          sleep 15
+          # Check via Traefik (internal Docker network)
+          curl -sf http://localhost/api/health || \
+          curl -sf https://rashadataf.com/api/health || \
+          exit 1
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
