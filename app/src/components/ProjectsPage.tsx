@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import { Project } from "@/components/Project";
 import { Loader } from "@/components/Loader";
-import { Project as ProjectType } from "@/modules/project/project.entity";
+import { type Project as ProjectType } from "@/modules/project/project.entity";
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';

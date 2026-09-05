@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import { type Metadata } from "next";
 import { ArticlesPage } from "@/components/ArticlesPage";
 
 export const metadata: Metadata = {

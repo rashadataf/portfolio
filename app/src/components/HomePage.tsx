@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { trackPageVisit } from "@/modules/analytics/analytics.controller";
 import profilePic from '@public/images/rashad.webp';
 import { Loader } from "@/components/Loader";
-import { Profile } from "@/modules/profile/profile.entity";
+import { type Profile } from "@/modules/profile/profile.entity";
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';

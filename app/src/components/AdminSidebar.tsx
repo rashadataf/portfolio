@@ -104,6 +104,7 @@ export const AdminSidebar = ({
         { href: '/admin/articles/drafts', label: 'Drafts' },
         { href: '/admin/articles/published', label: 'Published' },
         { href: '/admin/articles/archived', label: 'Archived' },
+        { href: '/admin/backups', label: 'Backups' },
         { href: '/admin/settings', label: 'Settings' },
     ];
 

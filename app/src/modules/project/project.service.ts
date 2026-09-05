@@ -1,6 +1,6 @@
 import { ProjectRepository } from './project.repository';
-import { CreateProjectDTO, UpdateProjectDTO } from './project.dto';
-import { Project } from './project.entity';
+import { type CreateProjectDTO, type UpdateProjectDTO } from './project.dto';
+import { type Project } from './project.entity';
 
 export class ProjectService {
     private repository: ProjectRepository;
@@ -9,8 +9,8 @@ export class ProjectService {
         this.repository = new ProjectRepository();
     }
 
-    async getAllProjects(): Promise<Project[]> {
-        return await this.repository.getAllProjects();
+    async getAllProjects(filters?: { page?: number; limit?: number; technology?: string; search?: string }): Promise<{ projects: Project[]; total: number; page: number; limit: number; totalPages: number }> {
+        return await this.repository.getAllProjects(filters);
     }
 
     async getProjectById(id: number): Promise<Project | null> {

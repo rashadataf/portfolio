@@ -2,19 +2,21 @@
 import fs from "fs";
 import path from "path";
 import { ArticleService } from "@/modules/article/article.service";
-import { CreateArticleDTO, UpdateArticleDTO } from "@/modules/article/article.dto";
+import { type CreateArticleDTO, type UpdateArticleDTO } from "@/modules/article/article.dto";
 import { isAdmin } from "@/lib/auth";
-import { Article } from "@/modules/article/article.entity";
+import { type Article } from "@/modules/article/article.entity";
+import { createArticleSchema, updateArticleSchema, articleQuerySchema, slugParamSchema } from "@/lib/validation";
+import { ZodError } from "zod";
 
 const articleService = new ArticleService();
 
-export async function serachPublishedArticles(query: string) {
+export async function searchPublishedArticles(query: string) {
     try {
         if (!query) {
             return { articles: [], status: 200 };
         }
 
-        const articles = await articleService.serachPublishedArticles<Article>([query]);
+        const articles = await articleService.searchPublishedArticles<Article>([query]);
         return { articles, status: 200 };
     } catch (error) {
         console.error('Error fetching articles by query:', error);
@@ -22,11 +24,15 @@ export async function serachPublishedArticles(query: string) {
     }
 }
 
-export async function getAllArticles() {
+export async function getAllArticles(params?: { page?: number; limit?: number; status?: string; search?: string; lang?: string }) {
     try {
-        const articles = await articleService.getAllArticles();
-        return { articles, status: 200 };
+        const { page, limit, ...filters } = articleQuerySchema.parse(params || {});
+        const { articles, total, totalPages } = await articleService.getAllArticles({ page, limit, ...filters });
+        return { articles, pagination: { page, limit, total, totalPages }, status: 200 };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { message: 'Invalid query parameters', error: error.message, status: 400 };
+        }
         console.error('Error fetching articles:', error);
         return { message: 'Error fetching articles', error, status: 500 };
     }
@@ -82,11 +88,8 @@ export async function getArticleById(id: string): Promise<{ article?: Article, m
 
 export async function getArticleBySlug(slug: string): Promise<{ article?: Article, message?: string, error?: unknown, status: number }> {
     try {
-        if (!slug) {
-            return { message: 'Slug is required', status: 400 };
-        }
-
-        const decodedSlug = decodeURIComponent(slug);
+        const validatedSlug = slugParamSchema.parse({ slug });
+        const decodedSlug = decodeURIComponent(validatedSlug.slug);
         const article = await articleService.getArticleBySlugs(decodedSlug);
 
         if (!article) {
@@ -95,6 +98,9 @@ export async function getArticleBySlug(slug: string): Promise<{ article?: Articl
 
         return { article, status: 200 };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { message: 'Invalid slug', error: error.message, status: 400 };
+        }
         console.error('Error fetching article by slug:', error);
         return { message: 'Error fetching article', error, status: 500 };
     }
@@ -103,6 +109,10 @@ export async function getArticleBySlug(slug: string): Promise<{ article?: Articl
 export async function createArticle(data: CreateArticleDTO, coverImage: File | null) {
     try {
         await isAdmin();
+        
+        // Validate input data
+        const validatedData = createArticleSchema.parse(data);
+        
         let coverImageUrl = '';
 
         if (coverImage) {
@@ -112,19 +122,26 @@ export async function createArticle(data: CreateArticleDTO, coverImage: File | n
             }
         }
 
-        const articleData = { ...data, coverImage: coverImageUrl };
+        const articleData = { ...validatedData, coverImage: coverImageUrl };
 
         const createdArticle = await articleService.createArticle(articleData);
         return { article: createdArticle, status: 201 };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { message: 'Validation error', error: error.message, status: 400 };
+        }
         console.error("Error creating article:", error);
-        return { message: 'Error createing article', error, status: 400 };
+        return { message: 'Error creating article', error, status: 400 };
     }
 }
 
 export async function updateArticle(id: string, data: UpdateArticleDTO, coverImage: File | null = null) {
     try {
         await isAdmin();
+        
+        // Validate input data
+        const validatedData = updateArticleSchema.parse(data);
+        
         let coverImageUrl = '';
 
         if (coverImage) {
@@ -136,14 +153,14 @@ export async function updateArticle(id: string, data: UpdateArticleDTO, coverIma
 
         // If no new cover image file, remove coverImage from data to preserve existing, unless it's '' to delete
         if (!coverImage) {
-            if (data.coverImage !== '') {
-                delete data.coverImage;
+            if (validatedData.coverImage !== '') {
+                delete validatedData.coverImage;
             }
         } else {
-            data.coverImage = coverImageUrl;
+            validatedData.coverImage = coverImageUrl;
         }
 
-        const updatedArticle = await articleService.updateArticle(id, data);
+        const updatedArticle = await articleService.updateArticle(id, validatedData);
         if (!updatedArticle) {
             return { message: 'Article not found', status: 404 };
         }

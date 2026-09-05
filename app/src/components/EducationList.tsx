@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { toast } from 'sonner';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Education } from '@/modules/education/education.entity';
+import { type Education } from '@/modules/education/education.entity';
 import { deleteEducation, importEducationsJson, deleteAllEducations } from '@/modules/education/education.controller';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/Modal';

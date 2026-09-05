@@ -1,8 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
+import { apiRateLimit } from "@/lib/rate-limit";
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ filename: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ filename: string }> }) {
+  const rateLimitResponse = await apiRateLimit(request);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
     try {
         const { filename } = await params;
         // Prevent path traversal

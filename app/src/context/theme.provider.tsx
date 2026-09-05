@@ -1,13 +1,14 @@
 'use client';
-import { createContext, useCallback, useMemo, useContext, useEffect, PropsWithChildren } from 'react';
+import { createContext, useCallback, useMemo, useContext, useEffect, type PropsWithChildren } from 'react';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { THEME, ThemeContextType } from '@/types';
+import type { THEME, ThemeContextType } from '@/types';
+import { THEME_VALUES } from '@/types';
 import { ThemeProvider as MuiThemeProvider, createTheme, CssBaseline } from '@mui/material';
 
 
 
 const initialState: ThemeContextType = {
-    theme: THEME.DARK,
+    theme: THEME_VALUES.DARK,
     toggleTheme: () => { },
 }
 
@@ -17,7 +18,7 @@ const ThemeContext = createContext<ThemeContextType>(initialState);
 
 export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
-    const [theme, setTheme] = useSafeState(THEME.DARK);
+    const [theme, setTheme] = useSafeState<THEME>(THEME_VALUES.DARK);
 
     useEffect(
         () => {
@@ -26,11 +27,11 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
             const stored = localStorage.getItem('theme')
-            const desired = stored === 'dark' || (stored === null && prefersDark) ? THEME.DARK : THEME.LIGHT
+            const desired = stored === 'dark' || (stored === null && prefersDark) ? THEME_VALUES.DARK : THEME_VALUES.LIGHT
 
             // Only update if different to avoid mutating DOM/state during hydration
             if (desired !== theme) {
-                html.classList.remove(THEME.DARK, THEME.LIGHT)
+                html.classList.remove(THEME_VALUES.DARK, THEME_VALUES.LIGHT)
                 html.classList.add(desired)
                 setTheme(desired)
             } else {
@@ -44,12 +45,12 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
     const toggleTheme = useCallback(
         () => {
-            if (theme === THEME.DARK) {
+            if (theme === THEME_VALUES.DARK) {
                 localStorage.theme = 'light'
-                setTheme(THEME.LIGHT);
+                setTheme(THEME_VALUES.LIGHT);
             } else {
                 localStorage.theme = 'dark'
-                setTheme(THEME.DARK);
+                setTheme(THEME_VALUES.DARK);
             }
         },
         [setTheme, theme]
@@ -69,26 +70,40 @@ export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
         () =>
             createTheme({
                 palette: {
-                    mode: theme === THEME.DARK ? 'dark' : 'light',
+                    mode: theme === THEME_VALUES.DARK ? 'dark' : 'light',
+                    // Dark mode primary must meet WCAG AA (4.5:1) in both usages:
+                    //   - purple TEXT on the dark background (#1a1a1a) → needs a
+                    //     light shade: #BA68C8 (4.9:1)
+                    //   - white text on purple CONTAINED buttons → needs a dark
+                    //     shade, set via the MuiButton override below: #8E24AA (7:1)
                     primary: { 
-                        main: theme === THEME.DARK ? '#9c27b0' : '#6B21A8' 
+                        main: theme === THEME_VALUES.DARK ? '#BA68C8' : '#6B21A8' 
                     },
                     secondary: { 
-                        main: theme === THEME.DARK ? '#00e5ff' : '#00BFA6' 
+                        main: theme === THEME_VALUES.DARK ? '#00e5ff' : '#00BFA6' 
                     },
                     background: {
-                        default: theme === THEME.DARK ? '#1a1a1a' : '#ffffff',
-                        paper: theme === THEME.DARK ? '#2a2a2a' : '#ffffff'
+                        default: theme === THEME_VALUES.DARK ? '#1a1a1a' : '#ffffff',
+                        paper: theme === THEME_VALUES.DARK ? '#2a2a2a' : '#ffffff'
                     },
                     text: {
-                        primary: theme === THEME.DARK ? '#ffffff' : '#000000',
-                        secondary: theme === THEME.DARK ? '#b0b0b0' : '#666666'
+                        primary: theme === THEME_VALUES.DARK ? '#ffffff' : '#000000',
+                        secondary: theme === THEME_VALUES.DARK ? '#b0b0b0' : '#666666'
                     }
                 },
                 components: {
                     MuiButton: {
                         defaultProps: {
                             disableElevation: true,
+                        },
+                        styleOverrides: {
+                            // Contained buttons render white text on the primary
+                            // color — use a darker purple in dark mode so the
+                            // white text meets WCAG AA (main #BA68C8 is only 3.55:1)
+                            contained: theme === THEME_VALUES.DARK ? {
+                                backgroundColor: '#8E24AA',
+                                '&:hover': { backgroundColor: '#7B1FA2' },
+                            } : undefined,
                         },
                     },
                     MuiIconButton: {

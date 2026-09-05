@@ -1,9 +1,11 @@
 'use server';
 
 import { SkillService } from './skill.service';
-import { CreateSkillDTO, UpdateSkillDTO } from './skill.dto';
+import { type CreateSkillDTO, type UpdateSkillDTO } from './skill.dto';
 import { revalidatePath } from 'next/cache';
 import { isAdmin } from '@/lib/auth';
+import { createSkillSchema, updateSkillSchema } from '@/lib/validation';
+import { z, ZodError } from 'zod';
 
 const skillService = new SkillService();
 
@@ -20,11 +22,15 @@ export async function getAllSkills() {
 export async function createSkill(data: CreateSkillDTO) {
     try {
         await isAdmin();
-        const skill = await skillService.createSkill(data);
+        const validatedData = createSkillSchema.parse(data);
+        const skill = await skillService.createSkill(validatedData);
         revalidatePath('/about');
         revalidatePath('/admin/skills');
         return { success: true, data: skill };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { success: false, error: 'Validation error', details: error.message };
+        }
         console.error('Failed to create skill:', error);
         return { success: false, error: 'Failed to create skill' };
     }
@@ -50,11 +56,18 @@ export async function importSkillsJson(formData: FormData) {
             return { success: false, error: 'JSON must be an array of skills' };
         }
 
-        await skillService.bulkCreateSkills(skills);
+        // Validate the entire array BEFORE writing anything, so a bad entry
+        // can't leave the database in a half-imported state
+        const validatedSkills = z.array(createSkillSchema).parse(skills);
+
+        await skillService.bulkCreateSkills(validatedSkills);
         revalidatePath('/about');
         revalidatePath('/admin/skills');
         return { success: true };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { success: false, error: 'Validation error in imported data', details: error.message };
+        }
         console.error('Failed to import skills:', error);
         return { success: false, error: 'Failed to import skills' };
     }
@@ -63,11 +76,15 @@ export async function importSkillsJson(formData: FormData) {
 export async function updateSkill(id: number, data: UpdateSkillDTO) {
     try {
         await isAdmin();
-        const skill = await skillService.updateSkill(id, data);
+        const validatedData = updateSkillSchema.parse(data);
+        const skill = await skillService.updateSkill(id, validatedData);
         revalidatePath('/about');
         revalidatePath('/admin/skills');
         return { success: true, data: skill };
     } catch (error) {
+        if (error instanceof ZodError) {
+            return { success: false, error: 'Validation error', details: error.message };
+        }
         console.error('Failed to update skill:', error);
         return { success: false, error: 'Failed to update skill' };
     }

@@ -1,9 +1,9 @@
 // import { meter } from "@/instrumentation.node";
 import { v4 as uuidv4 } from 'uuid';
 import { cookies } from 'next/headers';
-import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { type ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 // import { delay } from "./utils";
-import { TelemetryService } from "@/modules/analytics/telemetry.service";
+import { type TelemetryService } from "@/modules/analytics/telemetry.service";
 
 export class AnalyticsService {
     private pageVisitCounter;

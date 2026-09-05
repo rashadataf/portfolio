@@ -1,7 +1,5 @@
-export enum SkillCategory {
-    Proficient = 'Proficient',
-    Familiar = 'Familiar'
-}
+export type SkillCategory = "Proficient" | "Familiar";
+export type SkillCategoryType = SkillCategory;
 
 export interface Skill {
     id: number;

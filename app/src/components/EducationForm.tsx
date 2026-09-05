@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Education } from '@/modules/education/education.entity';
+import { type Education } from '@/modules/education/education.entity';
 import { createEducation, updateEducation } from '@/modules/education/education.controller';
 import { Button } from '@/components/UI/Button';
 

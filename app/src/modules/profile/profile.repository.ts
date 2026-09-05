@@ -1,6 +1,6 @@
 import { dbService } from '@/modules/db/db.service';
-import { Profile, ProfileEntity } from './profile.entity';
-import { UpdateProfileDTO } from './profile.dto';
+import { type Profile, ProfileEntity } from './profile.entity';
+import { type UpdateProfileDTO } from './profile.dto';
 
 interface ProfileRow {
     id: number;
@@ -9,6 +9,7 @@ interface ProfileRow {
     bio_en: string;
     bio_ar: string;
     about_en: string;
+    about_ar: string;
     happy_clients: number;
     projects_completed: number;
     years_of_experience: number;
@@ -27,6 +28,7 @@ export class ProfileRepository {
             bioEn: row.bio_en,
             bioAr: row.bio_ar,
             aboutEn: row.about_en,
+            aboutAr: row.about_ar,
             happyClients: row.happy_clients,
             projectsCompleted: row.projects_completed,
             yearsOfExperience: row.years_of_experience,
@@ -65,6 +67,10 @@ export class ProfileRepository {
         if (data.aboutEn !== undefined) {
             fields.push(`about_en = $${paramIndex++}`);
             values.push(data.aboutEn);
+        }
+        if (data.aboutAr !== undefined) {
+            fields.push(`about_ar = $${paramIndex++}`);
+            values.push(data.aboutAr);
         }
         if (data.happyClients !== undefined) {
             fields.push(`happy_clients = $${paramIndex++}`);

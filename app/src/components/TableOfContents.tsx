@@ -105,7 +105,7 @@ export const TableOfContents = ({ contentId = 'article-content', dir = 'ltr' }: 
                 const ok = scanAndPopulate();
                 if (ok) {
                     // after headings appear, make sure observer watches them
-                    const newHeadings = Array.from(root.querySelectorAll('h1,h2,h3,[role="heading"]')) as HTMLElement[];
+                    const newHeadings = Array.from(root.querySelectorAll<HTMLElement>('h1,h2,h3,[role="heading"]'));
                     headingsRef.current = newHeadings;
                     if (observerRef.current) newHeadings.forEach(h => observerRef.current?.observe(h));
                 }
@@ -133,7 +133,7 @@ export const TableOfContents = ({ contentId = 'article-content', dir = 'ltr' }: 
 
         observerRef.current = obs;
         // Observe whatever headings currently exist (scan again)
-        const currentHeadings = Array.from(root.querySelectorAll('h1,h2,h3,[role="heading"]')) as HTMLElement[];
+        const currentHeadings = Array.from(root.querySelectorAll<HTMLElement>('h1,h2,h3,[role="heading"]'));
         headingsRef.current = currentHeadings;
         currentHeadings.forEach((h) => obs.observe(h));
 

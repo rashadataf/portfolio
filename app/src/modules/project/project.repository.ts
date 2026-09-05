@@ -1,6 +1,6 @@
 import { dbService } from '@/modules/db/db.service';
-import { Project, ProjectEntity } from './project.entity';
-import { CreateProjectDTO, UpdateProjectDTO } from './project.dto';
+import { type Project, ProjectEntity } from './project.entity';
+import { type CreateProjectDTO, type UpdateProjectDTO } from './project.dto';
 
 interface ProjectRow {
     id: number;
@@ -35,10 +35,53 @@ export class ProjectRepository {
         };
     }
 
-    async getAllProjects(): Promise<Project[]> {
-        const query = `SELECT * FROM ${ProjectEntity.tableName} ORDER BY display_order ASC, created_at DESC`;
-        const result = await dbService.query(query);
-        return result.rows.map((row) => this.mapToEntity(row as ProjectRow));
+    async getAllProjects(filters?: { page?: number; limit?: number; technology?: string; search?: string }): Promise<{ projects: Project[]; total: number; page: number; limit: number; totalPages: number }> {
+        const conditions: string[] = [];
+        const values: (string | number)[] = [];
+        let paramIndex = 1;
+
+        if (filters?.technology) {
+            conditions.push(`$${paramIndex} = ANY(technologies)`);
+            values.push(filters.technology);
+            paramIndex++;
+        }
+
+        if (filters?.search) {
+            conditions.push(`(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`);
+            values.push(`%${filters.search}%`);
+            paramIndex++;
+        }
+
+        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+        const limit = filters?.limit ?? 10;
+        const page = filters?.page ?? 1;
+        const offset = (page - 1) * limit;
+
+        // Count total matching rows in the same query window to keep it consistent
+        // (spread to a copy — the values array is reused for pagination params below)
+        const countQuery = `SELECT COUNT(*)::int AS total FROM ${ProjectEntity.tableName} ${whereClause}`;
+        const countResult = await dbService.query(countQuery, [...values]);
+        const total = (countResult.rows[0] as { total: number }).total;
+
+        const query = `
+            SELECT * FROM ${ProjectEntity.tableName}
+            ${whereClause}
+            ORDER BY display_order ASC, created_at DESC
+            LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+        `;
+        values.push(limit, offset);
+
+        const result = await dbService.query(query, values);
+        const projects = result.rows.map((row) => this.mapToEntity(row as ProjectRow));
+
+        return {
+            projects,
+            total,
+            page,
+            limit,
+            totalPages: Math.max(1, Math.ceil(total / limit)),
+        };
     }
 
     async getProjectById(id: number): Promise<Project | null> {

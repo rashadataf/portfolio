@@ -8,7 +8,7 @@ import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Profile } from '@/modules/profile/profile.entity';
+import { type Profile } from '@/modules/profile/profile.entity';
 import { updateProfile } from '@/modules/profile/profile.controller';
 import { uploadFile } from '@/modules/file/file.controller';
 import { Button } from '@/components/UI/Button';
@@ -64,24 +64,33 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
             e.preventDefault();
             setIsLoading(true);
             try {
+                // NOTE: DB columns are nullable, so initialData can contain nulls.
+                // The form displays them as empty strings (value={x || ''}), so send
+                // empty strings too — sending null fails z.string() validation.
                 const result = await updateProfile(initialData.slug, {
-                    headline: formData.headline,
-                    bioEn: formData.bioEn,
-                    bioAr: formData.bioAr,
-                    aboutEn: formData.aboutEn,
-                    happyClients: Number(formData.happyClients),
-                    projectsCompleted: Number(formData.projectsCompleted),
-                    yearsOfExperience: Number(formData.yearsOfExperience),
-                    resumeUrl: formData.resumeUrl,
-                    contactEmail: formData.contactEmail,
-                    heroImageUrl: formData.heroImageUrl,
+                    headline: formData.headline || '',
+                    bioEn: formData.bioEn || '',
+                    bioAr: formData.bioAr || '',
+                    aboutEn: formData.aboutEn || '',
+                    aboutAr: formData.aboutAr || '',
+                    happyClients: Number(formData.happyClients) || 0,
+                    projectsCompleted: Number(formData.projectsCompleted) || 0,
+                    yearsOfExperience: Number(formData.yearsOfExperience) || 0,
+                    resumeUrl: formData.resumeUrl || '',
+                    contactEmail: formData.contactEmail || '',
+                    heroImageUrl: formData.heroImageUrl || '',
                 });
 
                 if (result.success) {
                     toast.success('Profile updated successfully');
                     router.refresh();
                 } else {
-                    toast.error('Failed to update profile');
+                    // Surface the actual reason (e.g. which field failed validation)
+                    toast.error(result.error || 'Failed to update profile', {
+                        description: 'details' in result && result.details
+                            ? String(result.details).slice(0, 300)
+                            : undefined,
+                    });
                 }
             } catch (error) {
                 toast.error('An error occurred');
@@ -90,7 +99,7 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
                 setIsLoading(false);
             }
         },
-        [formData.aboutEn, formData.bioAr, formData.bioEn, formData.contactEmail, formData.happyClients, formData.headline, formData.heroImageUrl, formData.projectsCompleted, formData.resumeUrl, formData.yearsOfExperience, initialData.slug, router, setIsLoading]
+        [formData.aboutAr, formData.aboutEn, formData.bioAr, formData.bioEn, formData.contactEmail, formData.happyClients, formData.headline, formData.heroImageUrl, formData.projectsCompleted, formData.resumeUrl, formData.yearsOfExperience, initialData.slug, router, setIsLoading]
     );
 
     const resumeRef = useRef<HTMLInputElement | null>(null);
@@ -104,6 +113,8 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
                 <TextField label="Bio (English)" name="bioEn" value={formData.bioEn || ''} onChange={handleChange} fullWidth multiline rows={4} />
 
                 <TextField label="About Me (English)" name="aboutEn" value={formData.aboutEn || ''} onChange={handleChange} fullWidth multiline rows={6} />
+
+                <TextField label="About Me (Arabic)" name="aboutAr" value={formData.aboutAr || ''} onChange={handleChange} fullWidth multiline rows={6} slotProps={{ htmlInput: { dir: 'rtl' } }} />
 
                 <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
                     <Box sx={{ flex: '1 1 0', minWidth: 0, maxWidth: { md: '33%', xs: '100%' } }}>

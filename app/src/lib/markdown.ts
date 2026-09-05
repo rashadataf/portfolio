@@ -1,5 +1,5 @@
-import { JSONContent } from "novel";
-import { Schema, DOMSerializer, NodeSpec, MarkSpec } from "prosemirror-model";
+import { type JSONContent } from "novel";
+import { Schema, DOMSerializer, type NodeSpec, type MarkSpec } from "prosemirror-model";
 import TurndownService from "turndown";
 
 // Define types for ProseMirror JSON content
@@ -210,10 +210,10 @@ turndownService.addRule('listItem', {
     let startAttr: string | null = null;
     if (parentList && ((parentList.nodeName || '').toLowerCase() === 'ol')) {
       startAttr = (parentList as Element).getAttribute('start');
-      index = Array.from(parentList.children).indexOf(node as Element);
+      index = Array.from(parentList.children).indexOf(node);
       prefix = (startAttr ? parseInt(startAttr) + index : index + 1) + '. ';
     } else if (parentList) {
-      index = Array.from(parentList.children).indexOf(node as Element);
+      index = Array.from(parentList.children).indexOf(node);
     }
 
     // Structured single log message for debugging

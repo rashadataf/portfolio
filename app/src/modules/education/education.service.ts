@@ -1,6 +1,6 @@
 import { EducationRepository } from './education.repository';
-import { CreateEducationDTO, UpdateEducationDTO } from './education.dto';
-import { Education } from './education.entity';
+import { type CreateEducationDTO, type UpdateEducationDTO } from './education.dto';
+import { type Education } from './education.entity';
 
 export class EducationService {
     private repository: EducationRepository;

@@ -5,6 +5,7 @@ export interface Profile {
     bioEn: string;
     bioAr: string;
     aboutEn: string;
+    aboutAr: string;
     happyClients: number;
     projectsCompleted: number;
     yearsOfExperience: number;
@@ -25,6 +26,7 @@ export class ProfileEntity {
             bio_en TEXT,
             bio_ar TEXT,
             about_en TEXT,
+            about_ar TEXT,
             happy_clients INTEGER DEFAULT 0,
             projects_completed INTEGER DEFAULT 0,
             years_of_experience INTEGER DEFAULT 0,
@@ -38,6 +40,8 @@ export class ProfileEntity {
     static initializeTable() {
         return [
             ProfileEntity.createTableQuery,
+            // Add about_ar column for existing databases (no-op if already present)
+            `ALTER TABLE ${ProfileEntity.tableName} ADD COLUMN IF NOT EXISTS about_ar TEXT;`,
             // Insert default profile if not exists
             `INSERT INTO ${ProfileEntity.tableName} (slug, headline, bio_en, bio_ar) 
              VALUES ('main', 'Software Engineer', 'Welcome to my portfolio', 'مرحبا بكم في ملفي الشخصي') 

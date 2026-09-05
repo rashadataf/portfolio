@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import { type Metadata } from "next";
 import { HomePage } from "@/components/HomePage";
 import { getProfile } from "@/modules/profile/profile.controller";
 

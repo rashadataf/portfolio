@@ -1,6 +1,6 @@
 import { dbService } from '@/modules/db/db.service';
-import { Skill, SkillEntity, SkillCategory } from './skill.entity';
-import { CreateSkillDTO, UpdateSkillDTO } from './skill.dto';
+import { type Skill, SkillEntity, type SkillCategory } from './skill.entity';
+import { type CreateSkillDTO, type UpdateSkillDTO } from './skill.dto';
 
 interface SkillRow {
     id: number;

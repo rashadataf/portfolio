@@ -1,5 +1,5 @@
-import { JSONContent } from "novel";
-import { ArticleStatus } from "@/types";
+import { type JSONContent } from "novel";
+import type { ArticleStatus } from "@/types";
 
 export type CreateArticleDTO = {
     titleEn: string;

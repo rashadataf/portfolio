@@ -1,7 +1,7 @@
 import dynamicImport from "next/dynamic";
 import { Loader } from "@/components/Loader";
 import { getAllArticles, getArticleBySlug } from "@/modules/article/article.controller";
-import { Metadata } from "next";
+import { type Metadata } from "next";
 
 export const revalidate = 60
 
@@ -14,7 +14,7 @@ export const viewport = {
 };
 
 export async function generateStaticParams() {
-    const { articles } = await getAllArticles();
+    const { articles } = await getAllArticles({ limit: 100 });
     if (!articles) return [];
     return articles.map((article) => ({
         id: String(article.id),

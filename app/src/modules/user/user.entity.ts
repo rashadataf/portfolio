@@ -1,4 +1,5 @@
-import { Role } from "@/types";
+import type { Role } from "@/types";
+import { ROLE_VALUES } from "@/types";
 
 export interface User {
   id: string;
@@ -16,7 +17,7 @@ export class UserEntity {
     id: 'SERIAL PRIMARY KEY',
     email: 'VARCHAR(255) UNIQUE NOT NULL',
     password: 'VARCHAR(255) NOT NULL',
-    role: `VARCHAR(10) DEFAULT '${Role.User}' NOT NULL`,
+    role: `VARCHAR(10) DEFAULT '${ROLE_VALUES.USER}' NOT NULL`,
     created_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
     updated_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
   }

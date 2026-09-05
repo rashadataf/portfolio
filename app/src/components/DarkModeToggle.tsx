@@ -3,13 +3,14 @@ import { useEffect, type ReactElement } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { useThemeContext } from '@/context/theme.provider';
-import { THEME } from '@/types';
+import type { THEME } from '@/types';
+import { THEME_VALUES } from '@/types';
 import { MoonIcon, SunIcon } from '@/components/Icons';
 import { useSafeState } from '@/hooks/useSafeState.hook';
 
 const renderIconConditionally: Record<THEME, ReactElement> = {
-    "dark": <SunIcon />,
-    "light": <MoonIcon />,
+    [THEME_VALUES.DARK]: <SunIcon />,
+    [THEME_VALUES.LIGHT]: <MoonIcon />,
 }
 
 type Props = {
@@ -28,7 +29,7 @@ export const ThemeToggler = ({ className }: Props) => {
     );
 
     return (
-        <Tooltip title={isMounted ? `Switch to ${theme === THEME.DARK ? 'light' : 'dark'} mode` : 'Toggle theme'}>
+        <Tooltip title={isMounted ? `Switch to ${theme === THEME_VALUES.DARK ? 'light' : 'dark'} mode` : 'Toggle theme'}>
             <IconButton
                 onClick={toggleTheme}
                 color="inherit"

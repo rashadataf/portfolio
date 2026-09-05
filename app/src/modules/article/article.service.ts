@@ -1,6 +1,6 @@
 import { ArticleRepository } from '@/modules/article/article.repository';
-import { CreateArticleDTO, UpdateArticleDTO } from '@/modules/article/article.dto';
-import { ArticleStatus } from '@/types';
+import { type CreateArticleDTO, type UpdateArticleDTO } from '@/modules/article/article.dto';
+import { ARTICLE_STATUS_VALUES } from '@/types';
 
 export class ArticleService {
     private articleRepository: ArticleRepository;
@@ -17,29 +17,29 @@ export class ArticleService {
         return this.articleRepository.findArticleBySlug(slug);
     }
 
-    async getAllArticles() {
-        return this.articleRepository.findAll();
+    async getAllArticles(filters?: { page?: number; limit?: number; status?: string; search?: string; lang?: string }) {
+        return this.articleRepository.findAll(filters);
     }
 
     async getDraftArticles() {
-        return this.articleRepository.findArticlesByStatus(ArticleStatus.DRAFT);
+        return this.articleRepository.findArticlesByStatus(ARTICLE_STATUS_VALUES.DRAFT);
     }
 
     async getArchivedArticles() {
-        return this.articleRepository.findArticlesByStatus(ArticleStatus.ARCHIVED);
+        return this.articleRepository.findArticlesByStatus(ARTICLE_STATUS_VALUES.ARCHIVED);
     }
 
     async getPublishedArticles() {
-        return this.articleRepository.findArticlesByStatus(ArticleStatus.PUBLISHED);
+        return this.articleRepository.findArticlesByStatus(ARTICLE_STATUS_VALUES.PUBLISHED);
     }
 
-    async serachPublishedArticles<T>(params: unknown[]): Promise<T[]> {
-        return this.articleRepository.serachPublishedArticles(params);
+    async searchPublishedArticles<T>(params: unknown[]): Promise<T[]> {
+        return this.articleRepository.searchPublishedArticles(params);
     }
 
 
     async createArticle(articleDTO: CreateArticleDTO) {
-        if (articleDTO.status === ArticleStatus.PUBLISHED) {
+        if (articleDTO.status === ARTICLE_STATUS_VALUES.PUBLISHED) {
             articleDTO.publicationDate = new Date();
         }
         return this.articleRepository.createArticle(articleDTO);

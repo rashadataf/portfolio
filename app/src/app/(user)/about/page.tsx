@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { type Metadata } from 'next';
 import { AboutPage } from '@/components/AboutPage';
 import { getAllSkills } from '@/modules/skill/skill.controller';
 import { getAllExperiences } from '@/modules/experience/experience.controller';

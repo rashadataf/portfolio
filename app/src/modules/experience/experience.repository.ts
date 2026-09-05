@@ -1,6 +1,6 @@
 import { dbService } from '@/modules/db/db.service';
-import { Experience, ExperienceEntity } from './experience.entity';
-import { CreateExperienceDTO, UpdateExperienceDTO } from './experience.dto';
+import { type Experience, ExperienceEntity } from './experience.entity';
+import { type CreateExperienceDTO, type UpdateExperienceDTO } from './experience.dto';
 
 interface ExperienceRow {
     id: number;

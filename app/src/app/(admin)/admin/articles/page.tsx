@@ -3,7 +3,7 @@ import { useEffect, useCallback } from "react";
 import Link from "next/link";
 import { getAllArticles } from "@/modules/article/article.controller";
 import { AdminArticleCard } from "@/components/AdminArticleCard";
-import { Article } from "@/modules/article/article.entity";
+import { type Article } from "@/modules/article/article.entity";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -17,7 +17,7 @@ export default function AllArticles() {
 
     const fetchArticles = useCallback(
         async () => {
-            const { articles } = await getAllArticles();
+            const { articles } = await getAllArticles({ limit: 100 });
             setArticles(articles || []);
         },
         [setArticles]

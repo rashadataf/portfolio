@@ -1,9 +1,9 @@
 "use client";
 import { useSafeState } from "@/hooks/useSafeState.hook";
 import Link from "next/link";
-import { Article } from "@/modules/article/article.entity";
+import { type Article } from "@/modules/article/article.entity";
 import { deleteArticle, updateArticle } from "@/modules/article/article.controller";
-import { ArticleStatus } from "@/types";
+import { ARTICLE_STATUS_VALUES } from "@/types";
 import { useCallback } from "react";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -65,7 +65,7 @@ export const AdminArticleCard = ({ article, onActionComplete }: ArticleCardProps
         async () => {
             setLoading(true);
             await handleSanitizeSlugs();
-            const { status, message } = await updateArticle(article.id, { status: ArticleStatus.ARCHIVED });
+            const { status, message } = await updateArticle(article.id, { status: ARTICLE_STATUS_VALUES.ARCHIVED });
             setLoading(false);
 
             if (status === 200) {
@@ -81,7 +81,7 @@ export const AdminArticleCard = ({ article, onActionComplete }: ArticleCardProps
     const handlePublish = useCallback(
         async () => {
             setLoading(true);
-            const { status, message } = await updateArticle(article.id, { status: ArticleStatus.PUBLISHED, publicationDate: new Date() });
+            const { status, message } = await updateArticle(article.id, { status: ARTICLE_STATUS_VALUES.PUBLISHED, publicationDate: new Date() });
             setLoading(false);
 
             if (status === 200) {
@@ -101,30 +101,30 @@ export const AdminArticleCard = ({ article, onActionComplete }: ArticleCardProps
                     <Typography variant="h6" component="div" sx={{ textDecoration: 'none', color: 'text.primary' }}>{article.titleEn}</Typography>
                 </Link>
                 <Typography variant="body2" color="text.secondary">By {article.author}</Typography>
-                {article.status !== ArticleStatus.PUBLISHED && (
+                {article.status !== ARTICLE_STATUS_VALUES.PUBLISHED && (
                     <Typography variant="body2" sx={{ color: 'warning.main', fontWeight: 'bold' }}>
-                        Status: {article.status === ArticleStatus.DRAFT ? 'Draft' : 'Archived'}
+                        Status: {article.status === ARTICLE_STATUS_VALUES.DRAFT ? 'Draft' : 'Archived'}
                     </Typography>
                 )}
             </CardContent>
 
             <CardActions sx={{ pt: 0 }}>
                 <Stack direction="row" spacing={1}>
-                    {article.status === ArticleStatus.DRAFT && (
+                    {article.status === ARTICLE_STATUS_VALUES.DRAFT && (
                         <>
                             <Button onClick={handlePublish} variant="default" size="sm" disabled={loading}>Publish</Button>
                             <Button onClick={handleArchive} variant="secondary" size="sm" disabled={loading}>Archive</Button>
                         </>
                     )}
 
-                    {article.status === ArticleStatus.ARCHIVED && (
+                    {article.status === ARTICLE_STATUS_VALUES.ARCHIVED && (
                         <>
                             <Button onClick={handlePublish} variant="default" size="sm" disabled={loading}>Restore/Publish</Button>
                             <Button onClick={handleDelete} variant="destructive" size="sm" disabled={loading}>Delete</Button>
                         </>
                     )}
 
-                    {article.status === ArticleStatus.PUBLISHED && (
+                    {article.status === ARTICLE_STATUS_VALUES.PUBLISHED && (
                         <>
                             <Button onClick={handleArchive} variant="secondary" size="sm" disabled={loading}>Archive</Button>
                             <Button onClick={handleDelete} variant="destructive" size="sm" disabled={loading}>Delete</Button>

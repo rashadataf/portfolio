@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Project } from '@/modules/project/project.entity';
+import { type Project } from '@/modules/project/project.entity';
 import { deleteProject, deleteAllProjects, importProjectsJson } from '@/modules/project/project.controller';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/Modal';

@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { toast } from 'sonner';
 import { useSafeState } from '@/hooks/useSafeState.hook';
-import { Experience } from '@/modules/experience/experience.entity';
+import { type Experience } from '@/modules/experience/experience.entity';
 import { deleteExperience, importExperiencesJson, deleteAllExperiences } from '@/modules/experience/experience.controller';
 import { Button } from '@/components/UI/Button';
 import { Modal } from '@/components/Modal';

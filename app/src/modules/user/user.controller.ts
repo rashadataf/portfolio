@@ -1,5 +1,5 @@
 import { UserService } from '@/modules/user/user.service';
-import { CreateUserDTO } from '@/modules/user/user.dto';
+import { type CreateUserDTO } from '@/modules/user/user.dto';
 
 export class UserController {
     private userService: UserService;
