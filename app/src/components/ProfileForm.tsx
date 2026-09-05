@@ -64,25 +64,33 @@ export const ProfileForm = ({ initialData }: ProfileFormProps) => {
             e.preventDefault();
             setIsLoading(true);
             try {
+                // NOTE: DB columns are nullable, so initialData can contain nulls.
+                // The form displays them as empty strings (value={x || ''}), so send
+                // empty strings too — sending null fails z.string() validation.
                 const result = await updateProfile(initialData.slug, {
-                    headline: formData.headline,
-                    bioEn: formData.bioEn,
-                    bioAr: formData.bioAr,
-                    aboutEn: formData.aboutEn,
-                    aboutAr: formData.aboutAr,
-                    happyClients: Number(formData.happyClients),
-                    projectsCompleted: Number(formData.projectsCompleted),
-                    yearsOfExperience: Number(formData.yearsOfExperience),
-                    resumeUrl: formData.resumeUrl,
-                    contactEmail: formData.contactEmail,
-                    heroImageUrl: formData.heroImageUrl,
+                    headline: formData.headline || '',
+                    bioEn: formData.bioEn || '',
+                    bioAr: formData.bioAr || '',
+                    aboutEn: formData.aboutEn || '',
+                    aboutAr: formData.aboutAr || '',
+                    happyClients: Number(formData.happyClients) || 0,
+                    projectsCompleted: Number(formData.projectsCompleted) || 0,
+                    yearsOfExperience: Number(formData.yearsOfExperience) || 0,
+                    resumeUrl: formData.resumeUrl || '',
+                    contactEmail: formData.contactEmail || '',
+                    heroImageUrl: formData.heroImageUrl || '',
                 });
 
                 if (result.success) {
                     toast.success('Profile updated successfully');
                     router.refresh();
                 } else {
-                    toast.error('Failed to update profile');
+                    // Surface the actual reason (e.g. which field failed validation)
+                    toast.error(result.error || 'Failed to update profile', {
+                        description: 'details' in result && result.details
+                            ? String(result.details).slice(0, 300)
+                            : undefined,
+                    });
                 }
             } catch (error) {
                 toast.error('An error occurred');

@@ -4,7 +4,6 @@
  * The db service is mocked so no real Postgres connection is made.
  * `@/lib/auth` is mocked to control the admin session.
  */
-import { ZodError } from 'zod';
 import { dbService } from '@/modules/db/db.service';
 import { pgResult, adminSession } from './helpers/test-utils';
 

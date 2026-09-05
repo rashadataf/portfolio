@@ -1,0 +1,42 @@
+groups:
+  - name: frontend_health
+    rules:
+      - alert: FrontendHealthCheckFailing
+        expr: absent(up{job="frontend-health"}) or up{job="frontend-health"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: frontend
+        annotations:
+          summary: "Frontend health check failing"
+          description: "Frontend health endpoint has been failing for more than 1 minute. Check database connectivity."
+
+      - alert: FrontendHealthCheckDegraded
+        expr: up{job="frontend-health"} == 1 and on() (health_check_status{status="unhealthy"}) > 0
+        for: 2m
+        labels:
+          severity: warning
+          service: frontend
+        annotations:
+          summary: "Frontend health check degraded"
+          description: "Frontend health endpoint reports unhealthy status (likely database connectivity issues) for more than 2 minutes."
+
+      - alert: FrontendProdHealthCheckFailing
+        expr: absent(up{job="frontend-prod-health"}) or up{job="frontend-prod-health"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: frontend
+        annotations:
+          summary: "Production frontend health check failing"
+          description: "Production frontend health endpoint has been failing for more than 1 minute. Check database connectivity immediately."
+
+      - alert: FrontendProdHealthCheckDegraded
+        expr: up{job="frontend-prod-health"} == 1 and on() (health_check_status{status="unhealthy"}) > 0
+        for: 2m
+        labels:
+          severity: warning
+          service: frontend
+        annotations:
+          summary: "Production frontend health check degraded"
+          description: "Production frontend health endpoint reports unhealthy status for more than 2 minutes."

@@ -61,6 +61,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 })
 
+// Export authMiddleware for use in Next.js middleware
+export { auth as authMiddleware };
+
 export const isAdmin = async () => {
     const session = await auth();
 

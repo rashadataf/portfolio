@@ -1,29 +1,88 @@
-FROM node:24.14.1 AS base
+# Base image with security updates
+FROM node:24-alpine AS base
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
 
 ARG PORTFOLIO_WORKDIR_PATH
-
 WORKDIR $PORTFOLIO_WORKDIR_PATH
 
+# Copy package files first for better layer caching
 COPY package.json yarn.lock ./
 
+# Install all dependencies (including devDependencies for build)
 RUN yarn install --frozen-lockfile
 
-COPY . .
-
-# Development
+# Development stage
 FROM base AS development
 
 ENV NODE_ENV=development
 
+# postgresql-client for backup restore from the admin dashboard
+RUN apk add --no-cache postgresql-client
+
+# Use dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+
 CMD ["yarn", "dev"]
 
-# Production
-FROM base AS production
+# Builder stage - builds the application
+FROM base AS builder
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN yarn build
+
+# Production dependencies only stage
+FROM base AS prod-deps
 
 ENV NODE_ENV=production
 
-RUN yarn build
+# Copy package files
+COPY package.json yarn.lock ./
 
-RUN yarn install --prod
+# Install only production dependencies
+RUN yarn install --frozen-lockfile --production && \
+    yarn cache clean
 
-CMD ["yarn", "start"]
+# Production runner stage - minimal image
+FROM node:24-alpine AS production
+
+# Install dumb-init for proper signal handling + postgresql-client for backup restore
+RUN apk add --no-cache dumb-init postgresql-client
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+ARG PORTFOLIO_WORKDIR_PATH
+WORKDIR $PORTFOLIO_WORKDIR_PATH
+
+# Set production environment
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Copy production dependencies
+COPY --from=prod-deps --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/node_modules ./node_modules
+
+# Copy built application
+COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/public ./public
+COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/.next/static ./.next/static
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Use dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["node", "server.js"]

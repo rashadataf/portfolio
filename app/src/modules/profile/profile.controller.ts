@@ -26,7 +26,11 @@ export async function updateProfile(slug: string, data: UpdateProfileDTO) {
         return { success: true, data: profile };
     } catch (error) {
         if (error instanceof ZodError) {
-            return { success: false, error: 'Validation error', details: error.message };
+            // List the failing fields so the UI can show what went wrong
+            const fieldErrors = error.issues
+                .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+                .join('; ');
+            return { success: false, error: `Validation error — ${fieldErrors}` };
         }
         console.error('Failed to update profile:', error);
         return { success: false, error: 'Failed to update profile' };

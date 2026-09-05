@@ -3,6 +3,10 @@ import { z } from "zod";
 const envSchema = z.object({
   // Database
   DATABASE_URL: z.url("Invalid DATABASE_URL"),
+  DB_POOL_MAX: z.string().default("20"),
+  DB_POOL_MIN: z.string().default("2"),
+  DB_IDLE_TIMEOUT: z.string().default("30000"),
+  DB_CONNECTION_TIMEOUT: z.string().default("5000"),
 
   // Auth
   AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters"),
@@ -15,6 +19,9 @@ const envSchema = z.object({
 
   // External URLs
   NEXT_PUBLIC_SITE_URL: z.url().optional(),
+
+  // Redis (for rate limiting, caching)
+  REDIS_URL: z.string().optional(),
 
   // Email (for alerts)
   ALERTMANAGER_EMAIL_TO: z.email().optional(),
@@ -38,6 +45,9 @@ const envSchema = z.object({
 
   // Environment
   ENV_TYPE: z.enum(["development", "staging", "production"]).default("development"),
+
+  // Backups (mounted from the backup container's volume)
+  BACKUP_DIR: z.string().default("/backups"),
 });
 
 export const env = envSchema.parse(process.env);

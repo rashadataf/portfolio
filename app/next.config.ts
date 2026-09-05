@@ -45,6 +45,8 @@ function getRemoteImagePatterns() {
 }
 
 const nextConfig: NextConfig = {
+  // Enable standalone output for Docker
+  output: 'standalone',
   images: {
     remotePatterns: getRemoteImagePatterns(),
     // Configure image qualities used across the app to avoid runtime warnings

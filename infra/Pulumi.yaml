@@ -13,6 +13,7 @@ config:
     "POSTGRES_PORT": { type: "string", default: "5432" },
     "POSTGRES_VOLUME_NAME":
       { type: "string", default: "portfolio_postgres_data" },
+    "BACKUP_RETENTION_DAYS": { type: "string", default: "30" },
 
     "HTTP_PORT": { type: "string", default: "80" },
     "HTTPS_PORT": { type: "string", default: "443" },
@@ -312,7 +313,7 @@ resources:
         properties:
           {
             name: "${FRONTEND_CONTAINER_NAME}",
-            image: "${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}",
+            image: "${portfolioImage.id}",
             restart: "always",
             envs:
               [
@@ -327,6 +328,7 @@ resources:
                 "AUTH_TRUST_HOST=${AUTH_TRUST_HOST}",
                 "AUTH_BASE_PATH=${AUTH_BASE_PATH}",
                 "AUTH_URL=${AUTH_URL}",
+                "BACKUP_DIR=/backups",
               ],
             mounts:
               [
@@ -344,6 +346,11 @@ resources:
                   type: "volume",
                   source: "${nextBuildVolume.name}",
                   target: "${PORTFOLIO_WORKDIR_PATH}/.next",
+                },
+                {
+                  type: "volume",
+                  source: "${backupVolume.name}",
+                  target: "/backups",
                 },
               ],
             networksAdvanced: [{ name: "${APP_NETWORK_NAME}" }],
@@ -399,7 +406,7 @@ resources:
         options:
           {
             dependsOn:
-              ["${postgresContainer}", "${traefik}", "${portfolioImage}"],
+              ["${postgresContainer}", "${traefik}", "${portfolioImage}", "${backupVolume}"],
           },
       },
     observability:
@@ -466,6 +473,56 @@ resources:
             appNetworkName: "${APP_NETWORK_NAME}",
           },
       },
+    backupVolume:
+      {
+        type: "docker:Volume",
+        properties: { name: "portfolio_backups" },
+        options: { protect: true },
+      },
+    backupImage:
+      {
+        type: "docker-build:Image",
+        properties:
+          {
+            context: { location: "./backup" },
+            tags: ["portfolio-backup:${PORTFOLIO_IMAGE_TAG}"],
+            push: false,
+            exports: [{ docker: {} }],
+          },
+      },
+    backupContainer:
+      {
+        type: "docker:Container",
+        properties:
+          {
+            name: "${pulumi.project}-backup-${pulumi.stack}",
+            image: "${backupImage.id}",
+            restart: "always",
+            envs:
+              [
+                "POSTGRES_HOST=postgres",
+                "POSTGRES_PORT=${POSTGRES_PORT}",
+                "POSTGRES_USER=${POSTGRES_USER}",
+                "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}",
+                "POSTGRES_DB=${POSTGRES_DB}",
+                "BACKUP_DIR=/backups",
+                "RETENTION_DAYS=${BACKUP_RETENTION_DAYS}",
+              ],
+            mounts:
+              [
+                {
+                  type: "volume",
+                  source: "${backupVolume.name}",
+                  target: "/backups",
+                },
+              ],
+            networksAdvanced: [{ name: "${APP_NETWORK_NAME}" }],
+          },
+        options:
+          {
+            dependsOn: ["${postgresContainer}", "${backupVolume}", "${backupImage}"],
+          },
+      },
   }
 packages: { observability: "./observation" }
 outputs:
@@ -476,4 +533,5 @@ outputs:
     routerEntrypoint: "${ROUTER_ENTRYPOINT}",
     enableTls: "${ENABLE_TLS}",
     protocol: "${PROTOCOL}",
+    backupVolume: "portfolio_backups",
   }
