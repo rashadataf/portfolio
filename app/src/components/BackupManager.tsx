@@ -64,7 +64,7 @@ export const BackupManager = ({
 }) => {
     const router = useRouter();
     const [backups, setBackups] = useSafeState<BackupMeta[]>(initialBackups);
-    const [logEntries, setLogEntries] = useSafeState<BackupLogEntry[]>(initialLog);
+    const [logEntries] = useSafeState<BackupLogEntry[]>(initialLog);
     const [isRefreshing, setIsRefreshing] = useSafeState(false);
     const [busy, setBusy] = useSafeState<Record<string, boolean>>({});
     const [restoreTarget, setRestoreTarget] = useSafeState<BackupMeta | null>(null);
@@ -141,7 +141,7 @@ export const BackupManager = ({
             setBusy((prev) => ({ ...prev, [backup.filename]: false }));
             setRestoreTarget(null);
         }
-    }, [setBusy]);
+    }, [setBusy, setRestoreTarget]);
 
     const handleDelete = useCallback(async (backup: BackupMeta) => {
         setBusy((prev) => ({ ...prev, [backup.filename]: true }));
@@ -159,7 +159,7 @@ export const BackupManager = ({
             setBusy((prev) => ({ ...prev, [backup.filename]: false }));
             setDeleteTarget(null);
         }
-    }, [setBackups, setBusy]);
+    }, [setBackups, setBusy, setDeleteTarget]);
 
     return (
         <Stack spacing={3}>
