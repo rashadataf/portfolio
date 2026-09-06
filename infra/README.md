@@ -37,6 +37,11 @@ This folder contains the infrastructure-as-code for my personal portfolio. It is
 
 See `infra/Pulumi.yaml` for the full schema and defaults. Dev/prod values are usually managed via `Pulumi.dev.yaml` and `Pulumi.prod.yaml` in this folder.
 
+## Deploying
+
+- **Dev (local):** `cd infra && pulumi stack select dev && pulumi up` — builds the image locally from source.
+- **Prod (VPS):** push a `v*` git tag. CI runs tests/build, then the self-hosted runner on the VPS runs `pulumi up`, which builds the image on the VPS. The deploy workflow prunes Docker build cache and unused images on the VPS before deploying to keep disk usage in check.
+
 ## How routing works
 
 Traefik watches Docker and creates routes based on labels attached to containers.

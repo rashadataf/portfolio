@@ -183,8 +183,14 @@ jobs:
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Pull latest image
-        run: docker pull ghcr.io/${{ github.repository }}/portfolio:latest
+      # Free disk space before deploying — the VPS is small and past deploys
+      # filled it with buildkit cache + image layers (ENOSPC during yarn install).
+      - name: Clean up disk space
+        run: |
+          df -h /
+          docker builder prune -af || true
+          docker system prune -af || true
+          df -h /
 
       - name: Deploy with Pulumi
         working-directory: ./infra
