@@ -6,8 +6,9 @@
 #   3. Create tag (v1.0.0) → CI runs + image pushed + deploy to VPS via self-hosted runner
 #
 # The VPS has a self-hosted GitHub Actions runner installed.
-# Pulumi state is stored locally on the VPS (no cloud backend needed).
-# All secrets live in Pulumi.prod.yaml (encrypted, committed to repo).
+# Pulumi state lives in Pulumi Cloud (app.pulumi.com) — authenticated via a
+# non-expiring PULUMI_ACCESS_TOKEN (GitHub secret), so no interactive login.
+# Stack secrets live in Pulumi.prod.yaml (encrypted, committed to repo).
 
 name: CI/CD Pipeline
 
@@ -163,12 +164,15 @@ jobs:
   # CD: Deploy to VPS (on version tag only)
   # ============================================================
   # Runs on the self-hosted runner installed on your VPS.
-  # Pulumi state is stored locally on the VPS (file backend).
-  # Secrets are in Pulumi.prod.yaml (encrypted, committed to repo).
+  # Pulumi state lives in Pulumi Cloud — auth via PULUMI_ACCESS_TOKEN secret.
+  # Stack secrets are in Pulumi.prod.yaml (encrypted, committed to repo).
   # The runner needs: docker, pulumi CLI, access to /var/run/docker.sock
   deploy:
     name: Deploy to VPS
-    runs-on: [self-hosted, linux, vps]
+    # Use only DEFAULT labels (every self-hosted Linux runner has these).
+    # Custom labels like "vps" only match if the runner was configured with
+    # `--labels vps` — otherwise the job waits forever for a match.
+    runs-on: [self-hosted, linux]
     timeout-minutes: 25
     needs: [docker-publish]
     if: startsWith(github.ref, 'refs/tags/v')
@@ -182,19 +186,26 @@ jobs:
       - name: Pull latest image
         run: docker pull ghcr.io/${{ github.repository }}/portfolio:latest
 
-      - name: Install Pulumi
-        uses: pulumi/actions@v5
-        with:
-          version: '3.150.0'
-
       - name: Deploy with Pulumi
         working-directory: ./infra
+        env:
+          # Non-expiring access token from app.pulumi.com/account/tokens.
+          # Without it, pulumi prompts for interactive browser login,
+          # which is impossible in CI. Create the token once, store it here.
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          # Only needed if your `secure:` config values were encrypted with a
+          # passphrase. If you always used Pulumi Cloud's default stack-managed
+          # encryption, delete this line.
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
         run: |
-          # Use local backend (state stored on VPS filesystem, no cloud needed)
-          export PULUMI_BACKEND_URL=file://~
+          # State lives in Pulumi Cloud (the default backend) — the same
+          # place your manual `pulumi` commands on the VPS use. No backend
+          # URL needed. whoami fails fast if the token is bad/expired.
+          pulumi whoami
 
-          # Select the prod stack (config is in Pulumi.prod.yaml)
-          pulumi stack select prod || pulumi stack init prod
+          # Select the prod stack. Do NOT auto-init: a fresh empty stack would
+          # make `pulumi up` try to CREATE every resource from scratch.
+          pulumi stack select prod
 
           # Update the image tag to the version being deployed
           pulumi config set PORTFOLIO_IMAGE_TAG ${{ github.ref_name }}
