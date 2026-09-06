@@ -72,8 +72,7 @@ COPY --from=prod-deps --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/node_modules
 
 # Copy built application
 COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/public ./public
-COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/.next ./.next
 
 # Switch to non-root user
 USER nextjs
@@ -85,4 +84,4 @@ EXPOSE 3000
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
-CMD ["node", "server.js"]
+CMD ["yarn", "start"]
