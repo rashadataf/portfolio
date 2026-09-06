@@ -303,7 +303,7 @@ resources:
             target: "${PORTFOLIO_BUILD_PHASE_TARGET}",
             tags: ["${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}"],
             push: false,
-            exports: [{ docker: {} }],
+            load: true,
           },
       },
 
@@ -487,7 +487,7 @@ resources:
             context: { location: "./backup" },
             tags: ["portfolio-backup:${PORTFOLIO_IMAGE_TAG}"],
             push: false,
-            exports: [{ docker: {} }],
+            load: true,
           },
       },
     backupContainer:
