@@ -313,7 +313,11 @@ resources:
         properties:
           {
             name: "${FRONTEND_CONTAINER_NAME}",
-            image: "${portfolioImage.ref}",
+            # Use the local name:tag, NOT ${portfolioImage.id} (bare sha256 digest
+            # that the provider tries to pull from a registry) or ${portfolioImage.ref}
+            # (not a valid output). The build imports the image into the local Docker
+            # daemon under this tag, so the provider finds it locally.
+            image: "${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}",
             restart: "always",
             envs:
               [
@@ -496,7 +500,9 @@ resources:
         properties:
           {
             name: "${pulumi.project}-backup-${pulumi.stack}",
-            image: "${backupImage.ref}",
+            # Local name:tag (matches backupImage tags) — NOT ${backupImage.id}
+            # (sha256 digest) or ${backupImage.ref} (invalid output).
+            image: "portfolio-backup:${PORTFOLIO_IMAGE_TAG}",
             restart: "always",
             envs:
               [

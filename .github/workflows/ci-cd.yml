@@ -224,10 +224,21 @@ jobs:
 
       - name: Verify deployment
         run: |
-          sleep 15
-          # Check via Traefik (internal Docker network)
-          curl -sf http://localhost/api/health || \
-          curl -sf https://rashadataf.com/api/health || \
+          # Wait for the app to boot — Next.js needs time to start, connect to
+          # Postgres, and run migrations. Retry every 5s for up to 2 minutes.
+          echo "Waiting for app to become healthy..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost/api/health 2>/dev/null || \
+               curl -sf https://rashadataf.com/api/health 2>/dev/null; then
+              echo "App is healthy after $((i * 5)) seconds"
+              exit 0
+            fi
+            echo "Attempt $i/24 — not ready yet, waiting 5s..."
+            sleep 5
+          done
+          echo "App did not become healthy within 2 minutes"
+          # Print container logs for debugging before failing
+          docker logs portfolio-infra-portfolio-prod --tail 50 || true
           exit 1
 
       - name: Create GitHub Release
