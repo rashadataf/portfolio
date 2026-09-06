@@ -313,7 +313,7 @@ resources:
         properties:
           {
             name: "${FRONTEND_CONTAINER_NAME}",
-            image: "${portfolioImage.id}",
+            image: "${portfolioImage.ref}",
             restart: "always",
             envs:
               [
@@ -496,7 +496,7 @@ resources:
         properties:
           {
             name: "${pulumi.project}-backup-${pulumi.stack}",
-            image: "${backupImage.id}",
+            image: "${backupImage.ref}",
             restart: "always",
             envs:
               [
