@@ -63,6 +63,7 @@ config:
   portfolio-infra:PORTFOLIO_BUILD_CONTEXT: ../app
   portfolio-infra:PORTFOLIO_BUILD_PHASE_TARGET: production
   portfolio-infra:PORTFOLIO_IMAGE_NAME: portfolio_image
+  portfolio-infra:PORTFOLIO_MOUNTS_PROFILE: "1"
   portfolio-infra:PORTFOLIO_WORKDIR_PATH: /portfolio/app
   portfolio-infra:POSTGRES_DB:
     secure: AAABAIFE/EGbo/jxhl8di8YoU7Z+OeFs8+rVOO5JgtPIK7/H5TEigbZylEs=

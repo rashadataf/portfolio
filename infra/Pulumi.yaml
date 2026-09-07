@@ -34,6 +34,8 @@ config:
       { type: "string", default: "portfolio_built_image" },
     "PORTFOLIO_IMAGE_TAG": { type: "string", default: "latest" },
     "PORTFOLIO_BUILD_PHASE_TARGET": { type: "string", default: "development" },
+    "PORTFOLIO_MOUNTS_PROFILE":
+      { type: "integer", default: 0 },
     "ENABLE_TLS": { type: "boolean", default: false },
     "PROTOCOL": { type: "string", default: "http" },
     "ROUTER_ENTRYPOINT": { type: "string", default: "web" },
@@ -334,29 +336,49 @@ resources:
                 "AUTH_URL=${AUTH_URL}",
                 "BACKUP_DIR=/backups",
               ],
+            # Bind-mounting the host source + node_modules/.next volumes over the
+            # image's WORKDIR is dev-only hot-reload plumbing (for `yarn dev`).
+            # In production it overwrites the self-contained build baked into the
+            # image with whatever is on the host checkout / stuck in the named
+            # volumes from a prior deploy, so it must be disabled there.
             mounts:
-              [
-                {
-                  type: "bind",
-                  source: "${pulumi.cwd}/../app",
-                  target: "${PORTFOLIO_WORKDIR_PATH}",
-                },
-                {
-                  type: "volume",
-                  source: "${portfolioNodeModulesVolume.name}",
-                  target: "${PORTFOLIO_WORKDIR_PATH}/node_modules",
-                },
-                {
-                  type: "volume",
-                  source: "${nextBuildVolume.name}",
-                  target: "${PORTFOLIO_WORKDIR_PATH}/.next",
-                },
-                {
-                  type: "volume",
-                  source: "${backupVolume.name}",
-                  target: "/backups",
-                },
-              ],
+              {
+                fn::select:
+                [
+                  "${PORTFOLIO_MOUNTS_PROFILE}",
+                  [
+                    [
+                      {
+                        type: "bind",
+                        source: "${pulumi.cwd}/../app",
+                        target: "${PORTFOLIO_WORKDIR_PATH}",
+                      },
+                      {
+                        type: "volume",
+                        source: "${portfolioNodeModulesVolume.name}",
+                        target: "${PORTFOLIO_WORKDIR_PATH}/node_modules",
+                      },
+                      {
+                        type: "volume",
+                        source: "${nextBuildVolume.name}",
+                        target: "${PORTFOLIO_WORKDIR_PATH}/.next",
+                      },
+                      {
+                        type: "volume",
+                        source: "${backupVolume.name}",
+                        target: "/backups",
+                      },
+                    ],
+                    [
+                      {
+                        type: "volume",
+                        source: "${backupVolume.name}",
+                        target: "/backups",
+                      },
+                    ],
+                  ],
+                ],
+              },
             networksAdvanced: [{ name: "${APP_NETWORK_NAME}" }],
             labels:
               [
