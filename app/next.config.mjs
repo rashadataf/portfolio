@@ -1,4 +1,8 @@
-import withBundleAnalyzer from "@next/bundle-analyzer";
+// @next/bundle-analyzer is a devDependency — only import it when ANALYZE=true
+// so production doesn't crash with ERR_MODULE_NOT_FOUND.
+const withBundleAnalyzer = process.env.ANALYZE === "true"
+  ? (await import("@next/bundle-analyzer")).default
+  : (config) => config;
 
 function normalizeHostname(value) {
   const trimmed = value.trim();
@@ -80,8 +84,10 @@ const nextConfig = {
   },
 };
 
-const bundleAnalyzer = withBundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-});
+// Only apply bundle analyzer when ANALYZE=true (dev only).
+// In production, @next/bundle-analyzer isn't installed (devDependency).
+const bundleAnalyzer = process.env.ANALYZE === "true"
+  ? withBundleAnalyzer({ enabled: true })
+  : (config) => config;
 
 export default bundleAnalyzer(nextConfig);
