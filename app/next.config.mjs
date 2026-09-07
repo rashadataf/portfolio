@@ -1,8 +1,10 @@
-import type { NextConfig } from "next";
-import withBundleAnalyzer from "@next/bundle-analyzer";
+// @next/bundle-analyzer is a devDependency — only import it when ANALYZE=true
+// so production doesn't crash with ERR_MODULE_NOT_FOUND.
+const withBundleAnalyzer = process.env.ANALYZE === "true"
+  ? (await import("@next/bundle-analyzer")).default
+  : (config) => config;
 
-function normalizeHostname(value: string) {
-  // Accept either "example.com" or "https://example.com".
+function normalizeHostname(value) {
   const trimmed = value.trim();
   if (!trimmed) return "";
   try {
@@ -17,10 +19,10 @@ function normalizeHostname(value: string) {
 
 function getRemoteImagePatterns() {
   const protocolEnv = (process.env.PROTOCOL || "https").toLowerCase();
-  const protocol: "http" | "https" = protocolEnv === "http" ? "http" : "https";
+  const protocol = protocolEnv === "http" ? "http" : "https";
 
   const hostname = normalizeHostname(process.env.DOMAIN_NAME || "");
-  const hostnames = new Set<string>();
+  const hostnames = new Set();
 
   if (hostname) {
     hostnames.add(hostname);
@@ -35,7 +37,6 @@ function getRemoteImagePatterns() {
     pathname: "/api/files/**",
   }));
 
-  // Local development
   patterns.push(
     { protocol: "http", hostname: "localhost", pathname: "/api/files/**" },
     { protocol: "http", hostname: "127.0.0.1", pathname: "/api/files/**" }
@@ -44,13 +45,9 @@ function getRemoteImagePatterns() {
   return patterns;
 }
 
-const nextConfig: NextConfig = {
-  // Enable standalone output for Docker
-  output: 'standalone',
+const nextConfig = {
   images: {
     remotePatterns: getRemoteImagePatterns(),
-    // Configure image qualities used across the app to avoid runtime warnings
-    // (logs showed images requesting 60, 75 and 85)
     qualities: [60, 75, 85],
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -63,11 +60,8 @@ const nextConfig: NextConfig = {
     },
     optimizePackageImports: ["@mui/material", "@mui/icons-material", "lucide-react"],
   },
-  // Compression
   compress: true,
-  // Powered by header
   poweredByHeader: false,
-  // Headers for security and performance
   async headers() {
     return [
       {
@@ -90,8 +84,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-const bundleAnalyzer = withBundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-});
+// Only apply bundle analyzer when ANALYZE=true (dev only).
+// In production, @next/bundle-analyzer isn't installed (devDependency).
+const bundleAnalyzer = process.env.ANALYZE === "true"
+  ? withBundleAnalyzer({ enabled: true })
+  : (config) => config;
 
 export default bundleAnalyzer(nextConfig);
