@@ -67,6 +67,9 @@ WORKDIR $PORTFOLIO_WORKDIR_PATH
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# package.json is required for `yarn start` to resolve the "start" script
+COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/package.json ./package.json
+
 # Copy production dependencies
 COPY --from=prod-deps --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/node_modules ./node_modules
 
