@@ -67,8 +67,11 @@ WORKDIR $PORTFOLIO_WORKDIR_PATH
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# package.json is required for `yarn start` to resolve the "start" script
+# package.json is required for `yarn start` to resolve the "start" script;
+# next.config.mjs is read at runtime (e.g. by the /_next/image route), not
+# just baked into .next at build time, so it must ship in the image too.
 COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/next.config.mjs ./next.config.mjs
 
 # Copy production dependencies
 COPY --from=prod-deps --chown=nextjs:nodejs $PORTFOLIO_WORKDIR_PATH/node_modules ./node_modules
