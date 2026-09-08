@@ -39,9 +39,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
@@ -77,9 +77,9 @@ jobs:
       AUTH_SECRET: test-secret-at-least-32-characters-long
       AUTH_TRUST_HOST: 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
@@ -88,7 +88,7 @@ jobs:
       - run: cd app && yarn install --frozen-lockfile
       - run: cd app && yarn test --ci --coverage
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         with:
           files: app/coverage/lcov.info
           flags: unit
@@ -103,9 +103,9 @@ jobs:
     timeout-minutes: 15
     needs: [lint-and-typecheck, unit-tests]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
@@ -118,27 +118,81 @@ jobs:
           AUTH_SECRET: test-secret-at-least-32-characters-long
 
   # ============================================================
+  # CI: End-to-end tests (runs on every push/PR)
+  # ============================================================
+  # The e2e specs already existed but nothing ran them. Chromium only —
+  # the config declares 5 browser projects, which is useful locally but
+  # five times the CI minutes for the same regressions.
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [lint-and-typecheck]
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: portfolio_e2e
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      # The app runs its own migrations on boot (migration.service.ts), so an
+      # empty database is all this needs.
+      DATABASE_URL: postgresql://test:test@localhost:5432/portfolio_e2e
+      AUTH_SECRET: test-secret-at-least-32-characters-long
+      AUTH_TRUST_HOST: 'true'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+          cache-dependency-path: app/yarn.lock
+
+      - run: cd app && yarn install --frozen-lockfile
+      - run: cd app && npx playwright install --with-deps chromium
+      - run: cd app && yarn test:e2e --project=chromium
+
+      - uses: actions/upload-artifact@v5
+        if: failure()
+        with:
+          name: playwright-report
+          path: app/playwright-report/
+          retention-days: 7
+
+  # ============================================================
   # CD: Build & Push Docker Image to GHCR (main + tags only)
   # ============================================================
   docker-publish:
     name: Publish Docker Image
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [build]
+    needs: [build, e2e-tests]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    outputs:
+      # Consumed by the deploy job so Pulumi can tell "same tag, new image"
+      # apart from "nothing changed".
+      digest: ${{ steps.build.outputs.digest }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}/portfolio
           tags: |
@@ -147,7 +201,8 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=sha-
 
-      - uses: docker/build-push-action@v5
+      - id: build
+        uses: docker/build-push-action@v6
         with:
           context: ./app
           file: ./app/Dockerfile
@@ -178,18 +233,24 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       # Free disk space before deploying — the VPS is small and past deploys
-      # filled it with buildkit cache + image layers (ENOSPC during yarn install).
+      # filled it with image layers (ENOSPC during yarn install).
+      #
+      # Deliberately NOT `docker system prune -af` / `docker builder prune -af`.
+      # Those wipe every cached layer, so the next pull re-downloads the whole
+      # image; back when the VPS still compiled the app they also forced a cold
+      # ~12-minute Next.js build that got OOM-killed. Dangling layers and images
+      # older than a week are enough to keep disk in check.
       - name: Clean up disk space
         run: |
           df -h /
-          docker builder prune -af || true
-          docker system prune -af || true
+          docker image prune -f --filter "until=168h" || true
+          docker container prune -f || true
           df -h /
 
       - name: Deploy with Pulumi
@@ -213,8 +274,16 @@ jobs:
           # make `pulumi up` try to CREATE every resource from scratch.
           pulumi stack select prod
 
-          # Update the image tag to the version being deployed
+          # Update the image tag to the version being deployed. The prod stack
+          # sets PORTFOLIO_IMAGE_SOURCE=1, so Pulumi pulls
+          # ghcr.io/<repo>/portfolio:<tag> — the image docker-publish built a
+          # few minutes ago — instead of compiling Next.js on this box.
           pulumi config set PORTFOLIO_IMAGE_TAG ${{ github.ref_name }}
+
+          # Re-pushing an existing tag leaves PORTFOLIO_IMAGE_TAG unchanged, so
+          # without the digest Pulumi would see no diff and keep the stale
+          # container running.
+          pulumi config set PORTFOLIO_IMAGE_DIGEST "${{ needs.docker-publish.outputs.digest }}"
 
           # Preview first (shows what will change)
           pulumi preview
@@ -243,7 +312,7 @@ jobs:
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
           tag_name: ${{ github.ref_name }}

@@ -1,0 +1,50 @@
+# Keeps the three things that actually rot up to date: app dependencies,
+# the actions in ci-cd.yml (which silently went a full major behind and
+# started throwing Node 20 deprecation warnings), and the Dockerfile base.
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /app
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # One PR per ecosystem instead of a dozen — these move in lockstep and
+      # reviewing them separately is busywork.
+      mui:
+        patterns: ['@mui/*', '@emotion/*']
+      opentelemetry:
+        patterns: ['@opentelemetry/*', '@vercel/otel']
+      testing:
+        patterns:
+          ['jest*', '@testing-library/*', '@playwright/*', 'playwright', 'babel-jest']
+      types:
+        patterns: ['@types/*']
+    ignore:
+      # Next.js and React majors are deliberate, coordinated upgrades —
+      # not something to take from an automated PR.
+      - dependency-name: next
+        update-types: [version-update:semver-major]
+      - dependency-name: react
+        update-types: [version-update:semver-major]
+      - dependency-name: react-dom
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        patterns: ['*']
+
+  - package-ecosystem: docker
+    directory: /app
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3

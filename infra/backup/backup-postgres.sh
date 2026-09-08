@@ -50,6 +50,11 @@ if pg_dump \
     --no-privileges \
     | gzip > "${BACKUP_FILE}"; then
     
+    # Owner+group only. The group is inherited from /backups (setgid) and is
+    # the app container's group, so the admin dashboard can still serve this
+    # file for download while `other` cannot read it.
+    chmod 640 "${BACKUP_FILE}"
+
     BACKUP_SIZE=$(du -h "${BACKUP_FILE}" | cut -f1)
     log "Backup completed successfully: ${BACKUP_FILE} (${BACKUP_SIZE})"
     

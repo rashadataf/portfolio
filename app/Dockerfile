@@ -56,9 +56,12 @@ FROM node:24-alpine AS production
 # Install dumb-init for proper signal handling + postgresql-client for backup restore
 RUN apk add --no-cache dumb-init postgresql-client
 
-# Create non-root user for security
+# Create non-root user for security.
+# -G nodejs matters: without it adduser drops nextjs into gid 65533 (nogroup),
+# which is why the shared /backups volume previously needed chmod 777 for the
+# admin dashboard to write to it. With a real group, 775 is enough.
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+    adduser -S nextjs -u 1001 -G nodejs
 
 ARG PORTFOLIO_WORKDIR_PATH
 WORKDIR $PORTFOLIO_WORKDIR_PATH
