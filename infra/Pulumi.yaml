@@ -36,6 +36,33 @@ config:
     "PORTFOLIO_BUILD_PHASE_TARGET": { type: "string", default: "development" },
     "PORTFOLIO_MOUNTS_PROFILE":
       { type: "integer", default: 0 },
+    # Where the portfolio image comes from. Indexes into the fn::select pairs
+    # below, same idiom as PORTFOLIO_MOUNTS_PROFILE.
+    #   0 = build it locally from ${PORTFOLIO_BUILD_CONTEXT} (dev)
+    #   1 = pull the image CI already built and pushed to GHCR (prod)
+    # Prod MUST use 1: compiling Next.js on the VPS exhausts its RAM and the
+    # deploy gets OOM-killed mid-`pulumi up`.
+    "PORTFOLIO_IMAGE_SOURCE": { type: "integer", default: 0 },
+    "PORTFOLIO_IMAGE_REGISTRY":
+      { type: "string", default: "ghcr.io/rashadataf/portfolio/portfolio" },
+    # Set by CI to the digest emitted by the docker-publish job. It exists only
+    # as a trigger: re-pushing the same tag (e.g. a second v1.3.0) leaves the
+    # image ref unchanged, so without this Pulumi would see no diff and keep
+    # running the stale image. Empty in dev.
+    "PORTFOLIO_IMAGE_DIGEST": { type: "string", default: "" },
+
+    # Per-container memory ceilings, in MB. 0 means "no limit", which is the
+    # old behaviour and stays the default so dev is unaffected.
+    #
+    # These are deliberately GENEROUS: the goal is only to stop one container
+    # from consuming every last byte and letting the kernel OOM-killer pick the
+    # victim (which is how a deploy took out the app). A limit this loose never
+    # binds in normal operation. Size them against `free -h` on the host — the
+    # sum should leave headroom for the observability stack and the OS.
+    "PORTFOLIO_MEMORY_MB": { type: "integer", default: 0 },
+    "POSTGRES_MEMORY_MB": { type: "integer", default: 0 },
+    "TRAEFIK_MEMORY_MB": { type: "integer", default: 0 },
+    "BACKUP_MEMORY_MB": { type: "integer", default: 0 },
     "ENABLE_TLS": { type: "boolean", default: false },
     "PROTOCOL": { type: "string", default: "http" },
     "ROUTER_ENTRYPOINT": { type: "string", default: "web" },
@@ -183,6 +210,35 @@ variables:
     FRONTEND_CONTAINER_NAME: "${pulumi.project}-portfolio-${pulumi.stack}",
     TRAEFIK_ALIAS: "traefik",
     APP_NETWORK_NAME: "${pulumi.project}-network",
+
+    # --- Portfolio image resolution -------------------------------------
+    # Selected by PORTFOLIO_IMAGE_SOURCE: index 0 = build locally (dev),
+    # index 1 = pull from GHCR (prod).
+    PORTFOLIO_LOCAL_IMAGE_REF: "${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}",
+    PORTFOLIO_REGISTRY_IMAGE_REF:
+      "${PORTFOLIO_IMAGE_REGISTRY}:${PORTFOLIO_IMAGE_TAG}",
+    PORTFOLIO_IMAGE_REF:
+      {
+        fn::select:
+          [
+            "${PORTFOLIO_IMAGE_SOURCE}",
+            ["${PORTFOLIO_LOCAL_IMAGE_REF}", "${PORTFOLIO_REGISTRY_IMAGE_REF}"],
+          ],
+      },
+    # The command that makes ${PORTFOLIO_IMAGE_REF} exist in the local Docker
+    # daemon. Both branches end by printing the resolved image ID, so the
+    # container below can pin to the exact image rather than a mutable tag.
+    PORTFOLIO_IMAGE_COMMAND:
+      {
+        fn::select:
+          [
+            "${PORTFOLIO_IMAGE_SOURCE}",
+            [
+              "set -e; docker build --target ${PORTFOLIO_BUILD_PHASE_TARGET} --build-arg PORTFOLIO_WORKDIR_PATH=${PORTFOLIO_WORKDIR_PATH} -t ${PORTFOLIO_LOCAL_IMAGE_REF} ${PORTFOLIO_BUILD_CONTEXT} >&2; docker image inspect --format '{{.Id}}' ${PORTFOLIO_LOCAL_IMAGE_REF} | tr -d '\\n'",
+              "set -e; docker pull ${PORTFOLIO_REGISTRY_IMAGE_REF} >&2; docker image inspect --format '{{.Id}}' ${PORTFOLIO_REGISTRY_IMAGE_REF} | tr -d '\\n'",
+            ],
+          ],
+      },
   }
 
 resources:
@@ -211,8 +267,13 @@ resources:
           {
             name: "${pulumi.project}-postgres-container-${pulumi.stack}",
             image: "${postgresImage.imageId}",
-            ports:
-              [{ internal: "${POSTGRES_PORT}", external: "${POSTGRES_PORT}" }],
+            # No host port mapping. Docker publishes ports by writing DNAT rules
+            # straight into the iptables nat table, which bypasses ufw — so
+            # `external: 5432` puts Postgres on the public internet unless a
+            # cloud-level firewall happens to catch it. Nothing needs it: the
+            # app, backup and exporter containers all reach Postgres over the
+            # `postgres` network alias, and the RUNBOOK uses `docker exec psql`.
+            memory: "${POSTGRES_MEMORY_MB}",
             envs:
               [
                 "POSTGRES_USER=${POSTGRES_USER}",
@@ -255,15 +316,23 @@ resources:
             name: "${pulumi.project}-traefik-${pulumi.stack}",
             image: "${traefikImage.imageId}",
             restart: "always",
+            memory: "${TRAEFIK_MEMORY_MB}",
+            # 8080 (the API/dashboard port) is deliberately not published.
+            # It was served with TRAEFIK_API_INSECURE=true, i.e. an
+            # unauthenticated admin view of every router, service and TLS cert,
+            # reachable by anyone who could reach the host. Inspect it locally
+            # instead: docker exec -it <traefik> wget -qO- localhost:8080/api/rawdata
             ports:
               [
                 { internal: "${HTTP_PORT}", external: "${HTTP_PORT}" },
                 { internal: "${HTTPS_PORT}", external: "${HTTPS_PORT}" },
-                { internal: 8080, external: 8080 },
               ],
             envs:
               [
-                "TRAEFIK_LOG_LEVEL=DEBUG",
+                # DEBUG logs every request and TLS handshake — noise that helped
+                # fill the disk (the ENOSPC that started the prune-everything
+                # workaround) and leaks routing internals into the log volume.
+                "TRAEFIK_LOG_LEVEL=INFO",
                 "TRAEFIK_PROVIDERS_DOCKER=true",
                 "TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false",
                 "TRAEFIK_PROVIDERS_DOCKER_NETWORK=${APP_NETWORK_NAME}",
@@ -272,8 +341,12 @@ resources:
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ADMIN_EMAIL}",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/data/acme.json",
                 "TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web",
+                # TRAEFIK_API_INSECURE is intentionally absent. It is what
+                # served the API/dashboard unauthenticated on :8080; without it
+                # the dashboard is defined but has no route, which is the safe
+                # default. To inspect routing, either set it temporarily or add
+                # a router for api@internal behind basic auth.
                 "TRAEFIK_API_DASHBOARD=true",
-                "TRAEFIK_API_INSECURE=true",
               ],
             mounts:
               [
@@ -294,18 +367,25 @@ resources:
           },
       },
 
+    # Makes the portfolio image available to the local Docker daemon, either by
+    # building it (dev) or by pulling the CI-built image from GHCR (prod) —
+    # see PORTFOLIO_IMAGE_SOURCE. Deliberately NOT a docker-build:Image: that
+    # rebuilt the whole Next.js app on the VPS on every deploy, duplicating work
+    # the docker-publish CI job had already done and getting OOM-killed doing it.
+    #
+    # stdout is the resolved image ID (sha256:...), which the container pins to.
     portfolioImage:
       {
-        type: "docker-build:Image",
+        type: "command:local:Command",
         properties:
           {
-            context: { location: "${PORTFOLIO_BUILD_CONTEXT}" },
-            buildArgs:
-              { "PORTFOLIO_WORKDIR_PATH": "${PORTFOLIO_WORKDIR_PATH}" },
-            target: "${PORTFOLIO_BUILD_PHASE_TARGET}",
-            tags: ["${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}"],
-            push: false,
-            load: true,
+            create: "${PORTFOLIO_IMAGE_COMMAND}",
+            update: "${PORTFOLIO_IMAGE_COMMAND}",
+            dir: "${pulumi.cwd}",
+            # Re-resolve when the tag changes, or when CI reports a new digest
+            # for an unchanged tag.
+            triggers:
+              ["${PORTFOLIO_IMAGE_REF}", "${PORTFOLIO_IMAGE_DIGEST}"],
           },
       },
 
@@ -315,11 +395,11 @@ resources:
         properties:
           {
             name: "${FRONTEND_CONTAINER_NAME}",
-            # Use the local name:tag, NOT ${portfolioImage.id} (bare sha256 digest
-            # that the provider tries to pull from a registry) or ${portfolioImage.ref}
-            # (not a valid output). The build imports the image into the local Docker
-            # daemon under this tag, so the provider finds it locally.
-            image: "${PORTFOLIO_IMAGE_NAME}:${PORTFOLIO_IMAGE_TAG}",
+            # The image ID printed by portfolioImage — already present locally,
+            # so the provider never tries to resolve it against a registry.
+            # Pinning to the ID (not the tag) means a re-pushed tag still
+            # produces a diff here and actually replaces the container.
+            image: "${portfolioImage.stdout}",
             restart: "always",
             envs:
               [
@@ -336,6 +416,7 @@ resources:
                 "AUTH_URL=${AUTH_URL}",
                 "BACKUP_DIR=/backups",
               ],
+            memory: "${PORTFOLIO_MEMORY_MB}",
             # Bind-mounting the host source + node_modules/.next volumes over the
             # image's WORKDIR is dev-only hot-reload plumbing (for `yarn dev`).
             # In production it overwrites the self-contained build baked into the
@@ -526,6 +607,7 @@ resources:
             # (sha256 digest) or ${backupImage.ref} (invalid output).
             image: "portfolio-backup:${PORTFOLIO_IMAGE_TAG}",
             restart: "always",
+            memory: "${BACKUP_MEMORY_MB}",
             envs:
               [
                 "POSTGRES_HOST=postgres",

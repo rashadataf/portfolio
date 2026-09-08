@@ -63,6 +63,9 @@ config:
   portfolio-infra:PORTFOLIO_BUILD_CONTEXT: ../app
   portfolio-infra:PORTFOLIO_BUILD_PHASE_TARGET: production
   portfolio-infra:PORTFOLIO_IMAGE_NAME: portfolio_image
+  portfolio-infra:PORTFOLIO_IMAGE_REGISTRY: ghcr.io/rashadataf/portfolio/portfolio
+  # 1 = pull the CI-built image from GHCR instead of compiling on the VPS.
+  portfolio-infra:PORTFOLIO_IMAGE_SOURCE: "1"
   portfolio-infra:PORTFOLIO_MOUNTS_PROFILE: "1"
   portfolio-infra:PORTFOLIO_WORKDIR_PATH: /portfolio/app
   portfolio-infra:POSTGRES_DB:

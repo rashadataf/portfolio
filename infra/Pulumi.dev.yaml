@@ -4,6 +4,10 @@ config:
   portfolio-infra:ENABLE_TLS: "false"
   portfolio-infra:ROUTER_ENTRYPOINT: web
   portfolio-infra:PORTFOLIO_IMAGE_NAME: portfolio_image
+  # 0 = build the image locally from ../app. Dev bind-mounts the source and runs
+  # `yarn dev`, so this only needs rebuilding when dependencies change:
+  #   pulumi up --replace urn:...:portfolioImage
+  portfolio-infra:PORTFOLIO_IMAGE_SOURCE: "0"
   portfolio-infra:PORTFOLIO_BUILD_CONTEXT: ../app
   portfolio-infra:PORTFOLIO_WORKDIR_PATH: /portfolio/app
   portfolio-infra:PORTFOLIO_BUILD_PHASE_TARGET: development

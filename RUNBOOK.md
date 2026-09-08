@@ -240,9 +240,19 @@ df -h
 docker system df
 ```
 **Resolution**:
-- Clean Docker: `docker system prune -a --volumes`
+- Reclaim images not used in the last week: `docker image prune -a --filter "until=168h"`
+- Drop stopped containers: `docker container prune`
 - Rotate/compress logs
 - Expand volume (cloud provider specific)
+
+> **Never run `docker system prune --volumes` here.** It deletes any volume not
+> currently attached to a *running* container — so if Postgres happens to be
+> stopped (which it is during exactly the kind of incident that makes you check
+> disk), it destroys `portfolio_postgres_data_prod` and `portfolio_backups`
+> together. Pulumi's `protect: true` guards those against Pulumi, not Docker.
+>
+> Avoid `docker builder prune -af` too: it throws away the layer cache, so the
+> next deploy re-downloads every layer from scratch.
 
 ---
 

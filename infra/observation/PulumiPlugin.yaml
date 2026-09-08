@@ -636,14 +636,21 @@ components:
             #   },
           },
         variables: {
-            PROMETHEUS_IMAGE_TAG: "prom/prometheus:latest",
-            NODE_EXPORTER_IMAGE_TAG: "quay.io/prometheus/node-exporter:latest",
-            CADVISOR_IMAGE_TAG: "gcr.io/cadvisor/cadvisor",
-            LOKI_IMAGE_TAG: "grafana/loki:latest",
-            PROMTAIL_IMAGE_TAG: "grafana/promtail:latest",
-            GRAFANA_IMAGE_TAG: "grafana/grafana:latest",
-            ALERTMANAGER_IMAGE_TAG: "quay.io/prometheus/alertmanager:latest",
-            POSTGRES_EXPORTER_IMAGE_TAG: "quay.io/prometheuscommunity/postgres-exporter:latest",
+            # Pinned, not :latest. With floating tags every `pulumi up` can
+            # silently swap in a new major — a Loki or Grafana that no longer
+            # accepts these config templates — and there is no way to tell what
+            # was running when something broke. Bump these deliberately.
+            # (cadvisor previously had no tag at all, which is :latest.)
+            PROMETHEUS_IMAGE_TAG: "prom/prometheus:v3.14.0",
+            NODE_EXPORTER_IMAGE_TAG: "quay.io/prometheus/node-exporter:v1.12.1",
+            CADVISOR_IMAGE_TAG: "gcr.io/cadvisor/cadvisor:v0.52.1",
+            LOKI_IMAGE_TAG: "grafana/loki:3.7.7",
+            # Promtail is frozen at 3.5.x upstream (superseded by Grafana
+            # Alloy); it still ships to Loki 3.7 over the stable push API.
+            PROMTAIL_IMAGE_TAG: "grafana/promtail:3.5.10",
+            GRAFANA_IMAGE_TAG: "grafana/grafana:13.2.1",
+            ALERTMANAGER_IMAGE_TAG: "quay.io/prometheus/alertmanager:v0.34.0",
+            POSTGRES_EXPORTER_IMAGE_TAG: "quay.io/prometheuscommunity/postgres-exporter:v0.20.1",
             # NGINX_EXPORTER_IMAGE_TAG: "nginx/nginx-prometheus-exporter:latest",
             PROMETHEUS_CONFIG_DIR: "prometheus",
             LOKI_CONFIG_DIR: "loki",

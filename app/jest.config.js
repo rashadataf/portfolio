@@ -18,15 +18,28 @@ module.exports = {
   ],
   // Ratcheted thresholds — just below current coverage so any regression
   // fails CI. Raise these as more tests are added (never lower them).
-  // NOTE: lowered 2026-09-05 because the new backup module (backup.controller.ts,
-  // 178 lines, 0% covered) dragged global coverage below the previous bar.
-  // TODO: add tests for backup.controller.ts and raise these back up.
+  //
+  // 2026-09-08: backup.controller.ts went from 0% to fully covered, so the
+  // TODO that justified the earlier drop is discharged. The global bar only
+  // moves 15 -> 16 on lines/statements rather than jumping, because a
+  // path-specific threshold REMOVES those files from the "global" group —
+  // these numbers describe everything EXCEPT src/modules/backup, which is
+  // held to its own much higher floor below.
   coverageThreshold: {
     global: {
       branches: 9,
       functions: 12,
-      lines: 15,
-      statements: 15,
+      lines: 16,
+      statements: 16,
+    },
+    // The backup module handles database dumps and shells out to psql, so it
+    // gets its own floor rather than being allowed to hide behind the (much
+    // lower) global average.
+    "./src/modules/backup/": {
+      branches: 90,
+      functions: 100,
+      lines: 100,
+      statements: 100,
     },
   },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],

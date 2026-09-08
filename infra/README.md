@@ -39,8 +39,22 @@ See `infra/Pulumi.yaml` for the full schema and defaults. Dev/prod values are us
 
 ## Deploying
 
-- **Dev (local):** `cd infra && pulumi stack select dev && pulumi up` — builds the image locally from source.
-- **Prod (VPS):** push a `v*` git tag. CI runs tests/build, then the self-hosted runner on the VPS runs `pulumi up`, which builds the image on the VPS. The deploy workflow prunes Docker build cache and unused images on the VPS before deploying to keep disk usage in check.
+Where the portfolio image comes from is controlled by `PORTFOLIO_IMAGE_SOURCE`:
+`0` builds it locally, `1` pulls it from GHCR.
+
+- **Dev (local):** `cd infra && pulumi stack select dev && pulumi up` — `PORTFOLIO_IMAGE_SOURCE=0`, so the image is built from `../app`. Dev bind-mounts the source and runs `yarn dev`, so this only needs to rebuild when dependencies change; force it with `pulumi up --replace $(pulumi stack --show-urns | grep portfolioImage | awk '{print $NF}')`.
+- **Prod (VPS):** push a `v*` git tag. CI lints, tests, builds, then pushes `ghcr.io/<owner>/<repo>/portfolio:<tag>`. The self-hosted runner then runs `pulumi up` with `PORTFOLIO_IMAGE_SOURCE=1`, which **pulls** that image rather than rebuilding it.
+
+  The VPS deliberately does **not** compile the app. It used to: `portfolioImage`
+  was a `docker-build:Image`, so every deploy re-ran `next build` on the VPS,
+  duplicating what CI had already done. A cold build took ~12 minutes and was
+  eventually OOM-killed mid-`pulumi up` (`Killed`, SIGKILL from the kernel),
+  failing the deploy on the 25-minute job timeout. Building once in CI and
+  shipping that artifact removes both the duplicate work and the memory ceiling.
+
+  For the same reason the deploy no longer runs `docker system prune -af` /
+  `docker builder prune -af` — that wiped every cached layer before each deploy,
+  guaranteeing a cold start. It now prunes dangling images older than a week.
 
 ## How routing works
 
@@ -119,7 +133,10 @@ Ensure `DOMAIN_NAME`, `ENABLE_TLS`, `ROUTER_ENTRYPOINT`, `ACME_EMAIL`, and datab
 
 ## Notes
 
-- Traefik dashboard is currently **enabled and insecure** (via `TRAEFIK_API_DASHBOARD=true` and `TRAEFIK_API_INSECURE=true`) and exposed on port `8080`. Lock this down before exposing it publicly.
+- Traefik's dashboard is **no longer published**. `TRAEFIK_API_INSECURE` has been removed and port `8080` is not mapped to the host — it previously served an unauthenticated view of every router, service and TLS cert to anyone who could reach the host. To inspect routing, either re-enable `TRAEFIK_API_INSECURE=true` temporarily or add a router for `api@internal` behind basic auth.
+- Postgres is **not** published to the host either. Docker writes published ports straight into the iptables `nat` table, which bypasses `ufw`, so `external: 5432` exposes the database publicly unless a cloud firewall independently blocks it. Every consumer reaches it over the `postgres` network alias; use `docker exec … psql` for manual access.
+- Container memory ceilings (`PORTFOLIO_MEMORY_MB`, `POSTGRES_MEMORY_MB`, `TRAEFIK_MEMORY_MB`, `BACKUP_MEMORY_MB`) default to `0` (unlimited). Set them per stack against `free -h` on the host — generous values are fine, the point is only to stop one container from consuming all RAM and letting the OOM-killer choose the victim.
+- Observability images are pinned to explicit versions rather than `:latest`, so a redeploy cannot silently swap in a new Loki/Grafana major that rejects the config templates in `observation/templates/`.
 - You only need Docker and the Pulumi CLI on the host. Pulumi fetches provider plugins automatically.
 - An observability stack (Prometheus, Loki, Promtail, Grafana, Alertmanager, exporters) is already provisioned via the custom `observability:Observation` component.
 
