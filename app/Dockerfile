@@ -1,5 +1,5 @@
 # Base image with security updates
-FROM node:24-alpine AS base
+FROM node:26-alpine AS base
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
@@ -51,7 +51,7 @@ RUN yarn install --frozen-lockfile --production && \
     yarn cache clean
 
 # Production runner stage - minimal image
-FROM node:24-alpine AS production
+FROM node:26-alpine AS production
 
 # Install dumb-init for proper signal handling + postgresql-client for backup restore
 RUN apk add --no-cache dumb-init postgresql-client
